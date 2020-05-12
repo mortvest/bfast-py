@@ -1,0 +1,163 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{xcolor}
+%% \usepackage{subfigure}
+\usepackage{pdfpages}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{stmaryrd}
+\usepackage{a4wide}
+
+\lstset{
+  frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  formfeed=newpage,
+  tabsize=4,
+  comment=[l]{\#},
+  breaklines=true,
+  basicstyle=\small
+}
+
+\newcommand{\prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\expect}[1]{\mathbb{E}\left(#1\right)}
+\newcommand{\avg}[1]{\sum_{i=1}^{#1}X_i}
+%% \newcommand{\dotp}[2]{\langle #1 + #2 \rangle}
+%% \newcommand{\dotp}[2]{\ensuremath{\frac{#1}{#2}}}
+\newcommand{\dotpr}[2]{\langle #1,\; #2 \rangle}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand*{\QEDA}{\hfill\ensuremath{\blacksquare}}%
+
+\title{
+  Course Outside the Course Scope \\
+  \large Algorithms for Change Detection in Satellite Image Time Series
+}
+\author{Dmitry Serykh (qwl888)}
+
+\begin{document}
+\maketitle
+\section{Introduction}
+Climate change is the defining issue of our time, and we are at a defining
+moment. Without drastic and swift action in the nearest future, adapting to
+these changes is becoming progressively more challenging. One way, in which we
+can fight this development is by monitoring and reducing global deforestation.
+If the areas of deforestation are registered in a timely fashion, targeted
+countermeasures could be applied, and the tide on this trend could be turned. \\\\
+Meanwhile, enormous amount of satellite data is becoming available to the earth
+science community. This image data can, inter alia, be utilized for the
+time-series based change-detection, which is a promising tool for monitoring and
+mapping of deforestation and forest degradation. Most of these approaches
+operate on individual pixels. Therefore, the sheer scale of this problem (being
+hundreds of billions of pixels) becomes its most significant challenge, since
+there are petabytes of image data being added on a yearly basis. Without
+efficient data-parallel approaches, this approach quickly becomes infeasible in
+practice, even when equipped with significant computational resources and
+specialized hardware. \\\\
+Recently, a novel massively-parallel implementation for a
+change detection method has been proposed. It combines state-of-the-art methods
+for the seasonal data change-detection with modern data-parallel programming
+models and yields an implementation that makes the task feasible for giant sets.
+Furthermore, this implementation is feasibly executable on consumer-grade
+graphical processing hardware. The authors of the paper provide a
+massively-parallel implementation for the BFAST-Monitor unsupervised change
+detection algorithm. \\\\
+In this project, I will research alternative approaches to
+the BFAST-Monitor by surveying the relevant literature. I would then investigate
+and analyze the strengths and weaknesses of the different methods. Finally, one
+or more algorithms would be implemented using a general-purpose programming
+language (Python). The results of this project would form a solid foundation for
+the future work, where the parallelized implementation would be developed and
+could potentially serve as an alternative to the existing solution. Hence the main
+contributions are:
+
+\begin{itemize}
+\item Perform a literature survey on the topic of
+change-detection algorithms.
+\item Compare the existing state-of-the art
+change-detection algorithms, investigate their strengths and weaknesses.
+\item Provide a prototype implementation of one or more algorithms in a
+general-purpose programming language.
+\end{itemize}
+
+\section{Seasonal Trend Decomposition (STL)}
+\label{sec:seasonal_trend_decomposition_using_loess}
+\subsection{Locally Weighted Running Line Smoother (LOESS)}
+\label{subsec:locally_weighted_running_line_smoother}
+\subsection{The incremental algorithm}
+\label{subsec:the_incremental_algorithm}
+
+
+\section{Moving Sum (MOSUM) test}
+\subsection{The model}
+\subsection{Empirical fluctuation process (OLS-MOSUM)}
+\subsection{Significance testing}
+
+\section{Bayesian Information Criterion}
+\label{sec:bayesian_information_criterion}
+
+\section{Estimation of Breakpoints}
+\label{sec:estimation_of_breakpoints}
+\subsection{The model and estimators}
+\label{subsec:the_model_and_estimators}
+\subsection{The model and estimators}
+\label{subsec:the_model_and_estimators}
+\subsection{The dynamic programming algorithm}
+\label{subsec:the_dynamic_programming_algorithm}
+
+
+\section{BFASTN0}
+\subsection{Algorithm overview}
+\label{subsec:n0_algorithm_overview}
+
+\section{BFAST}
+\subsection{Algorithm overview}
+\label{subsec:bfast_algorithm_overview}
+\subsection{Algorithm steps}
+\label{subsec:algorithm_steps}
+
+\section{Implementation}
+
+\section{Results}
+
+\section{Conclusion and Future Work}
+\end{document}
+
+
+%% \begin{figure}
+%%   \centering
+%%   \begin{subfigure}[b]{\textwidth}
+%%     \centering
+%%     \includegraphics[scale=0.8]{handin/plt51}
+%%     \caption{Classification of the training set}
+%%   \end{subfigure}
+%%   \begin{subfigure}[b]{\textwidth}
+%%     \centering
+%%     \includegraphics[scale=0.8]{handin/plt52}
+%%     \caption{Classification of the test set}
+%%   \end{subfigure}
+%%   \caption{Exercise 5: Logistic Regression Applied to the Datasets}
+%%   \label{plt5}
+%% \end{figure}
+
+%% \begin{lstlisting}[caption="Calculation of g"]
+%% def calc_g(Xs, y, w):
+%%     N = np.shape(Xs)[0]
+%%     # use matrix X of xs instead of for-loop = much faster
+%%     X = np.c_[Xs, np.ones(N)]
+%%     num = y.T * X
+%%     denum = 1 + np.exp(y * (w @ X.T))
+%%     M = num.T/denum
+%%     # return mean of each row
+%%     return (-1 * np.mean(M, axis=1))
+%% \end{lstlisting}
