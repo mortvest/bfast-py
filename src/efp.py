@@ -9,7 +9,7 @@ class EFP():
     def __init__(self, X, y, h, deg=1, p_type="OLS-MOSUM"):
         """
         Empirical fluctuation process. For now, only the Ordinary Least Squares MOving
-        SUM (OLS-MOSUM) test is supported
+        SUM (OLS-MOSUM) is supported
 
         :param X: matrix of x-values
         :param y: vector of y
