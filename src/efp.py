@@ -15,7 +15,7 @@ class EFP():
         :param y: vector of y
         :param h: bandwidth parameter for the MOSUM process
         :param deg: degree of the polynomial to be fit [0,1]
-        :param p_type: process type. Only OLS-MOSUM
+        :param p_type: process type. Only OLS-MOSUM is supported
         :returns: instance of Empirical Fluctuation Process
         :raises ValueError: wrong type of process
         """
@@ -58,7 +58,6 @@ class EFP():
         :param x: result of application of the functional
         :param h: bandwidth parameter
         :param k: number of rows of matrix X
-        :param max_k: maximum value of k
         :returns: p value for the process
         """
         k = min(k, max_k)
@@ -91,7 +90,8 @@ class EFP():
 
         h = self.par
         x = self.process
-        k = 1
+        if functional=="max":
+            k = 1
         stat = np.max(np.abs(x))
         p_value = EFP.p_value(stat, h, k)
 

@@ -5,6 +5,11 @@ from statsmodels.tsa.seasonal import STL
 from statsmodels.datasets import co2
 
 
+def stl():
+    stl = STL(y, period=period)
+    res = stl.fit()
+
+
 if __name__ == "__main__":
     n_samples = 1000
 
