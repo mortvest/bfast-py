@@ -99,7 +99,7 @@ could potentially serve as an alternative to the existing solution.
 
 \section{Seasonal Trend Decomposition (STL)}
 \label{sec:seasonal_trend_decomposition_using_loess}
-STL, as first described by Cleveland et al. \cite{stl} is an
+STL, as first described by Cleveland et al. \cite{stl}, is an
 algorithm for decomposition of time series, which is a common task in
 statistics and used by the BFAST algorithm to get the initial estimate of the
 seasonal componenet $\hat{S_t}$.
@@ -264,18 +264,28 @@ STL has following parameters \cite{stl}:
   used by the BFAST R-implementation.
 \end{enumerate}
 
-\section{Moving Sum (MOSUM) test}
+\section{Ordinary Least Squares Moving Sum (OLS-MOSUM) Test}
+\label{sec:mosum}
+One way, in which the BFAST approach differs from the similar methods is that it uses the
+OLS-MOSUM statistical test to determine whether the breakpoints are taking place in the seasonal and
+trend components of the time series before committing to the costly
+dynamic-programming algorithm that determines the location and quality of the
+breakpoints. In the R implementation, Verbeselt et al.\cite{bfast-github} use
+the \texttt{strucchange} package, originally by Zelis et. al \cite{strucchange}.
+
 \subsection{The model}
+\label{sec:mosum}
+
 \subsection{Empirical fluctuation process (OLS-MOSUM)}
 \subsection{Significance testing}
 
-\section{Bayesian Information Criterion}
-\label{sec:bayesian_information_criterion}
 
 \section{Estimation of Breakpoints}
 \label{sec:estimation_of_breakpoints}
 \subsection{The model and estimators}
 \label{subsec:the_model_and_estimators}
+\subsection{Bayesian Information Criterion}
+\label{subsec:bayesian_information_criterion}
 \subsection{The dynamic programming algorithm}
 \label{subsec:the_dynamic_programming_algorithm}
 
