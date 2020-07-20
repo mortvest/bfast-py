@@ -1,0 +1,48 @@
+\section{Introduction}
+\label{sec:intro}
+Climate change is the defining issue of our time, and we are at a defining
+moment \cite{un}. Without drastic and swift action in the nearest future, adapting to
+these changes is becoming progressively more challenging. One way, in which we
+can fight this development is by monitoring and reducing global deforestation.
+If the areas of deforestation are registered in a timely fashion, targeted
+countermeasures could be applied, and the tide on this trend could be turned. \\\\
+Meanwhile, enormous amount of satellite data is becoming available to the earth
+science community. This image data can, inter alia, be utilized for the
+time-series based change-detection, which is a promising tool for monitoring and
+mapping of deforestation and forest degradation. Most of these approaches
+operate on individual pixels. Therefore, the sheer scale of this problem (being
+hundreds of billions of pixels) becomes its most significant challenge, since
+there are petabytes of image data being added on a yearly basis. Without
+efficient data-parallel approaches, this approach quickly becomes infeasible in
+practice, even when equipped with significant computational resources and
+specialized hardware. \\\\
+Recently, a novel massively-parallel implementation for a
+change detection method has been proposed. It combines state-of-the-art methods
+for the seasonal data change-detection with modern data-parallel programming
+models and yields an implementation that makes the task feasible for giant sets.
+Furthermore, this implementation is feasibly executable on consumer-grade
+graphical processing hardware. The authors of the paper provide a
+massively-parallel implementation for the BFAST-Monitor unsupervised change
+detection algorithm. \\\\
+In this project, I will research alternative approaches to
+the BFAST-Monitor by surveying the relevant literature. I would then investigate
+and analyze the strengths and weaknesses of the different methods. Finally, one
+or more algorithms would be implemented using a general-purpose programming
+language (Python). The results of this project would form a solid foundation for
+the future work, where the parallelized implementation would be developed and
+could potentially serve as an alternative to the existing solution.
+
+%% Hence the main
+%% contributions of this project are:
+
+%% \begin{itemize}
+%% \item Perform a literature survey on the topic of
+%% change-detection algorithms.
+%% \item Compare the existing state-of-the art
+%% change-detection algorithms, investigate their strengths and weaknesses.
+%% \item Provide a prototype implementation of one or more algorithms in a
+%% general-purpose programming language.
+%% \end{itemize}
+
+\subsection{Trend and Seasonal Changes in Time Series}
+\label{subsec:trend_and_seasonal_changes_in_time_series}

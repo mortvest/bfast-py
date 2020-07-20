@@ -1,0 +1,63 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usetheme{Copenhagen}
+%% \usecolortheme{beaver}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{listings}
+\usepackage{subcaption}
+\usepackage{caption}
+\graphicspath{ {imgs/} } 
+ 
+\title{BFAST Project}
+\subtitle{.. or what I have been doing for the last month}
+\institute{DIKU - University of Copenhagen}
+\author{Dmitry Serykh}
+%% \date{June 19, 2020}
+
+\begin{document}
+
+\begin{frame}
+\maketitle 
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\texttt{scan} algorithms for modern GPUs}
+\begin{itemize}
+\item Memory bottlenecked
+\item CUDA Thread Blocks - no built-in construct to perform inter-block synchronization.
+\item This requires multiple kernels or global memory sync.
+\item Common algorithm: $3N$ global memory accesses - no duplicate work, $3$ kernels
+\item Chained \texttt{scan}, no duplicate work, $2N$ global memory accesses,
+  does not saturate memory due to latency between blocks
+\end{itemize}
+\end{frame}
+
+
+
+%% \begin{frame}
+%%   \frametitle{All results RTX 2080Ti (EXTRA)}
+%% \begin{figure}[H]
+%%   \centering
+%%   \begin{subfigure}[t]{0.4\textwidth}
+%%     \centering
+%%     \includegraphics[width=\textwidth]{imgs/RTX_2080_Ti_scansubblock.eps}
+%%   \end{subfigure}
+%%   \begin{subfigure}[t]{0.4\textwidth}
+%%     \centering
+%%     \includegraphics[width=\textwidth]{imgs/RTX_2080_Ti_flagAggrVal.eps}
+%%   \end{subfigure}
+%%   \begin{subfigure}[t]{0.4\textwidth}
+%%     \centering
+%%     \includegraphics[width=\textwidth]{imgs/RTX_2080_Ti_scansubblockexcl.eps}
+%%   \end{subfigure}
+%% \end{figure}
+%% \end{frame}
+
+\end{document}
+
+
+

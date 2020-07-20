@@ -1,0 +1,37 @@
+\section{Ordinary Least Squares Moving Sum (OLS-MOSUM) Test}
+\label{sec:mosum}
+
+Tests from the generalized fluctuation test framework \cite{kuan_hornik}
+is one of the most important classes of tests on structural change. This class
+of tests include, in particular, Moving Sum (MOSUM) test. In the paper from
+2003 \cite{strucchange}, Zeileis et al. describe the underlying theory and
+implementation of the \texttt{strucchange}
+package for the R programming language, which include multiple tools for
+detection of structural changes in linear regression relationships.
+
+\subsection{The model}
+\label{sec:mosum}
+In \texttt{strucchange} \cite{strucchange}, a standard linear regression model is considered:
+\[
+y_{i}=x_{i}^{\top} \beta_{i}+u_{i} \quad(i=1, \ldots, n)
+\]
+where:
+\begin{itemize}
+\item $x_i = (1,x_{i2}, x_{i3}, ..., x_{ik})^T \in \mathbb{R}^k$
+\item $y_i \in \mathbb{R}$
+\item $\beta_i \in \mathbb{R}^{k} $ is the
+  regression coefficient vector
+\item $u_i \in \mathbb{R}$ is the error term, that independently and identically
+  distributed with mean $\mu = 0$ and variance $\sigma^2$.
+\end{itemize}
+We can then test for structural change by testing the null hypothesis:
+\[
+H_0:\quad \beta_i = \beta_0
+\]
+which states that there is no structural change present in the time series in
+the time series. While the alternative is that the coefficient vector $\beta$
+varies over time.
+
+
+\subsection{Empirical fluctuation process (OLS-MOSUM)}
+\subsection{Significance testing}
