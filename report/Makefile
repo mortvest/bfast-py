@@ -10,7 +10,6 @@ $(file_list): %: %.pdf
 	zathura $*.pdf
 
 %.pdf:
-	# pdflatex $* && bibtex $* && pdflatex $* && pdflatex $*
 	pdflatex $* && bibtex $* && pdflatex $* && pdflatex $*
 
 clean:
