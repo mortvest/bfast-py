@@ -17,6 +17,8 @@
 \usepackage{stmaryrd}
 \usepackage{a4wide}
 \usepackage[nottoc]{tocbibind}
+%% \usepackage{standalone}
+\usepackage{subfiles}
 
 \lstset{
   frame=tb,
@@ -39,6 +41,10 @@
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 \newcommand*{\QEDA}{\hfill\ensuremath{\blacksquare}}%
 
+\def\biblio{\bibliographystyle{plain}\bibliography{mybib}}
+
+
+
 \title{
   \vspace{-3cm} 
   \huge Project Outside the Course Scope \\
@@ -47,26 +53,29 @@
 \author{Dmitry Serykh (qwl888)}
 
 \begin{document}
+\def\biblio{}
+
 \maketitle
 \tableofcontents
 \newpage
-\input{intro}
+%% \input{intro}
 
-\input{stl}
+%% \input{stl}
 
-\input{mosum}
+%% \input{mosum}
+\subfile{mosum.tex}
 
-\input{breakpoints}
+%% \input{breakpoints}
 
-\input{bfast0n}
+%% \input{bfast0n}
 
-\input{bfast}
+%% \input{bfast}
 
-\input{implementation}
+%% \input{implementation}
 
-\input{validation}
+%% \input{validation}
 
-\input{conclusion}
+%% \input{conclusion}
 
 \bibliography{mybib}{}
 \bibliographystyle{plain}
