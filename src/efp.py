@@ -28,7 +28,7 @@ class EFP():
         fm = np.polyfit(X.flatten(), y, deg=deg)
 
         # residuals
-        if deg==0:
+        if deg == 0:
             e = y - fm[0]
         else:
             e = y - fm @ np.vstack((X.T, np.ones(n)))
@@ -37,6 +37,7 @@ class EFP():
         nh = np.floor(n * h)
 
         e_zero = np.insert(e, 0, 0)
+
 
         process = np.cumsum(e_zero)
         process = process[int(nh):] - process[:(n - int(nh) + 1)]
@@ -50,7 +51,6 @@ class EFP():
         self.process = process
         self.par = h
 
-
     def p_value(x, h, k, max_k=6, table_dim=10):
         """
         Returns the p value for the process.
@@ -63,22 +63,17 @@ class EFP():
         k = min(k, max_k)
         # print(k)
         crit_table = utils.sc_me[((k - 1) * table_dim):(k * table_dim),:]
-        print("crit_table", crit_table)
         tablen = crit_table.shape[1]
-        print("tablen", tablen)
         tableh = np.arange(1, table_dim + 1) * 0.05
-        print("tableh", tableh)
         tablep = np.array((0.1, 0.05, 0.025, 0.01))
         tableipl = np.zeros(tablen)
 
         for i in range(tablen):
             tableipl[i] = np.interp(h, tableh, crit_table[:, i])
 
-        print(tableipl)
         tableipl = np.insert(tableipl, 0, 0)
         tablep = np.insert(tablep, 0, 1)
 
-        print(x)
         p = np.interp(x, tableipl, tablep)
 
         return(p)
@@ -127,4 +122,3 @@ if __name__ == "__main__":
 
     print("p_value", p_value)
     print("stat", stat)
-
