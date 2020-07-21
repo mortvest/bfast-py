@@ -61,18 +61,24 @@ class EFP():
         :returns: p value for the process
         """
         k = min(k, max_k)
+        # print(k)
         crit_table = utils.sc_me[((k - 1) * table_dim):(k * table_dim),:]
+        print("crit_table", crit_table)
         tablen = crit_table.shape[1]
+        print("tablen", tablen)
         tableh = np.arange(1, table_dim + 1) * 0.05
+        print("tableh", tableh)
         tablep = np.array((0.1, 0.05, 0.025, 0.01))
         tableipl = np.zeros(tablen)
 
         for i in range(tablen):
             tableipl[i] = np.interp(h, tableh, crit_table[:, i])
 
+        print(tableipl)
         tableipl = np.insert(tableipl, 0, 0)
         tablep = np.insert(tablep, 0, 1)
 
+        print(x)
         p = np.interp(x, tableipl, tablep)
 
         return(p)

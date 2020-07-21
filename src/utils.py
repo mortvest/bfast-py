@@ -1,7 +1,5 @@
 import numpy as np
 
-
-
 def qr_lm(X, y):
     """
     lm.fit in R uses QR decomposition exclusively
@@ -36,3 +34,6 @@ sc_me = np.array([0.7552, 0.9809, 1.1211, 1.217, 1.2811, 1.3258, 1.3514, 1.3628,
          1.9592, 1.9787, 0.9799, 1.3088, 1.5252, 1.6791, 1.7967, 1.8837, 1.9377, 1.9788,
          1.9897, 2.0085, 0.988, 1.622, 1.5392, 1.7014, 1.8154, 1.9061, 1.9605, 1.9986,
          2.0163, 2.0326]).reshape((60, 4), order='F') # apparently, R uses Fortran order
+
+if __name__ == "__main__":
+    print(sc_me)

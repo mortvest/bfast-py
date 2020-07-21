@@ -17,8 +17,8 @@
 \usepackage{stmaryrd}
 \usepackage{a4wide}
 \usepackage[nottoc]{tocbibind}
-%% \usepackage{standalone}
 \usepackage{subfiles}
+\usepackage{multirow}
 
 \lstset{
   frame=tb,
@@ -42,8 +42,6 @@
 \newcommand*{\QEDA}{\hfill\ensuremath{\blacksquare}}%
 
 \def\biblio{\bibliographystyle{plain}\bibliography{mybib}}
-
-
 
 \title{
   \vspace{-3cm} 
@@ -77,6 +75,7 @@
 \subfile{conclusion.tex}
 
 
+\newpage
 \bibliography{mybib}{}
 \bibliographystyle{plain}
 \newpage
