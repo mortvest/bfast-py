@@ -1,20 +1,18 @@
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import statsmodels.api as sm
-from statsmodels.sandbox.regression.predstd import wls_prediction_std
-from sklearn.linear_model import LinearRegression
+# from statsmodels.sandbox.regression.predstd import wls_prediction_std
+# from sklearn.linear_model import LinearRegression
 
+h = 5
 
-X = np.arange(1,21).reshape(20,1)
-y = 1.2 * X
-y[10:] += 5
+for i in range(h+1):
+    print(i)
 
+# def RSS(j, i):
+#     return j + 2*i
 
-X = sm.add_constant(X)
-model = sm.OLS(y, X)
-results = model.fit(method="qr")
-print(results.summary())
-
-reg = LinearRegression(fit_intercept=True).fit(X, y)
-print(reg.coef_, reg.intercept_)
-
+# index = np.array([1,2,3,4])
+# RSS_fun = lambda i: RSS(1, i)
+# retval = [RSS(1, i) for i in index]
+# print(retval)
