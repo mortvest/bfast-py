@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import norm
+from scipy.optimize import root, brentq
 
 
 class Breakpoints():
@@ -25,7 +26,7 @@ class Breakpoints():
         the recursive residuals for segments starting at i = 1:(n-h+1)
         """
         if intercept_only:
-            ssr = (y[i:n] - cumsum(y[i:n])/(1L:(n-i+1L)))[-1L] * sqrt(1L + 1L/(1L:(n-i)))
+            ssr = (y[i:n] - np.cumsum(y[i:n])/(1L:(n-i+1L)))[-1L] * np.sqrt(1L + 1L/(1L:(n-i)))
         else:
             ssr = recresid(X[i:n,,drop = FALSE],y[i:n])
 
@@ -67,7 +68,6 @@ class Breakpoints():
             print("requested number of breaks = {} too large, changed to {}".format(breaks0, max_breaks))
             breaks = max_breaks
 
-
         ## compute optimal previous partner if observation i is the mth break
         ## store results together with RSSs in RSS_table
 
@@ -90,7 +90,7 @@ class Breakpoints():
         self.y = y
         self.X = X
 
-    def breakfactor(self, breaks=None, labels=None):
+    def breakfactor(self):
         breaks = self.breakpoints
         if np.isnan(breaks).all():
             return(np.repeat("segment1", self.nobs))
@@ -139,8 +139,6 @@ class Breakpoints():
         n = self.nobs
         a2 = (1 - level) / 2
 
-        myfun = lambda x, mylevel = 0.975: pargmaxV(x) - mylevel
-
         myprod = function(delta, mat) as.vector(crossprod(delta, mat) %*% delta)
 
         bp = self.breakpoints
@@ -185,16 +183,16 @@ class Breakpoints():
             beta2 = coef(fm2)
             delta = beta2 - beta1
 
-            Q2 = crossprod(X2)/nrow(X2)
+            Q2 = crossprod(X2) / nrow(X2)
 
             Oprod1 = myprod(delta, Omega1)
             Oprod2 = myprod(delta, Omega2)
             Qprod1 = myprod(delta, Q1)
             Qprod2 = myprod(delta, Q2)
 
-            xi = Qprod2/Qprod1
-            phi1 = sqrt(sigma1)
-            phi2 = sqrt(sigma2)
+            xi = Qprod2 / Qprod1
+            phi1 = np.sqrt(sigma1)
+            phi2 = np.sqrt(sigma2)
 
             p0 = pargmaxV(0, phi1=phi1, phi2=phi2, xi=xi)
 
@@ -210,14 +208,16 @@ class Breakpoints():
                 while pargmaxV(lb, phi1=phi1, phi2=phi2, xi=xi) > a2:
                     lb -= 1000
 
-                upper[i-1] = uniroot(myfun, (0, ub), level=(1-a2), xi=xi, phi1=phi1, phi2=phi2).root
-                lower[i-1] = uniroot(myfun, (lb, 0), level=a2, xi=xi, phi1=phi1, phi2=phi2).root
+                # find roots
+                myfun = lambda x, level, xi, phi1, phi2 : pargmaxV(x, xi, phi1, phi2) - level
+                upper[i-1] = brentq(myfun, a=0, b=ub, args=((1-a2), xi, phi1, phi2))
+                lower[i-1] = brentq(myfun, a=lb, b=0, args=(a2, xi, phi1, phi2))
 
                 upper[i-1] = upper[i-1] * phi1 ** 2 / Qprod1
                 lower[i-1] = lower[i-1] * phi1 ** 2 / Qprod1
 
-        bp = bp[-c(1, nbp+2)]
-        bp = cbind(bp - ceiling(upper), bp, bp - floor(lower))
+        bp = bp[nbp+2:]
+        bp = np.column_stack((bp - np.ceil(upper), bp, bp - np.floor(lower)))
         return bp
 
 
