@@ -9,6 +9,13 @@ def qr_lm(X, y):
     M = np.linalg.solve(R, z)
     return M
 
+
+"""
+Table of simulated asymptotic critical values of the
+ME tests with the maximum norm.
+from: "The Moving-Estimates Test for Parameter Stability" by
+       Chia-Shang James Chu, Kurt Hornik and Chung-Ming Kuan
+"""
 sc_me = np.array([0.7552, 0.9809, 1.1211, 1.217, 1.2811, 1.3258, 1.3514, 1.3628,
          1.361, 1.3751, 0.7997, 1.0448, 1.203, 1.3112, 1.387, 1.4422, 1.4707, 1.4892,
          1.4902, 1.5067, 0.825, 1.0802, 1.2491, 1.3647, 1.4449, 1.5045, 1.5353, 1.5588,
@@ -34,6 +41,7 @@ sc_me = np.array([0.7552, 0.9809, 1.1211, 1.217, 1.2811, 1.3258, 1.3514, 1.3628,
          1.9592, 1.9787, 0.9799, 1.3088, 1.5252, 1.6791, 1.7967, 1.8837, 1.9377, 1.9788,
          1.9897, 2.0085, 0.988, 1.622, 1.5392, 1.7014, 1.8154, 1.9061, 1.9605, 1.9986,
          2.0163, 2.0326]).reshape((60, 4), order='F') # apparently, R uses Fortran order
+
 
 if __name__ == "__main__":
     print(sc_me)

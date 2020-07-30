@@ -38,13 +38,9 @@ class EFP():
 
         e_zero = np.insert(e, 0, 0)
 
-
         process = np.cumsum(e_zero)
         process = process[int(nh):] - process[:(n - int(nh) + 1)]
         process = process / (sigma * np.sqrt(n))
-
-        end_t = int(n - np.floor(0.5 + nh / 2))
-        process = process[:end_t]
 
         self.coefficients = fm
         self.sigma = sigma
@@ -99,22 +95,12 @@ class EFP():
         return(stat, p_value)
 
 
-if __name__ == "__main__":
-    # y = datasets.nhtemp
-    y = datasets.nile
+def test_for_dataset(y, name, deg=1, h=0.15, level=0.15):
     x = np.arange(1, y.shape[0] + 1).reshape(y.shape[0], 1)
-
-    # x = np.arange(1,21).reshape(20,1)
-    # y = 1.2 * x
-    # y[10:] += 5
-
-    # value in BFAST
-    h = 0.15
-
-    efp = EFP(x, y, h)
+    efp = EFP(x, y, h, deg=deg)
     stat, p_value = efp.sctest()
-    level = 0.05
 
+    print("Testing '{}', deg: {}".format(name, deg))
     if p_value <= level:
         print("Breakpoint detected")
     else:
@@ -122,3 +108,11 @@ if __name__ == "__main__":
 
     print("p_value", p_value)
     print("stat", stat)
+    print()
+
+
+if __name__ == "__main__":
+    test_for_dataset(datasets.nhtemp, "nhtemp", deg=0)
+    test_for_dataset(datasets.nile, "nile", deg=1)
+
+

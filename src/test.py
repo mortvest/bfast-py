@@ -1,27 +1,48 @@
 import numpy as np
-# import matplotlib.pyplot as plt
-# import statsmodels.api as sm
-# from statsmodels.sandbox.regression.predstd import wls_prediction_std
-# from sklearn.linear_model import LinearRegression
 
-from scipy.optimize import root, brentq
+n = 200
+h = 0.15
+# e = np.repeat(2, n)
+e = np.arange(n)
+e[29] = 3
+e_zero = np.insert(e, 0, 0)
+nh = np.floor(n * h)
 
-# h = 5
+# def r_code(t):
+#     process = np.cumsum(e_zero)
+#     process_1 = process[int(nh):]
+#     process_2 = process[:(n - int(nh) + 1)]
+#     process = process_1 - process_2
+#     return process[t]
 
-# for i in range(h+1):
-#     print(i)
-
-# def RSS(j, i):
-#     return j + 2*i
-
-# index = np.array([1,2,3,4])
-# RSS_fun = lambda i: RSS(1, i)
-# retval = [RSS(1, i) for i in index]
-# print(retval)
+def r_code(t):
+    process = np.cumsum(e)
+    print(process)
+    process_1 = process[int(nh):]
+    process_2 = process[:(n - int(nh) + 1)]
+    process = process_1 - process_2
+    return process[t]
 
 
-fun = lambda x, y, z: 4*x + y + z
+def paper_code(t):
+    # t = t + 1
+    proc = np.sum(e[t:t+int(nh)])
+    return proc
 
 
-rt = brentq(fun, a=-10, b=10, args=(3,4))
-print(rt)
+def my_code():
+    proc_a = np.cumsum(e[int(nh)+1:])
+    proc_b = np.cumsum(e[:n-int(nh)-1])
+    proc = proc_a - proc_b
+    return proc
+
+print(r_code(5))
+# print(my_code())
+print(paper_code(5))
+
+# process = np.cumsum(e_zero)
+# process_1 = process[int(nh):]
+# print(process_1)
+
+# proc_a = np.cumsum(e[int(nh):])
+# print(proc_a)

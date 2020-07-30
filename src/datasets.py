@@ -24,3 +24,11 @@ nile = np.array([1120, 1160, 963,  1210, 1160, 1160, 813,  1230, 1370, 1140, 995
                  874,  848,  890,  744,  749,  838,  1050, 918,  986,  797,  923,
                  975,  815,  1020, 906,  901,  1170, 912,  746,  919,  718,  714,
                  740])
+
+
+"""
+A multivariate monthly time series from 1959(1) to 2001(2) with variables
+from the strucchange package.
+by: Achim Zeileis
+"""
+us_inc_exp = np.load("USIncExp.npy")

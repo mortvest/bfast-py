@@ -54,14 +54,30 @@ sum of a fixed number of residuals in a data interval, which size is determined
 by the value of the parameter $h \in (0,1)$ (bandwidth).\\\\
 The OLS-based MOSUM process is therefore defined by:
 
-\begin{equation} \label{eq:mosum}
-M_{n}^{0}(t \mid h)=\frac{1}{\hat{\sigma} \sqrt{n}}
-\left(\sum_{i=\left|N_{n} t\right|+1}^{\left\lfloor N_{n} t\right\rfloor+\lfloor
+\begin{equation}\label{eq:mosum_og}
+M(t)=\frac{1}{\hat{\sigma} \sqrt{n}}
+\left(\sum_{i=\floor{N_{n} t}+1}^{\left\lfloor N_{n} t\right\rfloor+\lfloor
   n h\rfloor} \hat{u}_{i}\right) \quad(0 \leq t \leq 1-h)
 \end{equation}
-where $N_{n}=(n-|n h|) /(1-h)$\\\\
+where $N_{n}=(n-\floor{n h}) /(1-h)$.\\\\
 A key observation is that if a structural change takes place at $t_0$, the
-OLS-MOSUM path would also have a strong shift at $t_0$.
+OLS-MOSUM path would also have a strong shift at $t_0$, hence we can use it to
+determine if one or more breakpoints are present in the time series.\\\\
+Expression \ref{eq:mosum_og} can be simplified if first we re-scale the expression s.t. $0 \leq t \leq 1$:
+\begin{equation}
+  M(t) =
+  \frac{1}{\hat{\sigma} \sqrt{n}}
+  \left(\sum_{i=\floor{t(n - \floor{nh})} + 1}^{\floor{t(n - \floor{nh})} + \floor{nh}}\right)
+  \quad(0 \leq t \leq 1)
+\end{equation}
+Then, we can use another re-write, s.t.
+$t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)$:
+\begin{equation} \label{eq:mosum}
+  M(t) =
+  \frac{1}{\hat{\sigma} \sqrt{n}}
+  \left(\sum_{i=t}^{t + \floor{nh}}\right)
+  \quad(t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1))
+\end{equation}
 
 \subsection{Significance testing}
 \label{subsec:significance_testing}
@@ -73,20 +89,19 @@ hypothesis can be rejected using a significance test.
 \label{subsec:the_algorithm_steps}
 \begin{enumerate}
 \item \textbf{Perform the linear regression}
-\item \textbf{Calculate the residuals $\hat{\mu}$, using} (\ref{eq:residuals})
-\item \textbf{Calculate $\sigma$, using} (\ref{eq:sigma})
-\item \textbf{Calculate the residual-based OLS-MOSUM process from}
-  (\ref{eq:mosum}). \\
-  Following optimization from the \texttt{strucchange} source
-  code \cite{strucchange_code} can be utilized (using Python-like syntax):
+\item \textbf{Calculate the \texttt{residuals} $=\hat{\mu}$, using} (\ref{eq:residuals})
+\item \textbf{Calculate $\hat{\sigma}$, using} (\ref{eq:sigma})
+\item \textbf{Calculate the residual-based OLS-MOSUM process from} (\ref{eq:mosum}). \\
+  We calculate the values of the $M(t)$ for all positive integer values of
+  $t \leq (n - \floor{nh} + 1)$. Hence, we can use the cumulative sum to calculate the process
+  (using Python-like syntax):
   \begin{verbatim}
   nh = floor(n * h)
-  process = cumsum(residuals)
-  process = process[nh:] - process[:(n - nh + 1)]
+  process = append(0, cumsum(residuals))
+  process = process[nh:n] - process[0:(n - nh + 1)]
   process = process / (sigma * sqrt(n))
-  process = process[:n - floor(0.5 + nh / 2)]
   \end{verbatim}
-\item \textbf{Calculate the statistic}
+\item \textbf{Calculate the statistic:}
   \[
   S_{\text{MOSUM}} = \max(\|\text{process}\|)
   \]
