@@ -1,4 +1,4 @@
-.PHONY: clean $(file_list)
+.PHONY: clean $(file_list) main
 
 tex_files = $(filter-out main.tex, $(shell ls *tex))
 file_list = $(basename $(tex_files))
