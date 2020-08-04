@@ -3,16 +3,15 @@
 \begin{document}
 \section{OLS-MOSUM Test}
 \label{sec:mosum}
-
 Tests from the generalized fluctuation test framework \cite{kuan_hornik}
 is one of the most important classes of tests on structural change. This class
-of tests include, in particular, Moving Sum (MOSUM) test. In the paper from
-2003 \cite{strucchange}, Zeileis et al. describe the underlying theory and
-implementation of the \texttt{strucchange}
-package for the R programming language, which include multiple tools for
-detection of structural changes in linear regression relationships.
+of tests include, in particular, Moving Sum (MOSUM) test, which is the topic of this chapter.
+In the paper from 2003 \cite{strucchange}, Zeileis et al. describe the
+underlying theory and usage of the \texttt{strucchange} package for the
+R programming language that includes multiple tools for detection of structural
+changes in linear regression relationships.
 
-\subsection{The model}
+\subsection{The Model}
 \label{sec:mosum}
 In \texttt{strucchange} \cite{strucchange}, a standard linear regression model is considered:
 \[
@@ -20,19 +19,22 @@ y_{i}=x_{i}^{\top} \beta_{i}+u_{i} \quad(i=1, \ldots, n)
 \]
 where:
 \begin{itemize}
-\item $x_i = (1,x_{i2}, x_{i3}, ..., x_{ik})^T \in \mathbb{R}^k$
-\item $y_i \in \mathbb{R}$
-\item $\beta_i \in \mathbb{R}^{k} $ is the
-  regression coefficient vector
+\item $i$ is the observation number
+\item $x_i = (1,x_{i2}, x_{i3}, ..., x_{ik})^T \in \mathbb{R}^k$, given to us
+\item $y_i \in \mathbb{R}$, also given
+\item $\beta_i \in \mathbb{R}^{k} $ is the regression coefficient vector, that
+  we wish to estimate using linear regression
 \item $u_i \in \mathbb{R}$ is the residual term that is independently and identically
-  distributed with mean $\mu = 0$ and variance $\sigma^2$.
+  distributed with mean $\mu = 0$ and variance $\sigma^2$. This is the
+  difference between the prediction (using $\beta_i$) and the actual observation $y_i$.
 \end{itemize}
 We can then test for structural change by testing the null hypothesis:
 \[
-H_0:\quad \beta_i = \beta_0
+H_0:\quad \beta_i = \beta_0 \quad(i=1, \ldots, n)
 \]
 which states that there is no structural change present in the time series.
-While the alternative is that the coefficient vector $\beta$ varies over time. \\\\
+While the alternative is that the coefficient vector $\beta$ varies over time -
+hence is are one or more breakpoints. \\\\
 Let $\hat{\beta}^{(i)}$ be the ordinary least squares (OLS) estimate of the
 regression coefficients based on all the observations up to $i$.
 Therefore, it follows that $\hat{\beta}^{(n)}$ is the common OLS estimate in the regression model. \\\\
@@ -46,31 +48,30 @@ the variance estimate would then be:
 \hat{\sigma}^{2}=\frac{1}{n-k} \sum_{i=1}^{n} \hat{u}_{i}^{2}
 \end{equation}
 
-\subsection{Empirical fluctuation process (OLS-MOSUM)}
+\subsection{Empirical Fluctuation Process (OLS-MOSUM)}
 \label{subsec:empirical_fluctuation}
-It is possible to detect structural by analyzing moving sum of residuals
+It is possible to detect structural change by analyzing moving sum of residuals
 \cite{strucchange}. The resulting empirical fluctuation process consists of a
 sum of a fixed number of residuals in a data interval, which size is determined
-by the value of the parameter $h \in (0,1)$ (bandwidth).\\\\
-The OLS-based MOSUM process is therefore defined by:
+by the value of the parameter $h \in (0,1)$ (bandwidth). \\\\
+The OLS-based MOSUM process is given by \cite{mosum_tests}:
 
 \begin{equation}\label{eq:mosum_og}
 M(t)=\frac{1}{\hat{\sigma} \sqrt{n}}
 \left(\sum_{i=\floor{N_{n} t}+1}^{\left\lfloor N_{n} t\right\rfloor+\lfloor
   n h\rfloor} \hat{u}_{i}\right) \quad(0 \leq t \leq 1-h)
 \end{equation}
-where $N_{n}=(n-\floor{n h}) /(1-h)$.\\\\
-A key observation is that if a structural change takes place at $t_0$, the
-OLS-MOSUM path would also have a strong shift at $t_0$, hence we can use it to
-determine if one or more breakpoints are present in the time series.\\\\
-Expression \ref{eq:mosum_og} can be simplified if first we re-scale the expression s.t. $0 \leq t \leq 1$:
+where $N_{n}=(n-\floor{n h}) /(1-h)$ and $\floor{n h}$ is the size of the
+window. \\\\
+This expression can be simplified by first re-scaling the
+expression s.t. $0 \leq t \leq 1$:
 \begin{equation}
   M(t) =
   \frac{1}{\hat{\sigma} \sqrt{n}}
   \left(\sum_{i=\floor{t(n - \floor{nh})} + 1}^{\floor{t(n - \floor{nh})} + \floor{nh}}\right)
   \quad(0 \leq t \leq 1)
 \end{equation}
-Then, we can use another re-write, s.t.
+Then, we can apply a second re-write, s.t.
 $t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)$:
 \begin{equation} \label{eq:mosum}
   M(t) =
@@ -79,58 +80,103 @@ $t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)$:
   \quad(t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1))
 \end{equation}
 
-\subsection{Significance testing}
-\label{subsec:significance_testing}
-We reject the null hypothesis of $\beta_i = \beta_0$, when the fluctuation of
-the OLS-MOSUM process becomes too large. We determine whether the null
-hypothesis can be rejected using a significance test.
+\subsection{Test Statistic}
+\label{subsec:test_statistic}
+A key observation is that if a structural change takes place at $t_0$, the
+OLS-MOSUM path would also have a strong shift at $t_0$.
+We reject the null hypothesis of there being no structural change, when the fluctuation of
+the OLS-MOSUM process becomes too large by calculating the test statistic:
+\begin{equation} \label{eq:test_statistic}
+  S_{\text{MOSUM}} = \max(\|\text{M(t)}\|) \quad \text{ for } t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)
+\end{equation}
+where $\| . \|$ signifies the absolute value.
 
-\subsection{Steps of the algorithm}
+\subsection{Significance Testing}
+\label{subsec:significance_testing}
+In practice, we determine whether the null
+hypothesis can be rejected using a significance test (also called statistical
+hypothesis testing).
+Simply put, we use the test statistic ($S_{\text{MOSUM}}$) to calculate the probability of getting such
+sample, given that the null hypothesis holds, using the critical values approach.
+We then compare the resulting
+probability with a chosen confidence interval, which is typically some low value
+of $\alpha = 0.05$ or $\alpha = 0.01$. If the resulting probability is below the
+value of $\alpha$, we reject the null hypothesis. 
+In our case, it would mean that a
+structural change is detected in the time series. 
+
+
+\subsection{Steps of the Algorithm}
+We determine whether the structural changes are present in the time series by following these steps:
 \label{subsec:the_algorithm_steps}
 \begin{enumerate}
-\item \textbf{Perform the linear regression}
-\item \textbf{Calculate the \texttt{residuals} $=\hat{\mu}$, using} (\ref{eq:residuals})
-\item \textbf{Calculate $\hat{\sigma}$, using} (\ref{eq:sigma})
+\item \textbf{Find the value of $\hat{\beta}^{(n)}$ using OLS-based linear
+  regression using the vectors of observations $x$ and $y$}
+\item \textbf{Calculate the OLS residuals $\hat{\mu}$, using} (\ref{eq:residuals})
+\item \textbf{Calculate the standard deviation $\hat{\sigma}$, using} (\ref{eq:sigma})
 \item \textbf{Calculate the residual-based OLS-MOSUM process from} (\ref{eq:mosum}). \\
-  We calculate the values of the $M(t)$ for all positive integer values of
-  $t \leq (n - \floor{nh} + 1)$. Hence, we can use the cumulative sum to calculate the process
-  (using Python-like syntax):
+  We need to calculate the values of the $M(t)$ for all positive integer values of
+  $t \leq (n - \floor{nh} + 1)$. Hence, we can use the cumulative sum to
+  calculate the process by evaluating following
+  (using zero-indexing):
   \begin{verbatim}
   nh = floor(n * h)
-  process = append(0, cumsum(residuals))
+  e = concat([0], residuals)
+  process = cumsum(e)
   process = process[nh:n] - process[0:(n - nh + 1)]
   process = process / (sigma * sqrt(n))
   \end{verbatim}
-\item \textbf{Calculate the statistic:}
-  \[
-  S_{\text{MOSUM}} = \max(\|\text{process}\|)
-  \]
+\item \textbf{Calculate the test statistic, using} (\ref{eq:test_statistic})
 \item \textbf{Calculate the p-value}:\\
   The p-value is calculated from the table of
   simulated asymptotic critical values of the Moving Estimate (ME) tests with
-  the maximum norm \cite{moving_estimate_test}. The structure of the table can
+  the maximum norm, given by Chu et al. \cite{moving_estimate_test}. The structure of the table can
   be seen in Table \ref{table:critvals} and there is a $4 \times 10$ table for
-  each value of $k \in \{1..6\}$. Hence, we start by selecting the table that
-  corresponds to our value of $k$.
+  each value of $n_{\text{dim}} \in \{1..6\}$, where $n_{\text{dim}}$ is the
+  size of the vector $x_i$, without the added identity row, hence
+  $n_{\text{dim}} = k - 1$. The columns in the table sections correspond to the
+  tail probabilities $p \in \{0.10, 0.05, 0.025, 0.001\}$, while the rows
+  correspond to the values of the bandwidth parameter
+  $h \in \{0.05, 0.10, ..., 0.5\}$. The values in the table are the values of
+  the test statistic $S_{\text{MOSUM}}$.
 
-  The rows in the table are
-  given for $h \in \{0.05, 0.10, ..., 0.5\}$, hence we can use one-dimensional
-  piecewise linear interpolation when the value of
-  $h \notin \{0.05, 0.10, ..., 0.5\}$ in order to get the row of tail
-  probabilities.
+  We start by selecting the table section that corresponds to our value of
+  $k-1$. Then we select the table row for our value of $h$.
+  However, when the value of $h \notin \{0.05, 0.10, ..., 0.5\}$
+  we use one-dimensional piecewise linear interpolation in order to get the four
+  values of $S_{\text{MOSUM}}$ that correspond to the tail probabilities 
+  $p \in \{0.1, 0.05, 0.025, 0.01\}$. 
 
   Finally, we apply the linear interpolation in order to caclulate the
-  probability that corresponds to the value of $S_{\text{MOSUM}}$. This is our p-value.
+  tail probability that corresponds to the value of the test statistic $(S_{\text{MOSUM}})$.
+  This is our p-value.
+
+  Consider this example. Let us assume that we are working with a time series,
+  $x_i = (1, x_{i1})^T$, hence $n_{\text{dim}} = 1$ and we choose the first
+  section of the table.
+  Let the bandwidth parameter $h = 0.12$.
+  This value is not present in the set $\{0.05, 0.10, ..., 0.5\}$. Therefore, we must perform a linear
+  interpolation in order to obtain the four values of the test statistic that
+  correspond to tail probabilities $\{0.1, 0.05, 0.025, 0.01\}$. We
+  calculate following values: $\{1.03698, 1.11134, 1.18094, 1.26396\}$. Let the
+  value of our statistic be $S_{\text{MOSUM}}=1.1914$. We notice that the value
+  of $1.1914$ lies between the last two values that we have just
+  calculated. In order to calculate the tail probability that corresponds to
+  $1.1914$, we perform another linear interpolation and calculate the tail probability $p=0.023$.
 \item \textbf{Return the result}: \\
   If $p \leq \alpha$, we reject the null-hypothesis. In other words, we detect
   structural change in the time-series, otherwise we do not.
+
+  For the example from the previous step, assume the confidence interval $\alpha=0.05$. Then
+  $p=0.023<\alpha$ and we must reject the null-hypothesis of no structural
+  change.
 \end{enumerate}
 
 \begin{table}[]
 \centering
 \begin{tabular}{|l|l|l|l|l|l|}
 \hline
-\multirow{2}{*}{k}        & \multicolumn{1}{c|}{\multirow{2}{*}{h}} & \multicolumn{4}{c|}{Tail probability}                                                                     \\ \cline{3-6} 
+\multirow{2}{*}{$n_{\text{dim}}$}        & \multicolumn{1}{c|}{\multirow{2}{*}{h}} & \multicolumn{4}{c|}{Tail probability}                                                                     \\ \cline{3-6} 
                           & \multicolumn{1}{c|}{}                   & 0.10                     & 0.05                     & 0.025                    & 0.01                     \\ \hline
 \multirow{4}{*}{1}        & 0.05                                    & 0.7552                   & 0.8017                   & 0.8444                   & 0.8977                   \\ \cline{2-6} 
                           & 0.10                                    & 0.9809                   & 1.0483                   & 1.1119                   & 1.1888                   \\ \cline{2-6} 
@@ -147,14 +193,14 @@ hypothesis can be rejected using a significance test.
 \label{table:critvals}
 \end{table}
 
-\subsection{Parameters and their values}
+\subsection{Parameters and Their Values}
 \label{subsec:mosum_parameters}
 The OLS-MOSUM test uses two parameters:
 \begin{itemize}
 \item The bandwidth parameter $h$. The BFAST R implementation
   \cite{bfast-github}, uses $0.15$.
 \item Significance level $\alpha$. The BFAST implementation
-  \cite{bfast-github}, uses a standard value of $0.05$
+  \cite{bfast-github}, uses a ubiquitous value of $0.05$
 \end{itemize}
 
 

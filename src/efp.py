@@ -67,6 +67,8 @@ class EFP():
         for i in range(tablen):
             tableipl[i] = np.interp(h, tableh, crit_table[:, i])
 
+        print(tableipl)
+        print(x)
         tableipl = np.insert(tableipl, 0, 0)
         tablep = np.insert(tablep, 0, 1)
 
@@ -87,15 +89,18 @@ class EFP():
 
         h = self.par
         x = self.process
-        if functional=="max":
-            k = 1
+        if (nd := np.ndim(x)) == 1:
+            k = nd
+        else:
+            k = np.shape[0]
+
         stat = np.max(np.abs(x))
         p_value = EFP.p_value(stat, h, k)
 
         return(stat, p_value)
 
 
-def test_for_dataset(y, name, deg=1, h=0.15, level=0.15):
+def test_dataset(y, name, deg=1, h=0.15, level=0.15):
     x = np.arange(1, y.shape[0] + 1).reshape(y.shape[0], 1)
     efp = EFP(x, y, h, deg=deg)
     stat, p_value = efp.sctest()
@@ -112,7 +117,7 @@ def test_for_dataset(y, name, deg=1, h=0.15, level=0.15):
 
 
 if __name__ == "__main__":
-    test_for_dataset(datasets.nhtemp, "nhtemp", deg=0)
-    test_for_dataset(datasets.nile, "nile", deg=1)
+    test_dataset(datasets.nhtemp, "nhtemp", deg=0, h=0.12)
+    # test_dataset(datasets.nile, "nile", deg=1)
 
 
