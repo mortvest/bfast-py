@@ -80,23 +80,23 @@ $t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)$:
   \quad(t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1))
 \end{equation}
 
-\subsection{Test Statistic}
-\label{subsec:test_statistic}
-A key observation is that if a structural change takes place at $t_0$, the
-OLS-MOSUM path would also have a strong shift at $t_0$.
-We reject the null hypothesis of there being no structural change, when the fluctuation of
-the OLS-MOSUM process becomes too large by calculating the test statistic:
-\begin{equation} \label{eq:test_statistic}
-  S_{\text{MOSUM}} = \max(\|\text{M(t)}\|) \quad \text{ for } t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)
-\end{equation}
-where $\| . \|$ signifies the absolute value.
 
 \subsection{Significance Testing}
 \label{subsec:significance_testing}
+A key observation is that if a structural change takes place at $t_0$, the
+OLS-MOSUM path would also have a strong shift at $t_0$.
+We reject the null hypothesis of there being no structural change, when the fluctuation of
+the OLS-MOSUM process becomes too large.\\\\
 In practice, we determine whether the null
 hypothesis can be rejected using a significance test (also called statistical
 hypothesis testing).
-Simply put, we use the test statistic ($S_{\text{MOSUM}}$) to calculate the probability of getting such
+First, we calculate the test statistic. For the residual-based OLS-MOSUM
+process, it is defined as:
+\begin{equation} \label{eq:test_statistic}
+  S_{\text{MOSUM}} = \max(\|\text{M(t)}\|) \quad \text{ for } t \text{ in } 1,2,..,(n - \floor{nh} + 1)
+\end{equation}
+where $\| . \|$ signifies the absolute value.\\\\
+We use the value of $S_{\text{MOSUM}}$ to calculate the probability of getting such
 sample, given that the null hypothesis holds, using the critical values approach.
 We then compare the resulting
 probability with a chosen confidence interval, which is typically some low value
