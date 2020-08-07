@@ -5,21 +5,31 @@ def _no_nans(arr):
     return not np.isnan(arr).any()
 
 
-def _Xinv0(obj):
-    qr = obj.qr
-    k = obj.coefficients.shape[0]
-    rval = np.zeros((k, k))
-    wi = qr.pivot[1:qr.rank]
-    rval[wi, wi] = chol2inv(qr.qr[1:qr.rank, 1:qr.rank, drop=False])
+def _Xinv0(x):
+    """
+    Calculate (X'X)^-1 using QR decomposition
+    """
+    ncol = np.shape(x)[1]
+    r = np.linalg.qr(x)[1]
+    qr_rank = np.linalg.matrix_rank(r)
+
+    r = r[:qr_rank, :qr_rank]
+
+    rval = np.zeros((ncol, ncol))
+    rval[:qr_rank, :qr_rank] = np.linalg.inv(r.T @ r)
     return rval
 
 
-def recresid(x, y, start=None, end=None, tol=None):
+def recresid(x, y, start=None, end=None, tol=None, deg=1):
     """
-    Function for computing the recursive residuals (standardized one step prediction errors)
-    of a linear regression model.
+    Function for computing the recursive residuals (standardized one step
+    prediction errors) of a linear regression model.
     """
-    nrow, ncol = x.shape
+    if np.ndim(x) == 1:
+        ncol = 1
+        nrow = x.shape
+    else:
+        nrow, ncol = x.shape
 
     if start is None:
         start = ncol + 1
@@ -35,49 +45,77 @@ def recresid(x, y, start=None, end=None, tol=None):
     n = end
     q = start - 1
     k = ncol
-    rval = np.repeat(0, n - q)
+    rval = np.zeros(n - q)
 
-    ## initialize recursion
+    # print("q =", q)
+    # initialize recursion
     y1 = y[:q]
-    fm = lm.fit(x[:q], y1)
-    X1 = _Xinv0(fm)
-    betar = np.nan_to_num(fm.coefficients)
+
+    x_q = x[:q]
+    # fm = lm.fit(x_q, y1)
+    coeffs = np.polyfit(x_q.flatten(), y1, deg=deg)
+    # print("coeffs = ", coeffs)
+
+    X1 = _Xinv0(x_q)
+    # betar = np.nan_to_num(fm.coefficients)
+    betar = np.nan_to_num(coeffs)
 
     xr = x[q]
     fr = 1 + (xr @ X1 @ xr)
+    # print("xr =", xr)
+    # print("betar =", betar)
+
     rval[0] = (y[q] - xr @ betar) / np.sqrt(fr)
 
-    ## check recursion against full QR decomposition?
+    # check recursion against full QR decomposition?
     check = True
 
     if (q + 1) < n:
         for r in range(q + 1, n):
-            ## check for NAs in coefficients
-            nona = _no_nans(fm.coefficients)
+            # check for NAs in coefficients
+            nona = _no_nans(coeffs)
 
-            ## recursion formula
+            # recursion formula
             X1 = X1 - (X1 @ np.outer(xr, xr) @ X1)/fr
-            betar += X1 @ xr * rval[r-q-2] * sqrt(fr)
+            # print("X1", X1)
+            betar += X1 @ xr * rval[r-q-1] * np.sqrt(fr)
+            # print("betar", betar)
 
-            ## full QR decomposition
+            # full QR decomposition
             if check:
+                # print("r", r)
                 y1 = y[:(r-1)]
-                fm = lm.fit(x[:(r-1)], y1)
-                nona = nona and _no_nans(betar) and _no_nans(fm.coefficients)
+                # print("check_y1", y1)
+                x_i = x[:(r-1)]
+                # print("check_x_i", x_i)
+                # fm = lm.fit(x_i, y1)
+                coeffs = np.polyfit(x_i.flatten(), y1, deg=deg)
+                # print("check_coeffs", coeffs)
+                nona = nona and _no_nans(betar) and _no_nans(coeffs)
+                # print("check_nona", nona)
 
-                ## keep checking?
-                check = not (nona and np.allclose(fm.coefficients, betar, atol=tol))
-                X1 = _Xinv0(fm)
-                betar = np.nan_to_num(fm.coefficients)
+                # keep checking?
+                check = not (nona and np.allclose(coeffs, betar, atol=tol))
+                X1 = _Xinv0(x_i)
+                # print("check_X1", X1)
+                betar = np.nan_to_num(coeffs)
 
-        ## residual
-        xr = x[r,]
-        fr = 1 + xr @ X1 @ xr
-        val = np.nan_to_num(xr * betar)
-        rval[r-q] = (y[r] - np.sum(val)) / np.sqrt(fr)
+            # residual
+            xr = x[r]
+            # print("xr", xr)
+            fr = 1 + xr @ X1 @ xr
+            # print("fr:", fr)
+            val = np.nan_to_num(xr * betar)
+            rval[r-q] = (y[r] - np.sum(val)) / np.sqrt(fr)
+            # print("rval", rval)
 
     return rval
 
 
 if __name__ == "__main__":
-    recresid()
+    x = np.arange(1, 21)
+    y = 2 * x
+    y[10:] += 10
+    x = x.reshape((20,1))
+    rec_res = recresid(x, y, deg=0)
+    print(rec_res)

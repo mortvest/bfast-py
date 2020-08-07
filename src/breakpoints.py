@@ -89,6 +89,7 @@ class Breakpoints():
         self.y = y
         self.X = X
 
+
     def breakfactor(self):
         breaks = self.breakpoints
         nobs = self.nobs
@@ -102,6 +103,7 @@ class Breakpoints():
         labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
         # labels[fac-1]
         return(fac, labels)
+
 
 if __name__ == "__main__":
     x = -5.0

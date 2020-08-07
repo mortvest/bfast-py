@@ -1,8 +1,4 @@
 import numpy as np
+import scipy.linalg
 
 
-x = np.array([[3, 4], [5, 6]])
-xr = x[1]
-
-res = (xr @ x @ xr)
-print(res)
