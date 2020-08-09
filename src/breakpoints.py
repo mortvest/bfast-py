@@ -94,7 +94,6 @@ class Breakpoints():
         breaks = self.breakpoints
         nobs = self.nobs
         if np.isnan(breaks).all():
-           # return(np.repeat("segment1", self.nobs))
            return (np.repeat(1, nobs), np.array(["segment1"]))
 
         nbreaks = breaks.shape[0]

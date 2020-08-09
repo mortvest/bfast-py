@@ -9,6 +9,13 @@ recresid.formula <- function(formula, data = list(), ...)
     y <- model.response(mf)
     modelterms <- terms(formula, data = data)
     X <- model.matrix(modelterms, data = data)
+
+    print(X)
+    print(y)
+    ## print(X[1:4])
+    ## print(y[1:3])
+    ## cat("STOP\n")
+    ## quit()
     rr <- recresid(X, y, ...)
     return(rr)
 }
@@ -33,6 +40,7 @@ recresid.lm <- function(x, data = list(), ...)
   rval <- matrix(0, ncol = k, nrow = k)
   wi <- qr$pivot[1:qr$rank]
   rval[wi,wi] <- chol2inv(qr$qr[1:qr$rank, 1:qr$rank, drop = FALSE])
+  ## print(qr$qr)
   rval
 }
 
@@ -55,7 +63,9 @@ recresid.default <- function(x, y, start = ncol(x) + 1, end = nrow(x),
   ## initialize recursion
   y1 <- y[1:q]
   fm <- lm.fit(x[1:q, , drop = FALSE], y1)
-  ## cat(fm$coefficients)
+  ## cat("x", x[1:q, , drop = FALSE], "\n")
+  ## cat("y", y1, "\n")
+  ## cat("coeffs", fm$coefficients, "\n")
   X1 <- .Xinv0(fm)
   betar <- .coef0(fm)
   xr <- as.vector(x[q+1,])
@@ -70,6 +80,7 @@ recresid.default <- function(x, y, start = ncol(x) + 1, end = nrow(x),
   {
     for(r in ((q+2):n))
     {
+      ## cat("r =", r-1, "\n")
       ## check for NAs in coefficients
       nona <- all(!is.na(fm$coefficients))
 
@@ -86,8 +97,9 @@ recresid.default <- function(x, y, start = ncol(x) + 1, end = nrow(x),
         ## cat("check_y1", c(y1), "\n")
         fm <- lm.fit(x[1:(r-1), , drop = FALSE], y1)
         ## cat("check_x1", c(x[1:(r-1)]), "\n")
+        ## cat("coeffs", fm$coefficients, "\n")
         nona <- nona & all(!is.na(betar)) & all(!is.na(fm$coefficients))
-        print(nona)
+        ## print(nona)
         ## cat("check_nona", nona, "\n")
         ## keep checking?
         if(nona && isTRUE(all.equal(as.vector(fm$coefficients), as.vector(betar), tol = tol))) {
@@ -102,8 +114,20 @@ recresid.default <- function(x, y, start = ncol(x) + 1, end = nrow(x),
       xr <- as.vector(x[r,])
       ## cat("xr", xr, "\n")
       fr <- as.vector((1 + (t(xr) %*% X1 %*% xr)))
-      ## cat("fr", fr, "\n")
-      rval[r-q] <- (y[r] - sum(xr * betar, na.rm = TRUE))/sqrt(fr)
+
+      v <- (y[r] - sum(xr * betar, na.rm = TRUE))/sqrt(fr)
+      rval[r-q] <- v
+
+      if( r == 11 | r == 12){
+        cat("r =", r-1, "\n")
+        cat("X1", X1, "\n")
+        cat("fr", fr, "\n")
+        cat("betar", betar, "\n")
+        cat("sum(val)", sum(xr * betar, na.rm = TRUE), "\n")
+        cat("y[r]", y[r], "\n")
+        cat("v", v, "\n")
+        cat("\n")
+      }
       ## cat("rval", rval, "\n")
       ## quit()
     }
@@ -114,5 +138,8 @@ recresid.default <- function(x, y, start = ncol(x) + 1, end = nrow(x),
 
 x <- matrix(1:20, nrow=20, ncol=1)
 y <- x * 2
-y[11:20] <- y[11:20] + 10
-print(recresid(x, y))
+y[10:20] <- y[10:20] + 10
+form <- y ~ x
+
+rr <- recresid(form)
+print(rr)

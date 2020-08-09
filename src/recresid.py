@@ -1,13 +1,14 @@
 import numpy as np
+import statsmodels.api as sm
 
 
 def _no_nans(arr):
     return not np.isnan(arr).any()
 
 
-def _Xinv0(x):
+def _Xinv0(x, coeffs):
     """
-    Calculate (X'X)^-1 using QR decomposition
+    Approximate (X'X)^-1 using QR decomposition
     """
     ncol = np.shape(x)[1]
     r = np.linalg.qr(x)[1]
@@ -15,12 +16,13 @@ def _Xinv0(x):
 
     r = r[:qr_rank, :qr_rank]
 
-    rval = np.zeros((ncol, ncol))
+    k = coeffs.shape[0]
+    rval = np.zeros((k, k))
     rval[:qr_rank, :qr_rank] = np.linalg.inv(r.T @ r)
     return rval
 
 
-def recresid(x, y, start=None, end=None, tol=None, deg=1):
+def recresid(x, y, start=None, end=None, tol=None):
     """
     Function for computing the recursive residuals (standardized one step
     prediction errors) of a linear regression model.
@@ -47,75 +49,85 @@ def recresid(x, y, start=None, end=None, tol=None, deg=1):
     k = ncol
     rval = np.zeros(n - q)
 
-    # print("q =", q)
+    print(X)
+    print(y)
+
     # initialize recursion
     y1 = y[:q]
 
     x_q = x[:q]
-    # fm = lm.fit(x_q, y1)
-    coeffs = np.polyfit(x_q.flatten(), y1, deg=deg)
-    # print("coeffs = ", coeffs)
+    # coeffs = np.polyfit(x_q.flatten(), y1, deg=deg)
+    model = sm.OLS(y1, x_q).fit()
+    coeffs = model.params
 
-    X1 = _Xinv0(x_q)
-    # betar = np.nan_to_num(fm.coefficients)
+    X1 = _Xinv0(x_q, coeffs)
     betar = np.nan_to_num(coeffs)
 
     xr = x[q]
     fr = 1 + (xr @ X1 @ xr)
-    # print("xr =", xr)
-    # print("betar =", betar)
-
     rval[0] = (y[q] - xr @ betar) / np.sqrt(fr)
 
     # check recursion against full QR decomposition?
     check = True
 
-    if (q + 1) < n:
-        for r in range(q + 1, n):
-            # check for NAs in coefficients
-            nona = _no_nans(coeffs)
+    if (q + 1) >= n:
+        return rval
 
-            # recursion formula
-            X1 = X1 - (X1 @ np.outer(xr, xr) @ X1)/fr
-            # print("X1", X1)
-            betar += X1 @ xr * rval[r-q-1] * np.sqrt(fr)
-            # print("betar", betar)
+    for r in range(q + 1, n):
+        # check for NAs in coefficients
+        nona = _no_nans(coeffs)
 
-            # full QR decomposition
-            if check:
-                # print("r", r)
-                y1 = y[:(r-1)]
-                # print("check_y1", y1)
-                x_i = x[:(r-1)]
-                # print("check_x_i", x_i)
-                # fm = lm.fit(x_i, y1)
-                coeffs = np.polyfit(x_i.flatten(), y1, deg=deg)
-                # print("check_coeffs", coeffs)
-                nona = nona and _no_nans(betar) and _no_nans(coeffs)
-                # print("check_nona", nona)
+        # recursion formula
+        X1 = X1 - (X1 @ np.outer(xr, xr) @ X1)/fr
+        # print("X1", X1)
+        betar += X1 @ xr * rval[r-q-1] * np.sqrt(fr)
+        # print("betar", betar)
 
-                # keep checking?
-                check = not (nona and np.allclose(coeffs, betar, atol=tol))
-                X1 = _Xinv0(x_i)
-                # print("check_X1", X1)
-                betar = np.nan_to_num(coeffs)
+        # full QR decomposition
+        if check:
+            y1 = y[:r]
+            # print("y1", y1)
+            x_i = x[:r]
+            # print("x_i", x_i)
 
-            # residual
-            xr = x[r]
-            # print("xr", xr)
-            fr = 1 + xr @ X1 @ xr
-            # print("fr:", fr)
-            val = np.nan_to_num(xr * betar)
-            rval[r-q] = (y[r] - np.sum(val)) / np.sqrt(fr)
-            # print("rval", rval)
+            model = sm.OLS(y1, x_i).fit()
+            coeffs = model.params
+            # print("coeffs", coeffs)
+            nona = nona and _no_nans(betar) and _no_nans(coeffs)
 
+            # keep checking?
+            check = not (nona and np.allclose(coeffs, betar, atol=tol))
+            X1 = _Xinv0(x_i, coeffs)
+            # print("check_X1", X1)
+            betar = np.nan_to_num(coeffs)
+
+        # residual
+        xr = x[r]
+        fr = 1 + xr @ X1 @ xr
+        val = np.nan_to_num(xr * betar)
+        v = (y[r] - np.sum(val)) / np.sqrt(fr)
+        rval[r-q] = v
+
+        # print("r", r)
+        # print("X1", X1.flatten())
+        # print("fr", fr)
+        # print("betar", np.around(betar, 8))
+        # print("sum(val)", np.sum(val))
+        # print("y[r]", y[r])
+        # print("v", v)
+        # print("\n")
+        # exit()
+
+    # exit()
+    rval = np.around(rval, 8)
     return rval
 
 
 if __name__ == "__main__":
-    x = np.arange(1, 21)
-    y = 2 * x
-    y[10:] += 10
-    x = x.reshape((20,1))
-    rec_res = recresid(x, y, deg=0)
+    x = np.arange(1,21)
+    y = x * 2
+    y[9:] = y[9:] + 10
+    X = sm.add_constant(x)
+
+    rec_res = recresid(X, y)
     print(rec_res)
