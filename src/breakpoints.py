@@ -21,19 +21,22 @@ class Breakpoints():
             return np.concatenate((np.repeat(np.nan, k), np.cumsum(ssr**2)))
 
         def extend_RSS_table(RSS_table, breaks):
-            n, k = RSS_table.shape
-            if (breaks * 2) > n:
-                for(m in (n/2 + 1):breaks):
-                    my_index = (m*h):(n-h)
-                    my_RSS.table = RSS.table[,c((m-1)*2 - 1, (m-1)*2)]
-                    my_RSS.table = cbind(my.RSS.table, NA, NA)
-                    for(i in my.index):
-                        pot_index = ((m-1)*h):(i - h)
-                        break_RSS = sapply(pot_index, function(j) my.RSS.table[as.character(j), 2] + RSS(j+1,i))
-                        opt = which_min(break_RSS)
-                        my_RSS_table[as.character(i), 3:4] = c(pot.index[opt], break.RSS[opt])
-                    RSS_table = cbind(RSS.table, my.RSS.table[,3:4])
-            return(RSS_table)
+            _, ncol = RSS_table.shape
+            if (breaks * 2) > ncol:
+                for m in range((int(ncol/2) + 1), breaks - 1, -1):
+                    my_index = np.arange((m * h) - 1, (n - h))
+                    index_arr = np.arange((m-1)*2 - 2, (m-1)*2)
+                    my_RSS_table = RSS_table[:, index_arr]
+                    nans = np.repeat(np.nan, my_RSS_table.shape[0])
+                    my_RSS_table = np.column_stack((my_RSS_table, nans, nans))
+                    for i in my_index:
+                        pot_index = np.arange((m - 1) * h - 1, (i - h + 1))
+                        my_fun = lambda j: my_RSS_table[j - h + 1, 1] + RSS(j + 1, i)
+                        break_RSS = np.array([my_fun(j) for j in pot_index])
+                        opt = np.argmin(break_RSS)
+                        my_RSS_table[i-h+1, np.array((2,3))] = np.array((pot_index[opt], break_RSS[opt]))
+                    RSS_table = np.column_stack((RSS_table, my_RSS_table[:, np.array((2,3))]))
+                    return(RSS_table)
 
         def extract_breaks(RSS_table, breaks):
             """
