@@ -1,4 +1,5 @@
-\documentclass[a4paper]{article}
+%% \documentclass[a4paper]{article}
+\documentclass[a4paper]{report}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amsthm}
@@ -19,6 +20,8 @@
 \usepackage[nottoc]{tocbibind}
 \usepackage{subfiles}
 \usepackage{multirow}
+\usepackage{titlesec}
+\usepackage{hyperref}
 
 \lstset{
   frame=tb,
@@ -33,66 +36,65 @@
   basicstyle=\small
 }
 
+%% Add custom commands to math mode
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 \newcommand{\prob}[1]{\mathbb{P}\left(#1\right)}
 \newcommand{\expect}[1]{\mathbb{E}\left(#1\right)}
 \newcommand{\avg}[1]{\sum_{i=1}^{#1}X_i}
 \newcommand{\dotpr}[2]{\langle #1,\; #2 \rangle}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
-\newcommand*{\QEDA}{\hfill\ensuremath{\blacksquare}}%
-
-\DeclarePairedDelimiter\ceiling{\lceil}{\rceil}
-\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 
 \def\biblio{\bibliographystyle{plain}\bibliography{mybib}}
 
+%% Remove subsection from the table of contents
+\setcounter{tocdepth}{1}
+
+%% Rename bibliography
+\renewcommand{\bibname}{References}
+
+%% Reduce vertical space in chapter
+\titleformat{\chapter}[display]   
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}   
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
+
 \title{
   \vspace{-3cm} 
-  \huge Project Outside the Course Scope \\
+  Project Outside the Course Scope \\
+  \vspace*{0.25cm}
   \large Algorithms for Change Detection in Satellite Image Time Series
 }
-\author{Dmitry Serykh (qwl888)}
+\author{Dmitry Serykh\\ \small\href{mailto:dmise@di.ku.dk}{dmise@di.ku.dk}}
 
 \begin{document}
 \def\biblio{}
-
 \maketitle
 \tableofcontents
-\newpage
 
 \subfile{intro.tex}
-\newpage
 
 \subfile{stl.tex}
-\newpage
 
 \subfile{mosum.tex}
-\newpage
 
 \subfile{breakpoints.tex}
-\newpage
 
 \subfile{bfast0n.tex}
-\newpage
 
 \subfile{bfast.tex}
-\newpage
 
 \subfile{implementation.tex}
-\newpage
 
 \subfile{validation.tex}
-\newpage
 
 \subfile{conclusion.tex}
-\newpage
 
 \bibliography{mybib}{}
 \bibliographystyle{plain}
-\newpage
+
 \appendix
 \subfile{source_code.tex}
-\newpage
+
 \subfile{how_to_run.tex}
 
 \end{document}

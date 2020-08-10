@@ -7,22 +7,15 @@ from recresid import recresid
 
 class Breakpoints():
     def __init__(self, X, y, h=0.15, breaks=None, data=[]):
-        def RSS(i, j):
-            """
-            function to extract the RSS(i,j) from RSS.triang
-            """
-            RSS_triang = np.array([RSSi(i) for i in np.arange(0:(n-h+1))])
-            return(RSS.triang[[i]][j - i + 1])
-
         def RSSi(i):
             """
             compute ith row of the RSS diagonal matrix, i.e,
             the recursive residuals for segments starting at i = 1:(n-h+1)
             """
             if intercept_only:
-                ssr = (y[i:n] - np.cumsum(y[i:n])/(1L:(n-i+1L)))[-1L] * np.sqrt(1L + 1L/(1L:(n-i)))
+                ssr = (y[i:n] - np.cumsum(y[i:n]) / (1:(n-i+1)))[-1] * np.sqrt(1 + 1/(1:(n-i)))
             else:
-                ssr = recresid(X[i:n,,drop = FALSE],y[i:n])
+                ssr = recresid(X[i:n], y[i:n])
             return [np.repeat(np.nan, k), np.cumsum(ssr**2)]
 
         def extract_breaks(RSS_table, breaks):
@@ -73,28 +66,34 @@ class Breakpoints():
         ## store results together with RSSs in RSS_table
 
         ## breaks = 1
-        index = np.arange((h-1), (n-h))
+        RSS_triang = np.array([RSSi(i) for i in np.arange(:(n-h+1))])
 
-        break_RSS = np.array([RSS(1, i) for i in index])
+        def RSS(i, j): return RSS_triang[i][j - i + 1]
+
+        index = np.arange((h-1), (n-h))
+        # break_RSS = np.array([RSS(1, i) for i in index])
+        break_RSS = np.array([RSS(0, i) for i in index])
 
         RSS_table = np.column_stack(index, break_RSS)
 
         ## breaks >= 2
-        RSS_table = Breakpoints.extend_RSS_table(RSS_table, breaks)
-        opt = Breakpoints.extract_breaks(RSS_table, breaks)
+        RSS_table = extend_RSS_table(RSS_table, breaks)
+        opt = extract_breaks(RSS_table, breaks)
 
         self.breakpoints = opt
         self.nobs = n
         self.nreg = k
         self.y = y
         self.X = X
-
+        self.RSS = RSS
+        self.RSS_triang = RSS_triang
+        self.RSS_table = RSS_table
 
     def breakfactor(self):
         breaks = self.breakpoints
         nobs = self.nobs
         if np.isnan(breaks).all():
-           return (np.repeat(1, nobs), np.array(["segment1"]))
+            return (np.repeat(1, nobs), np.array(["segment1"]))
 
         nbreaks = breaks.shape[0]
         v = np.insert(np.diff(np.append(breaks, nobs)), 0, breaks[0])
@@ -102,6 +101,13 @@ class Breakpoints():
         labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
         # labels[fac-1]
         return(fac, labels)
+
+    def logLik(self):
+        n = self.nobs
+        bp = self.breakpoints
+        df = (self.nreg + 1) * (len(bp[[~np.isnan(bp)]]) + 1)
+        logL = -0.5 * n * (np.log(self.RSS) + 1 - np.log(n) + np.log(2 * np.pi))
+        return (logL, df)
 
 
 if __name__ == "__main__":

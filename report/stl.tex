@@ -1,8 +1,8 @@
 \documentclass[main.tex]{subfiles}
 
 \begin{document}
-\section{Seasonal Trend Decomposition (STL)}
-\label{sec:seasonal_trend_decomposition_using_loess}
+\chapter{Seasonal Trend Decomposition (STL)}
+\label{chap:seasonal_trend_decomposition_using_loess}
 STL, as first described by Cleveland et al. \cite{stl}, is an
 algorithm for decomposition of time series, which is a common task in
 statistics and used by the BFAST algorithm to get the initial estimate of the
@@ -32,8 +32,8 @@ that would temper with the breakpoint information.
 \end{figure}
 
 
-\subsection{Locally Weighted Regression (LOESS)}
-\label{subsec:locally_weighted_running_line_smoother}
+\section{Locally Weighted Regression (LOESS)}
+\label{sec:locally_weighted_running_line_smoother}
 The key component of the STL method is the Locally Weighted Regression (LOESS),
 that is described in \cite{loess} and \cite{stl}. LOESS is a robust smoothing method that is
 commonly used in statistics and operates as follows:
@@ -83,15 +83,16 @@ LOESS smoothing can be seen on Figure \ref{fig_loess}.
   \label{fig_loess}
 \end{figure}
 
-\subsection{The incremental algorithm}
-\label{subsec:the_incremental_algorithm}
+\section{The incremental algorithm}
+\label{sec:the_incremental_algorithm}
 STL is performed through two nested loops and we begin by setting:
 \begin{align*}
   T_v^{0} &= 0\\
   R_v^{0} &= 0\\
   \rho_v &= 1
 \end{align*}
-\subsubsection{Inner loop}
+\subsection{Inner loop}
+\label{subsec:inner_loop}
 The inner loop consists of following steps:
 \begin{enumerate}
 \item \textbf{Detrending}:
@@ -113,7 +114,8 @@ The inner loop consists of following steps:
   Apply LOESS to $Y_v - S_v^k$ with $q = n_t$, resulting in $T^{k+1}$
 \end{enumerate}
 
-\subsubsection{Outer loop}
+\subsection{Outer loop}
+\label{subsec:outer_loop}
 The outer loop consists of following steps:
 \begin{enumerate}
 \item Run the inner loop
@@ -133,8 +135,8 @@ The outer loop consists of following steps:
 \]
 \end{enumerate}
 
-\subsection{Parameters and their values}
-\label{subsec:parameter_values}
+\section{Parameters and their values}
+\label{sec:parameter_values}
 STL has following parameters \cite{stl}:
 \begin{enumerate}
 \item $n_p$ : period of the seasonal component in number of observations.

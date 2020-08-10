@@ -33,6 +33,10 @@ class EFP():
         else:
             e = y - fm @ np.vstack((X.T, np.ones(n)))
 
+        print("e")
+        print(fm[0])
+        print(e)
+
         sigma = np.sqrt(np.sum(e**2) / (n - k))
         nh = np.floor(n * h)
 
@@ -103,6 +107,7 @@ class EFP():
 def test_dataset(y, name, deg=1, h=0.15, level=0.15):
     x = np.arange(1, y.shape[0] + 1).reshape(y.shape[0], 1)
     efp = EFP(x, y, h, deg=deg)
+    print(efp.process)
     stat, p_value = efp.sctest()
 
     print("Testing '{}', deg: {}".format(name, deg))

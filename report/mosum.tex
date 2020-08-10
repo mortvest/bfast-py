@@ -1,8 +1,8 @@
 \documentclass[main.tex]{subfiles}
 
 \begin{document}
-\section{OLS-MOSUM Test}
-\label{sec:mosum}
+\chapter{OLS-MOSUM Test}
+\label{chap:mosum}
 Tests from the generalized fluctuation test framework \cite{kuan_hornik}
 is one of the most important classes of tests on structural change. This class
 of tests include, in particular, Moving Sum (MOSUM) test, which is the topic of this chapter.
@@ -11,8 +11,8 @@ underlying theory and usage of the \texttt{strucchange} package for the
 R programming language that includes multiple tools for detection of structural
 changes in linear regression relationships.
 
-\subsection{The Model}
-\label{sec:mosum}
+\section{The Model}
+\label{sec:model}
 In \texttt{strucchange} \cite{strucchange}, a standard linear regression model is considered:
 \[
 y_{i}=x_{i}^{\top} \beta_{i}+u_{i} \quad(i=1, \ldots, n)
@@ -48,8 +48,8 @@ the variance estimate would then be:
 \hat{\sigma}^{2}=\frac{1}{n-k} \sum_{i=1}^{n} \hat{u}_{i}^{2}
 \end{equation}
 
-\subsection{Empirical Fluctuation Process (OLS-MOSUM)}
-\label{subsec:empirical_fluctuation}
+\section{Empirical Fluctuation Process (OLS-MOSUM)}
+\label{sec:empirical_fluctuation}
 It is possible to detect structural change by analyzing moving sum of residuals
 \cite{strucchange}. The resulting empirical fluctuation process consists of a
 sum of a fixed number of residuals in a data interval, which size is determined
@@ -81,8 +81,8 @@ $t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)$:
 \end{equation}
 
 
-\subsection{Significance Testing}
-\label{subsec:significance_testing}
+\section{Significance Testing}
+\label{sec:significance_testing}
 A key observation is that if a structural change takes place at $t_0$, the
 OLS-MOSUM path would also have a strong shift at $t_0$.
 We reject the null hypothesis of there being no structural change, when the fluctuation of
@@ -106,9 +106,9 @@ In our case, it would mean that a
 structural change is detected in the time series. 
 
 
-\subsection{Steps of the Algorithm}
+\section{Steps of the Algorithm}
 We determine whether the structural changes are present in the time series by following these steps:
-\label{subsec:the_algorithm_steps}
+\label{sec:the_algorithm_steps}
 \begin{enumerate}
 \item \textbf{Find the value of $\hat{\beta}^{(n)}$ using OLS-based linear
   regression using the vectors of observations $x$ and $y$}
@@ -193,8 +193,8 @@ We determine whether the structural changes are present in the time series by fo
 \label{table:critvals}
 \end{table}
 
-\subsection{Parameters and Their Values}
-\label{subsec:mosum_parameters}
+\section{Parameters and Their Values}
+\label{sec:mosum_parameters}
 The OLS-MOSUM test uses two parameters:
 \begin{itemize}
 \item The bandwidth parameter $h$. The BFAST R implementation
