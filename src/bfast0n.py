@@ -63,6 +63,9 @@ from breakpoints import Breakpoints
 
 
 def bfast0n(X, y, stl="none"):
+    """
+    Light-weight detection of multiple breaks in a time series
+    """
     # formula = response ~ trend + harmon
     def stl_adjust(x):
         x_stl = stl(x, s_window="periodic").time_series
