@@ -42,19 +42,19 @@ class Breakpoints():
             """
             extract optimal breaks
             """
-            n, _ = RSS_table.shape
-            if (breaks * 2) > n:
+            _, ncol = RSS_table.shape
+            if (breaks * 2) > ncol:
                 raise ValueError("compute RSS_table with enough breaks before")
 
-            index = RSS_table[:, 0]
-            break_RSS = np.array([RSS_table[as.character(i),breaks*2] + RSS(i + 1, n) for i in index])
+            index = RSS_table[:, 0].astype(int)
+            fun = lambda i: RSS_table[int(i - h + 1), int(breaks * 2 - 1)] + RSS(i + 1, n - 1)
+            break_RSS = np.vectorize(fun)(index)
+            opt = [index[np.nanargmin(break_RSS)]]
 
-            opt = index[np.argmin(break_RSS)]
             if breaks > 1:
-                for i in np.arange(breaks, 1, -1) - 1:
-                    opt = [RSS_table[as.character(opt[1]), i], opt]
-            return(opt)
-
+                for i in 2 * np.arange(breaks, 1, -1) - 2:
+                    opt.insert(0, RSS_table[opt[0] - h + 1, i])
+            return(np.array(opt))
 
         n, k = X.shape
         intercept_only = np.allclose(X, 1)
@@ -84,6 +84,7 @@ class Breakpoints():
 
         ## breaks >= 2
         RSS_table = extend_RSS_table(RSS_table, breaks)
+
         opt = extract_breaks(RSS_table, breaks)
 
         self.breakpoints = opt
@@ -120,4 +121,5 @@ class Breakpoints():
 
 
 if __name__ == "__main__":
-    x = -5.0
+    pass
+
