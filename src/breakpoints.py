@@ -1,8 +1,11 @@
+import logging
+import argparse
+
 import numpy as np
-from scipy.stats import norm
-from scipy.optimize import root, brentq
+import matplotlib.pyplot as plt
 
 from recresid import recresid
+from datasets import nile, nile_dates, uk_driver_deaths, uk_driver_deaths_dates
 
 
 class Breakpoints():
@@ -30,13 +33,13 @@ class Breakpoints():
                     nans = np.repeat(np.nan, my_RSS_table.shape[0])
                     my_RSS_table = np.column_stack((my_RSS_table, nans, nans))
                     for i in my_index:
-                        pot_index = np.arange((m - 1) * h - 1, (i - h + 1))
-                        my_fun = lambda j: my_RSS_table[j - h + 1, 1] + RSS(j + 1, i)
-                        break_RSS = np.array([my_fun(j) for j in pot_index])
-                        opt = np.argmin(break_RSS)
-                        my_RSS_table[i-h+1, np.array((2,3))] = np.array((pot_index[opt], break_RSS[opt]))
+                        pot_index = np.arange((m - 1) * h - 1, (i - h + 1)).astype(int)
+                        fun = lambda j: my_RSS_table[j - h + 1, 1] + RSS(j + 1, i)
+                        break_RSS = np.vectorize(fun)(pot_index)
+                        opt = np.nanargmin(break_RSS)
+                        my_RSS_table[i - h + 1, np.array((2, 3))] = np.array((pot_index[opt], break_RSS[opt]))
                     RSS_table = np.column_stack((RSS_table, my_RSS_table[:, np.array((2,3))]))
-                    return(RSS_table)
+            return(RSS_table)
 
         def extract_breaks(RSS_table, breaks):
             """
@@ -57,35 +60,49 @@ class Breakpoints():
             return(np.array(opt))
 
         n, k = X.shape
+        logging.debug("n = {}, k = {}".format(n, k))
+
         intercept_only = np.allclose(X, 1)
+        logging.debug("intercept_only = {}".format(intercept_only))
 
-        h = np.floor(n * h)
+        h = int(np.floor(n * h))
+        logging.debug("h = {}".format(h))
 
-        max_breaks = np.ceil(n / h) - 2
+        max_breaks = int(np.ceil(n / h) - 2)
         if breaks is None:
             breaks = max_breaks
         elif breaks > max_breaks:
-            print("requested number of breaks = {} too large, changed to n/h={}".
-                  format(breaks, max_breaks))
+            logging.warning("requested number of breaks = {} too large, changed to {}".
+                            format(breaks, max_breaks))
             breaks = max_breaks
 
+        logging.debug("breaks = {}".format(breaks))
         ## compute optimal previous partner if observation i is the mth break
         ## store results together with RSSs in RSS_table
 
         ## breaks = 1
-        RSS_triang = np.array([RSSi(i) for i in np.arange(:(n-h+1))], dtype=object)
+
+        RSS_triang = np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
+
+        logging.debug("RSS_triang:\n{}".format(RSS_triang))
 
         def RSS(i, j): return RSS_triang[i][j - i]
 
-        index = np.arange((h-1), (n-h))
-        break_RSS = np.array([RSS(0, i) for i in index])
+        index = np.arange((h - 1), (n - h)).astype(int)
+        logging.debug("index:\n{}".format(index))
 
-        RSS_table = np.column_stack(index, break_RSS)
+        break_RSS = np.array([RSS(0, i) for i in index])
+        logging.debug("break_RSS:\n{}".format(break_RSS))
+
+        RSS_table = np.column_stack((index, break_RSS))
+        logging.debug("RSS_table:\n{}".format(RSS_table))
 
         ## breaks >= 2
         RSS_table = extend_RSS_table(RSS_table, breaks)
+        logging.debug("extended RSS_table:\n{}".format(RSS_table))
 
-        opt = extract_breaks(RSS_table, breaks)
+        opt = extract_breaks(RSS_table, breaks).astype(int)
+        logging.debug("breakpoints extracted:\n{}".format(opt))
 
         self.breakpoints = opt
         self.nobs = n
@@ -121,5 +138,65 @@ class Breakpoints():
 
 
 if __name__ == "__main__":
-    pass
+    # set up logging
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--log",
+                        default="warning",
+                        help="set the logging level, default is WARNING")
+    args = parser.parse_args()
+    log_level = args.log
+    logging.basicConfig(level=getattr(logging, log_level.upper()))
 
+
+    print("Testing synthetic")
+    # Synthetic dataset with two breakpoints x = 15 and 35
+    X = np.ones(50).reshape((50, 1))
+    y = np.arange(50) * 2
+    y[15:] += 30
+    y[35:] += 25
+
+    n_breaks = 2
+
+    bp = Breakpoints(X, y, breaks=n_breaks).breakpoints
+    print("Breakpoints:", bp + 1)
+    print()
+
+
+    # Nile dataset with a single breakpoint. Ashwan dam was built in 1898
+    print("Testing nile")
+
+    y = nile
+    X = np.ones(y.shape[0]).reshape((y.shape[0], 1))
+
+    nile_breaks = 1
+    bp_nile = Breakpoints(X, y, breaks=1)
+    bp_nile_arr = bp_nile.breakpoints
+    bp_nile_bf = bp_nile.breakfactor()[0]
+
+    # plt.plot(nile_dates[bp_nile_bf == 1], nile[bp_nile_bf == 1])
+    # plt.plot(nile_dates[bp_nile_bf == 2], nile[bp_nile_bf == 2])
+    # plt.show()
+
+
+    # bp_nile = Breakpoints(X, y, breaks=nile_breaks).breakpoints
+    nile_break_date = nile_dates[bp_nile_arr]
+    print("Breakpoints:", nile_break_date)
+    print()
+
+    # UK Seatbelt data. Has at least two break points: one in 1973 and one in 1983
+    print("Testing UK Seatbelt data")
+
+    y = uk_driver_deaths
+    X = np.ones(y.shape[0]).reshape((y.shape[0], 1))
+    uk_breaks = 2
+
+    # plt.plot(uk_driver_deaths_dates, uk_driver_deaths)
+    # plt.show()
+
+    bp_uk = Breakpoints(X, y, breaks=uk_breaks).breakpoints
+    uk_break_dates = uk_driver_deaths_dates[bp_uk]
+    if uk_break_dates.shape[0] > 0:
+        print("Breakpoints", uk_break_dates)
+
+
+    # # seatbelt <- cbind(seatbelt, lag(seatbelt, k = -1), lag(seatbelt, k = -12))
