@@ -66,19 +66,19 @@ class Breakpoints():
         RSS_table = self.extend_RSS_table(RSS_table, breaks)
         logging.debug("extended RSS_table:\n{}".format(RSS_table))
 
-        opt = self.extract_breaks(RSS_table, breaks).astype(int)
-        logging.debug("breakpoints extracted:\n{}".format(opt))
-
-        self.breakpoints = opt
+        # opt = self.extract_breaks(RSS_table, breaks).astype(int)
+        # logging.debug("breakpoints extracted:\n{}".format(opt))
+        # self.breakpoints = opt
+        self.RSS_table = RSS_table
         self.nreg = k
         self.y = y
         self.X = X
 
         # find the optimal amount of breakpoints using Bayesian Information Criterion
-        self.breakpoints_for_m()
+        self.breakpoints = self.breakpoints_for_m()[1]
 
     def RSS(self, i, j):
-        return self.RSS_triang[i][j - i]
+        return self.RSS_triang[int(i)][int(j - i)]
 
     def extend_RSS_table(self, RSS_table, breaks):
         _, ncol = RSS_table.shape
@@ -117,51 +117,60 @@ class Breakpoints():
         opt = [index[np.nanargmin(break_RSS)]]
 
         if breaks > 1:
-            for i in 2 * np.arange(breaks, 1, -1) - 2:
+            for i in 2 * np.arange(breaks, 1, -1).astype(int) - 2:
                 opt.insert(0, RSS_table[opt[0] - h + 1, i])
         return(np.array(opt))
 
-    def logLik(self):
-        """
-        log-likelihood of the model
-        """
-        n = self.nobs
-        bp = self.breakpoints
-        df = (self.nreg + 1) * (len(bp[[~np.isnan(bp)]]) + 1)
-        logL = -0.5 * n * (np.log(self.RSS) + 1 - np.log(n) + np.log(2 * np.pi))
-        return (logL, df)
-
     def breakpoints_for_m(self, breaks=None):
         if breaks is None:
-            sbp = self.summary
-            breaks = np.argmin(sbp.RSS[1,:]) - 1
+            sbp = self.summary()
+            breaks = np.argmin(sbp[1,:]) - 1
+
         if breaks < 1:
-            return None
+            RSS = self.RSS(0, self.nobs - 1)
+            return RSS, None
         else:
             RSS_tab = self.extend_RSS_table(self.RSS_table, breaks)
             breakpoints = self.extract_breaks(RSS_tab, breaks)
-            self.breakpoints = breakpoints
+            bp = np.concatenate(([0], breakpoints, [self.nobs-1]))
+            cb = np.column_stack((bp[:-1] + 1, bp[1:]))
+            fun = lambda x: self.RSS(x[0], x[1])
+            RSS = np.sum([fun(i) for i in cb])
+            return RSS, breakpoints
 
     def summary(self, breaks=None, sort=True, format_times=None):
         if breaks is None:
-            breaks = self.RSS_table.shape[1]/2
+            breaks = int(self.RSS_table.shape[1]/2)
 
         n = self.nobs
-        RSS = c(self.RSS(1, n), rep(NA, breaks))
-        BIC = c(n * (log(RSS[1]) + 1 - log(n) + log(2*pi)) + log(n) * (object$nreg + 1),
-                rep(NA, breaks))
-        bp = self.breakpoints_for_m(breaks)
-        RSS[breaks + 1] = bp$RSS
-        BIC[breaks + 1] = AIC(bp, k = log(n))
-        bp = bp.breakpoints
+        RSS = np.concatenate(([self.RSS(0, n-1)], np.repeat(np.nan, breaks)))
+        BIC_vals = n * (np.log(RSS[0]) + 1 - np.log(n) + np.log(2*np.pi)) \
+            + np.log(n) * (self.nreg + 1)
+        BIC = np.concatenate(([BIC_vals], np.repeat(np.nan, breaks)))
+        RSS1, breakpoints = self.breakpoints_for_m(breaks)
+        RSS[breaks] = RSS1
+        BIC[breaks] = self.BIC(RSS1, breakpoints)
 
         if breaks > 1:
             for m in range(breaks - 1, 0, -1):
-                bpm = breakpoints(object, breaks=m)
-                RSS[m+1] = bpm$RSS
-                BIC[m+1] = AIC(bpm, k = log(n))
+                RSS_m, breakpoints_m = self.breakpoints_for_m(breaks=m)
+                RSS[m] = RSS_m
+                BIC[m] = self.BIC(RSS_m, breakpoints_m)
         RSS = np.vstack((RSS, BIC))
+        return RSS
 
+    def BIC(self, RSS, breakpoints):
+        """
+        Bayesian Information Criterion
+        """
+        n = self.nobs
+        bp = breakpoints
+        # df = (self.nreg + 1) * (len(bp[[~np.isnan(bp)]]) + 1)
+        df = (self.nreg + 1) * (len(bp[~np.isnan(bp)]) + 1)
+        # log-likelihood
+        logL = -0.5 * n * (np.log(RSS) + 1 - np.log(n) + np.log(2 * np.pi))
+        bic = df * np.log(n) - 2 * logL
+        return bic
 
     def breakfactor(self):
         breaks = self.breakpoints
@@ -191,52 +200,49 @@ if __name__ == "__main__":
     print("Testing synthetic")
     # Synthetic dataset with two breakpoints x = 15 and 35
     X = np.ones(50).reshape((50, 1))
-    y = np.arange(50) * 2
-    y[15:] += 30
-    y[35:] += 25
+    y = np.arange(50)
+    # y[15:] += 30
+    y[35:] = y[35:] * 0.03
 
-    n_breaks = 2
+    # n_breaks = 2
 
-    bp = Breakpoints(X, y, breaks=n_breaks).breakpoints
-    print("Breakpoints:", bp + 1)
+    bp = Breakpoints(X, y).breakpoints
+    print("Breakpoints:", bp)
     print()
 
 
-    # Nile dataset with a single breakpoint. Ashwan dam was built in 1898
-    print("Testing nile")
+    # # Nile dataset with a single breakpoint. Ashwan dam was built in 1898
+    # print("Testing nile")
 
-    y = nile
-    X = np.ones(y.shape[0]).reshape((y.shape[0], 1))
+    # y = nile
+    # X = np.ones(y.shape[0]).reshape((y.shape[0], 1))
 
-    nile_breaks = 1
-    bp_nile = Breakpoints(X, y, breaks=1)
-    bp_nile_arr = bp_nile.breakpoints
-    bp_nile_bf = bp_nile.breakfactor()[0]
+    # nile_breaks = 1
+    # bp_nile = Breakpoints(X, y, breaks=1)
+    # bp_nile_arr = bp_nile.breakpoints
+    # bp_nile_bf = bp_nile.breakfactor()[0]
 
-    # plt.plot(nile_dates[bp_nile_bf == 1], nile[bp_nile_bf == 1])
-    # plt.plot(nile_dates[bp_nile_bf == 2], nile[bp_nile_bf == 2])
-    # plt.show()
-
-
-    # bp_nile = Breakpoints(X, y, breaks=nile_breaks).breakpoints
-    nile_break_date = nile_dates[bp_nile_arr]
-    print("Breakpoints:", nile_break_date)
-    print()
-
-    # UK Seatbelt data. Has at least two break points: one in 1973 and one in 1983
-    print("Testing UK Seatbelt data")
-
-    y = uk_driver_deaths
-    X = np.ones(y.shape[0]).reshape((y.shape[0], 1))
-    uk_breaks = 2
-
-    # plt.plot(uk_driver_deaths_dates, uk_driver_deaths)
-    # plt.show()
-
-    bp_uk = Breakpoints(X, y, breaks=uk_breaks).breakpoints
-    uk_break_dates = uk_driver_deaths_dates[bp_uk]
-    if uk_break_dates.shape[0] > 0:
-        print("Breakpoints", uk_break_dates)
+    # # plt.plot(nile_dates[bp_nile_bf == 1], nile[bp_nile_bf == 1])
+    # # plt.plot(nile_dates[bp_nile_bf == 2], nile[bp_nile_bf == 2])
+    # # plt.show()
 
 
-    # # seatbelt <- cbind(seatbelt, lag(seatbelt, k = -1), lag(seatbelt, k = -12))
+    # # bp_nile = Breakpoints(X, y, breaks=nile_breaks).breakpoints
+    # nile_break_date = nile_dates[bp_nile_arr]
+    # print("Breakpoints:", nile_break_date)
+    # print()
+
+    # # UK Seatbelt data. Has at least two break points: one in 1973 and one in 1983
+    # print("Testing UK Seatbelt data")
+
+    # y = uk_driver_deaths
+    # X = np.ones(y.shape[0]).reshape((y.shape[0], 1))
+    # uk_breaks = 2
+
+    # # plt.plot(uk_driver_deaths_dates, uk_driver_deaths)
+    # # plt.show()
+
+    # bp_uk = Breakpoints(X, y, breaks=uk_breaks).breakpoints
+    # uk_break_dates = uk_driver_deaths_dates[bp_uk]
+    # if uk_break_dates.shape[0] > 0:
+    #     print("Breakpoints", uk_break_dates)

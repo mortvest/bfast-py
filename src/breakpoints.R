@@ -41,35 +41,18 @@ summary.breakpointsfull <- function(object, breaks = NULL, sort = TRUE, format.t
   bp <- breakpoints(object, breaks = breaks)
   RSS[breaks + 1] <- bp$RSS
   BIC[breaks + 1] <- AIC(bp, k = log(n))
-  bp <- bp$breakpoints
+
   if(breaks > 1) {
     for(m in (breaks-1):1)
     {
-      bp <- rbind(NA, bp)
       bpm <- breakpoints(object, breaks = m)
-      if(sort) {
-        pos <- apply(outer(bpm$breakpoints, bp[nrow(bp),],
-                           FUN = function(x,y) abs(x - y)), 1, which.min)
-        if(length(pos) > unique(length(pos))) {
-          warning("sorting not possible", call. = FALSE)
-          sort <- FALSE
-        }
-      }
-      if(!sort) pos <- 1:m
-      bp[1,pos] <- bpm$breakpoints
       RSS[m+1] <- bpm$RSS
       BIC[m+1] <- AIC(bpm, k = log(n))
     }
-  } else {
-    bp <- as.matrix(bp)
   }
-  rownames(bp) <- as.character(1:breaks)
-  colnames(bp) <- rep("", breaks)
   RSS <- rbind(RSS, BIC)
   rownames(RSS) <- c("RSS", "BIC")
-  RVAL <- list(breakpoints = bp,
-               RSS = RSS,
-               call = object$call)
+  RVAL <- list(RSS = RSS)
   class(RVAL) <- "summary.breakpointsfull"
   cat("summary.breakpointsfull is finished\n")
   return(RVAL)
@@ -252,11 +235,33 @@ breakpoints <- function(obj, ...)
 
 
 
-data("Nile")
-bp.nile <- breakpoints(Nile ~ 1)
-## print(bp.nile)
-## summary(bp.nile)
+## data("Nile")
+## bp.nile <- breakpoints(Nile ~ 1)
+## print(bp.nile$breakpoints)
+
+
+x <- matrix(1:50, nrow=50, ncol=1)
+y <- x
+y[35:nrow(y)] <- y[35:nrow(y)] * 0.03
+form <- y ~ 1
+## form <- y ~ x
+bp <- breakpoints(form)
+print(bp$breakpoints)
+
+
+
+
 
 ## ## the BIC also chooses one breakpoint
 ## plot(bp.nile)
 ## breakpoints(bp.nile)
+
+## x <- matrix(1:50, nrow=50, ncol=1)
+## y <- x * 2
+## y[15:nrow(y)] <- y[15:nrow(y)] + 30
+## ## y[35:nrow(y)] <- y[35:nrow(y)] + 25
+## ## print(y)
+## form <- y ~ 1
+## bp <- breakpoints(form)
+## print(bp$breakpoints)
+## ## summary(bp)
