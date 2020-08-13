@@ -49,9 +49,6 @@ def recresid(x, y, start=None, end=None, tol=None):
     k = ncol
     rval = np.zeros(n - q)
 
-    print(X)
-    print(y)
-
     # initialize recursion
     y1 = y[:q]
 

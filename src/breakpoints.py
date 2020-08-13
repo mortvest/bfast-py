@@ -23,49 +23,15 @@ class Breakpoints():
                 ssr = recresid(X[i:], y[i:])
             return np.concatenate((np.repeat(np.nan, k), np.cumsum(ssr**2)))
 
-        def extend_RSS_table(RSS_table, breaks):
-            _, ncol = RSS_table.shape
-            if (breaks * 2) > ncol:
-                for m in range((int(ncol/2) + 1), breaks - 1, -1):
-                    my_index = np.arange((m * h) - 1, (n - h))
-                    index_arr = np.arange((m-1)*2 - 2, (m-1)*2)
-                    my_RSS_table = RSS_table[:, index_arr]
-                    nans = np.repeat(np.nan, my_RSS_table.shape[0])
-                    my_RSS_table = np.column_stack((my_RSS_table, nans, nans))
-                    for i in my_index:
-                        pot_index = np.arange((m - 1) * h - 1, (i - h + 1)).astype(int)
-                        fun = lambda j: my_RSS_table[j - h + 1, 1] + RSS(j + 1, i)
-                        break_RSS = np.vectorize(fun)(pot_index)
-                        opt = np.nanargmin(break_RSS)
-                        my_RSS_table[i - h + 1, np.array((2, 3))] = np.array((pot_index[opt], break_RSS[opt]))
-                    RSS_table = np.column_stack((RSS_table, my_RSS_table[:, np.array((2,3))]))
-            return(RSS_table)
-
-        def extract_breaks(RSS_table, breaks):
-            """
-            extract optimal breaks
-            """
-            _, ncol = RSS_table.shape
-            if (breaks * 2) > ncol:
-                raise ValueError("compute RSS_table with enough breaks before")
-
-            index = RSS_table[:, 0].astype(int)
-            fun = lambda i: RSS_table[int(i - h + 1), int(breaks * 2 - 1)] + RSS(i + 1, n - 1)
-            break_RSS = np.vectorize(fun)(index)
-            opt = [index[np.nanargmin(break_RSS)]]
-
-            if breaks > 1:
-                for i in 2 * np.arange(breaks, 1, -1) - 2:
-                    opt.insert(0, RSS_table[opt[0] - h + 1, i])
-            return(np.array(opt))
-
         n, k = X.shape
+        self.nobs = n
         logging.debug("n = {}, k = {}".format(n, k))
 
         intercept_only = np.allclose(X, 1)
         logging.debug("intercept_only = {}".format(intercept_only))
 
         h = int(np.floor(n * h))
+        self.h = h
         logging.debug("h = {}".format(h))
 
         max_breaks = int(np.ceil(n / h) - 2)
@@ -82,36 +48,120 @@ class Breakpoints():
 
         ## breaks = 1
 
-        RSS_triang = np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
+        self.RSS_triang = np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
 
-        logging.debug("RSS_triang:\n{}".format(RSS_triang))
+        logging.debug("RSS_triang:\n{}".format(self.RSS_triang))
 
-        def RSS(i, j): return RSS_triang[i][j - i]
 
         index = np.arange((h - 1), (n - h)).astype(int)
         logging.debug("index:\n{}".format(index))
 
-        break_RSS = np.array([RSS(0, i) for i in index])
+        break_RSS = np.array([self.RSS(0, i) for i in index])
         logging.debug("break_RSS:\n{}".format(break_RSS))
 
         RSS_table = np.column_stack((index, break_RSS))
         logging.debug("RSS_table:\n{}".format(RSS_table))
 
         ## breaks >= 2
-        RSS_table = extend_RSS_table(RSS_table, breaks)
+        RSS_table = self.extend_RSS_table(RSS_table, breaks)
         logging.debug("extended RSS_table:\n{}".format(RSS_table))
 
-        opt = extract_breaks(RSS_table, breaks).astype(int)
+        opt = self.extract_breaks(RSS_table, breaks).astype(int)
         logging.debug("breakpoints extracted:\n{}".format(opt))
 
         self.breakpoints = opt
-        self.nobs = n
         self.nreg = k
         self.y = y
         self.X = X
-        self.RSS = RSS
-        self.RSS_triang = RSS_triang
-        self.RSS_table = RSS_table
+
+        # find the optimal amount of breakpoints using Bayesian Information Criterion
+        self.breakpoints_for_m()
+
+    def RSS(self, i, j):
+        return self.RSS_triang[i][j - i]
+
+    def extend_RSS_table(self, RSS_table, breaks):
+        _, ncol = RSS_table.shape
+        h = self.h
+        n = self.nobs
+        if (breaks * 2) > ncol:
+            for m in range((int(ncol/2) + 1), breaks - 1, -1):
+                my_index = np.arange((m * h) - 1, (n - h))
+                index_arr = np.arange((m-1)*2 - 2, (m-1)*2)
+                my_RSS_table = RSS_table[:, index_arr]
+                nans = np.repeat(np.nan, my_RSS_table.shape[0])
+                my_RSS_table = np.column_stack((my_RSS_table, nans, nans))
+                for i in my_index:
+                    pot_index = np.arange((m - 1) * h - 1, (i - h + 1)).astype(int)
+                    fun = lambda j: my_RSS_table[j - h + 1, 1] + self.RSS(j + 1, i)
+                    break_RSS = np.vectorize(fun)(pot_index)
+                    opt = np.nanargmin(break_RSS)
+                    my_RSS_table[i - h + 1, np.array((2, 3))] = np.array((pot_index[opt], break_RSS[opt]))
+                RSS_table = np.column_stack((RSS_table, my_RSS_table[:, np.array((2,3))]))
+        return(RSS_table)
+
+    def extract_breaks(self, RSS_table, breaks):
+        """
+        extract optimal breaks
+        """
+        _, ncol = RSS_table.shape
+        n = self.nobs
+        h = self.h
+
+        if (breaks * 2) > ncol:
+            raise ValueError("compute RSS_table with enough breaks before")
+
+        index = RSS_table[:, 0].astype(int)
+        fun = lambda i: RSS_table[int(i - self.h + 1), int(breaks * 2 - 1)] + self.RSS(i + 1, n - 1)
+        break_RSS = np.vectorize(fun)(index)
+        opt = [index[np.nanargmin(break_RSS)]]
+
+        if breaks > 1:
+            for i in 2 * np.arange(breaks, 1, -1) - 2:
+                opt.insert(0, RSS_table[opt[0] - h + 1, i])
+        return(np.array(opt))
+
+    def logLik(self):
+        """
+        log-likelihood of the model
+        """
+        n = self.nobs
+        bp = self.breakpoints
+        df = (self.nreg + 1) * (len(bp[[~np.isnan(bp)]]) + 1)
+        logL = -0.5 * n * (np.log(self.RSS) + 1 - np.log(n) + np.log(2 * np.pi))
+        return (logL, df)
+
+    def breakpoints_for_m(self, breaks=None):
+        if breaks is None:
+            sbp = self.summary
+            breaks = np.argmin(sbp.RSS[1,:]) - 1
+        if breaks < 1:
+            return None
+        else:
+            RSS_tab = self.extend_RSS_table(self.RSS_table, breaks)
+            breakpoints = self.extract_breaks(RSS_tab, breaks)
+            self.breakpoints = breakpoints
+
+    def summary(self, breaks=None, sort=True, format_times=None):
+        if breaks is None:
+            breaks = self.RSS_table.shape[1]/2
+
+        n = self.nobs
+        RSS = c(self.RSS(1, n), rep(NA, breaks))
+        BIC = c(n * (log(RSS[1]) + 1 - log(n) + log(2*pi)) + log(n) * (object$nreg + 1),
+                rep(NA, breaks))
+        bp = self.breakpoints_for_m(breaks)
+        RSS[breaks + 1] = bp$RSS
+        BIC[breaks + 1] = AIC(bp, k = log(n))
+        bp = bp.breakpoints
+
+        if breaks > 1:
+            for m in range(breaks - 1, 0, -1):
+                bpm = breakpoints(object, breaks=m)
+                RSS[m+1] = bpm$RSS
+                BIC[m+1] = AIC(bpm, k = log(n))
+        RSS = np.vstack((RSS, BIC))
+
 
     def breakfactor(self):
         breaks = self.breakpoints
@@ -125,16 +175,6 @@ class Breakpoints():
         labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
         # labels[fac-1]
         return(fac, labels)
-
-    def logLik(self):
-        """
-        log-likelihood of the model
-        """
-        n = self.nobs
-        bp = self.breakpoints
-        df = (self.nreg + 1) * (len(bp[[~np.isnan(bp)]]) + 1)
-        logL = -0.5 * n * (np.log(self.RSS) + 1 - np.log(n) + np.log(2 * np.pi))
-        return (logL, df)
 
 
 if __name__ == "__main__":
