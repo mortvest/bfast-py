@@ -4,7 +4,7 @@ breakpoints.breakpointsfull <- function(obj, breaks = NULL, ...)
   if(is.null(breaks))
   {
     sbp <- summary(obj)
-    print(sbp$RSS)
+    ## print(sbp$RSS)
     breaks <- which.min(sbp$RSS["BIC",]) - 1
   }
   if(breaks < 1)
@@ -145,6 +145,8 @@ breakpoints.formula <- function(formula, h = 0.15, breaks = NULL,
 
     extend.RSS.table <- function(RSS.table, breaks)
     {
+      ## print(RSS.table)
+      ## cat("range", (ncol(RSS.table)/2 + 1):breaks, "\n")
       if((breaks*2) > ncol(RSS.table)) {
         for(m in (ncol(RSS.table)/2 + 1):breaks)
         {
@@ -167,6 +169,8 @@ breakpoints.formula <- function(formula, h = 0.15, breaks = NULL,
     }
 
     RSS.table <- extend.RSS.table(RSS.table, breaks)
+    ## print(RSS.table)
+    ## quit()
 
   }
 
@@ -186,7 +190,8 @@ breakpoints.formula <- function(formula, h = 0.15, breaks = NULL,
     return(opt)
   }
 
-  ## opt <- extract.breaks(RSS.table, breaks)
+  opt <- extract.breaks(RSS.table, breaks)
+  print(opt)
 
   if(is.ts(data)) {
     if(NROW(data) == n) datatsp <- tsp(data)
@@ -246,7 +251,7 @@ y[35:nrow(y)] <- y[35:nrow(y)] * 0.03
 form <- y ~ 1
 ## form <- y ~ x
 bp <- breakpoints(form)
-print(bp$breakpoints)
+## print(bp$breakpoints)
 
 
 
