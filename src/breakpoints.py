@@ -10,6 +10,15 @@ from datasets import nile, nile_dates, uk_driver_deaths, uk_driver_deaths_dates
 
 class Breakpoints():
     def __init__(self, X, y, h=0.15, breaks=None):
+        """
+        Computation of optimal breakpoints in regression relationships.
+
+        :param X: matrix of x-values
+        :param y: vector of y
+        :param h: minimum segment width (0<h<1) as fraction of input length
+        :param breaks: maximum number of breakpoints (optional)
+        :returns: instance of Breakpoints
+        """
         def RSSi(i):
             """
             Compute i'th row of the RSS diagonal matrix, i.e,
@@ -48,7 +57,8 @@ class Breakpoints():
 
         ## breaks = 1
 
-        self.RSS_triang = np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
+        self.RSS_triang = \
+            np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
 
         logging.debug("RSS_triang:\n{}".format(self.RSS_triang))
 
@@ -66,9 +76,10 @@ class Breakpoints():
         RSS_table = self.extend_RSS_table(RSS_table, breaks)
         logging.debug("extended RSS_table:\n{}".format(RSS_table))
 
-        # opt = self.extract_breaks(RSS_table, breaks).astype(int)
-        # logging.debug("breakpoints extracted:\n{}".format(opt))
-        # self.breakpoints = opt
+        opt = self.extract_breaks(RSS_table, breaks).astype(int)
+        logging.debug("breakpoints extracted:\n{}".format(opt))
+        self.breakpoints = opt
+
         self.RSS_table = RSS_table
         self.nreg = k
         self.y = y
@@ -106,7 +117,8 @@ class Breakpoints():
                     fun = lambda j: my_RSS_table[j - h + 1, 1] + self.RSS(j + 1, i)
                     break_RSS = np.vectorize(fun)(pot_index)
                     opt = np.nanargmin(break_RSS)
-                    my_RSS_table[i - h + 1, np.array((2, 3))] = np.array((pot_index[opt], break_RSS[opt]))
+                    my_RSS_table[i - h + 1, np.array((2, 3))] = \
+                        np.array((pot_index[opt], break_RSS[opt]))
                 RSS_table = np.column_stack((RSS_table, my_RSS_table[:, np.array((2,3))]))
         return(RSS_table)
 
@@ -122,7 +134,8 @@ class Breakpoints():
             raise ValueError("compute RSS_table with enough breaks before")
 
         index = RSS_table[:, 0].astype(int)
-        fun = lambda i: RSS_table[int(i - self.h + 1), int(breaks * 2 - 1)] + self.RSS(i + 1, n - 1)
+        fun = lambda i: RSS_table[int(i - self.h + 1), int(breaks * 2 - 1)] \
+            + self.RSS(i + 1, n - 1)
         break_RSS = np.vectorize(fun)(index)
         opt = [index[np.nanargmin(break_RSS)]]
 
@@ -132,12 +145,15 @@ class Breakpoints():
         return(np.array(opt))
 
     def breakpoints_for_m(self, breaks=None):
+        logging.debug("running breakpoints for m = {}".format(breaks))
         if breaks is None:
             sbp = self.summary()
-            breaks = np.argmin(sbp[1,:]) - 1
-
+            # breaks = np.argmin(sbp[1]) - 1
+            breaks = np.argmin(sbp[1])
+            logging.debug("BIC:\n{}".format(sbp[1]))
         if breaks < 1:
             RSS = self.RSS(0, self.nobs - 1)
+            print("RSS", RSS)
             return RSS, None
         else:
             RSS_tab = self.extend_RSS_table(self.RSS_table, breaks)
@@ -210,11 +226,11 @@ if __name__ == "__main__":
     print("Testing synthetic")
     # Synthetic dataset with two breakpoints x = 15 and 35
     n = 50
-    X = np.ones(n).reshape((n, 1)).astype("float64")
+    # X = np.ones(n).reshape((n, 1)).astype("float64")
     y = np.arange(1, n+1).astype("float64")
+    X = np.copy(y).reshape((n, 1))
     y[14:] = y[14:] * 0.03
     y[34:] = y[34:] + 10
-    print(y.reshape((50,1)))
 
     bp = Breakpoints(X, y).breakpoints
     print("Breakpoints:", bp)
@@ -227,17 +243,17 @@ if __name__ == "__main__":
     # y = nile
     # X = np.ones(y.shape[0]).reshape((y.shape[0], 1))
 
-    # nile_breaks = 1
-    # bp_nile = Breakpoints(X, y, breaks=1)
+    # bp_nile = Breakpoints(X, y)
     # bp_nile_arr = bp_nile.breakpoints
+    # print(bp_nile_arr)
+
+    # BUG v
     # bp_nile_bf = bp_nile.breakfactor()[0]
 
     # # plt.plot(nile_dates[bp_nile_bf == 1], nile[bp_nile_bf == 1])
     # # plt.plot(nile_dates[bp_nile_bf == 2], nile[bp_nile_bf == 2])
     # # plt.show()
 
-
-    # # bp_nile = Breakpoints(X, y, breaks=nile_breaks).breakpoints
     # nile_break_date = nile_dates[bp_nile_arr]
     # print("Breakpoints:", nile_break_date)
     # print()
