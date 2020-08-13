@@ -1,6 +1,5 @@
 breakpoints.breakpointsfull <- function(obj, breaks = NULL, ...)
 {
-  cat("breakpoints.breakpointsfull called for breaks =", breaks, "\n")
   if(is.null(breaks))
   {
     sbp <- summary(obj)
@@ -30,7 +29,6 @@ breakpoints.breakpointsfull <- function(obj, breaks = NULL, ...)
 
 summary.breakpointsfull <- function(object, breaks = NULL, sort = TRUE, format.times = NULL, ...)
 {
-  cat("summary.breakpointsfull called", "\n")
   if(is.null(format.times)) format.times <- ((object$datatsp[3] > 1) & (object$datatsp[3] < object$nobs))
   if(is.null(breaks)) breaks <- ncol(object$RSS.table)/2
   n <- object$nobs
@@ -54,7 +52,6 @@ summary.breakpointsfull <- function(object, breaks = NULL, sort = TRUE, format.t
   rownames(RSS) <- c("RSS", "BIC")
   RVAL <- list(RSS = RSS)
   class(RVAL) <- "summary.breakpointsfull"
-  cat("summary.breakpointsfull is finished\n")
   return(RVAL)
 }
 
@@ -62,7 +59,6 @@ summary.breakpointsfull <- function(object, breaks = NULL, sort = TRUE, format.t
 breakpoints.formula <- function(formula, h = 0.15, breaks = NULL,
                                 data = list(), hpc = c("none", "foreach"), ...)
 {
-  print("breakpoints.formula called")
   mf <- model.frame(formula, data = data)
   y <- model.response(mf)
   modelterms <- terms(formula, data = data)
@@ -190,8 +186,8 @@ breakpoints.formula <- function(formula, h = 0.15, breaks = NULL,
     return(opt)
   }
 
-  opt <- extract.breaks(RSS.table, breaks)
-  print(opt)
+  ## opt <- extract.breaks(RSS.table, breaks)
+  ## print(opt)
 
   if(is.ts(data)) {
     if(NROW(data) == n) datatsp <- tsp(data)
@@ -244,14 +240,16 @@ breakpoints <- function(obj, ...)
 ## bp.nile <- breakpoints(Nile ~ 1)
 ## print(bp.nile$breakpoints)
 
-
-x <- matrix(1:50, nrow=50, ncol=1)
+n <- 50
+x <- matrix(1:n, nrow=n, ncol=1)
 y <- x
-y[35:nrow(y)] <- y[35:nrow(y)] * 0.03
+y[15:nrow(y)] <- y[15:nrow(y)] * 0.03
+y[35:nrow(y)] <- y[35:nrow(y)] + 10
+print(y)
 form <- y ~ 1
 ## form <- y ~ x
 bp <- breakpoints(form)
-## print(bp$breakpoints)
+print(bp$breakpoints)
 
 
 

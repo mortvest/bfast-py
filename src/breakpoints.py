@@ -66,24 +66,22 @@ class Breakpoints():
         RSS_table = self.extend_RSS_table(RSS_table, breaks)
         logging.debug("extended RSS_table:\n{}".format(RSS_table))
 
-        opt = self.extract_breaks(RSS_table, breaks).astype(int)
-        logging.debug("breakpoints extracted:\n{}".format(opt))
-        self.breakpoints = opt
+        # opt = self.extract_breaks(RSS_table, breaks).astype(int)
+        # logging.debug("breakpoints extracted:\n{}".format(opt))
+        # self.breakpoints = opt
         self.RSS_table = RSS_table
-        print(RSS_table)
         self.nreg = k
         self.y = y
         self.X = X
 
         # find the optimal amount of breakpoints using Bayesian Information Criterion
-        # breakpoints_bic = self.breakpoints_for_m()[1]
-        # self.breakpoints = breakpoints_bic
+        breakpoints_bic = self.breakpoints_for_m()[1]
+        self.breakpoints = breakpoints_bic
 
     def RSS(self, i, j):
         return self.RSS_triang[int(i)][int(j - i)]
 
     def extend_RSS_table(self, RSS_table, breaks):
-        print(RSS_table)
         _, ncol = RSS_table.shape
         h = self.h
         n = self.nobs
@@ -97,7 +95,6 @@ class Breakpoints():
             else:
                 loop_range = np.arange(v1, v2 - 1, -1)
 
-            print("range", loop_range)
             for m in loop_range:
                 my_index = np.arange((m * h) - 1, (n - h))
                 index_arr = np.arange((m-1)*2 - 2, (m-1)*2)
@@ -111,7 +108,6 @@ class Breakpoints():
                     opt = np.nanargmin(break_RSS)
                     my_RSS_table[i - h + 1, np.array((2, 3))] = np.array((pot_index[opt], break_RSS[opt]))
                 RSS_table = np.column_stack((RSS_table, my_RSS_table[:, np.array((2,3))]))
-        print(RSS_table)
         return(RSS_table)
 
     def extract_breaks(self, RSS_table, breaks):
@@ -213,12 +209,12 @@ if __name__ == "__main__":
 
     print("Testing synthetic")
     # Synthetic dataset with two breakpoints x = 15 and 35
-    X = np.ones(50).reshape((50, 1))
-    y = np.arange(50)
-    # y[15:] += 30
-    y[35:] = y[35:] * 0.03
-
-    # n_breaks = 2
+    n = 50
+    X = np.ones(n).reshape((n, 1)).astype("float64")
+    y = np.arange(1, n+1).astype("float64")
+    y[14:] = y[14:] * 0.03
+    y[34:] = y[34:] + 10
+    print(y.reshape((50,1)))
 
     bp = Breakpoints(X, y).breakpoints
     print("Breakpoints:", bp)
