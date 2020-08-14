@@ -3,6 +3,42 @@
 \begin{document}
 \chapter{Source code overview}
 \label{a_chap:source_code_overview}
+The source code for implementation, described in this report, can be found on GitHub \cite{my-github}.
+\section{Source Files}
+\label{sec:source_files}
+The code is structured in a following manner:
+\begin{itemize}
+\item \texttt{bfast0n.py}\\
+  Implementation of the BFAST0N algorithm, described in Chapter \ref{chap:bfast0n}
+\item \texttt{bfast.py}\\
+  Implementation of the BFAST algorithm, described in Chapter \ref{chap:bfast}
+\item \texttt{breakpoints.py}\\
+  Implementation of the breakpoint estimation algorithm, described in Chapter \ref{chap:breakpoints}
+\item \texttt{efp.py}\\
+  Implementation of the empirical fluctuation processes, in particular the OLS-MOSUM test that is
+  described in Chapter \ref{chap:mosum}.
+\item \texttt{recresid.py}\\
+  Implementation of the recursive residuals for the linear regression relationships,
+  as described in Chapter \ref{chap:breakpoints}.
+\item \texttt{stl.py} \\
+  A wrapper for the \texttt{statsmodels} \cite{statsmodels} implementation of the STL decomposition as
+  .described in Chapter \ref{chap:stl}. The implementation
+\item \texttt{datasets.py}\\
+  Collection of datasets for testing. They are taken from the R programming language standard library
+  \cite{r-datasets} and
+  the \texttt{strucchange} package for the R-language \cite{strucchange_code}.
+\end{itemize}
+
+\section{Tests}
+\label{sec:source_files}
+Tests for each file are contained withing that test file. In order to run the test, run:
+\begin{verbatim}
+python file.py
+\end{verbatim}
+In order to see the debug information, run:
+\begin{verbatim}
+python file.py --log=DEBUG
+\end{verbatim}
 
 \biblio
 \end{document}

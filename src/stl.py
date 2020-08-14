@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from statsmodels.tsa.seasonal import STL
-from statsmodels.datasets import co2
+# from statsmodels.datasets import co2
 
 
 def seasonal_average(x, period):

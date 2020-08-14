@@ -3,6 +3,7 @@
 tex_files = $(filter-out main.tex, $(shell ls *tex))
 file_list = $(basename $(tex_files))
 pdf_viewer = zathura
+bib_file = mybib.bib
 
 $(file_list): %: %.pdf
 	$(pdf_viewer) $*.pdf
@@ -10,10 +11,10 @@ $(file_list): %: %.pdf
 main: main.pdf
 	$(pdf_viewer) main.pdf
 
-%.pdf: %.tex
+%.pdf: %.tex $(bib_file)
 	pdflatex $* && bibtex $* && pdflatex $* && pdflatex $*
 
-main.pdf: $(tex_files) main.tex
+main.pdf: $(tex_files) main.tex $(bib_file)
 	pdflatex main && bibtex main && pdflatex main && pdflatex main
 
 clean:

@@ -7,7 +7,6 @@ In the paper from 2003 \cite{bai_perron}, Jushan Bai and Pierre Perron provide a
 efficient algorithm for time series breakpoint estimation. It uses a dynamic-programming
 approach and requires $O(T^2)$ least-squares operations for any number of breakpoints.
 
-
 \section{The Model}
 \label{sec:breakpoints_the_model}
 
@@ -20,11 +19,50 @@ approach and requires $O(T^2)$ least-squares operations for any number of breakp
 \subsection{Computation of the triangular matrix}
 
 \section{The dynamic programming algorithm}
-\label{sec:the_dynamic_programming_algorithm}
+\label{sec:dynamic_algorithm}
 
-	
-%% \subsection{Bayesian Information Criterion}
-%% \label{subsec:bayesian_information_criterion}
+\section{Bayesian Information Criterion}
+\label{sec:bayesian_information_criterion}
+\cite{schwarz1978}
+
+\section{Steps of the Algorithm}
+\label{sec:steps_of_the_algorithm}
+The algorithm by Bai and Perron works by taking following steps:
+\begin{enumerate}
+\item \textbf{Calculate the upper-triangular matrix of sums of squared residuals}\\
+  We calculate the matrix, by following the guidelines, described in \ref{sec:triangular_matrix}.
+  For each entry in the matrix, we perform the linear regression using the given the matrix
+  $X$ and observations $y$, and the recursive residuals are calculated 
+  using \ref{sec:recursive_residuals}.
+\item \textbf{Find the largest number of allowed segments}\\
+  Given a value of $0\leq h' \leq 1$, which signifies the smallest allowed size of
+  a segment, and $m_{\text{user}}$ which is the maximum number of segments, determined by the user, 
+  we can then find the largest number of allowed
+  segments $m_{\text{max}} = \min(\floor{\frac{1}{h'}}, m_{\text{user}})$.
+\item \textbf{Create a table \texttt{BIC} of size $m_{\text{max}}$}
+\item \textbf{For $m \in (m_{\text{max}}, ... 1)$, do following:}
+  \begin{enumerate}[1)]
+  \item Find the optimal position of the $m-1$ breakpoints, using algorithm
+    \ref{sec:dynamic_algorithm}.
+  \item Calculate the sum of squared residuals, and then use it to
+    calculate the Bayesian Information Criterion $\text{BIC}_m$ of this partition, using
+    \ref{sec:bayesian_information_criterion}.
+  \item Add $\text{BIC}_m$ to the table
+  \end{enumerate}
+\item \textbf{Find the value of $m_{best}$ that corresponds to the minimal value in the \texttt{BIC}}
+\item \textbf{Use the algorithm \ref{sec:dynamic_algorithm} to find the $m_{best} - 1$ breakpoints}
+\end{enumerate}
+
+\section{Parameters and Their Values}
+\label{sec:breakpoints_params}
+The algorithm takes two parameters:
+\begin{itemize}
+\item  $0\leq h' \leq 1$, which can be used to calculate the minimal allowed size of the segment
+  $h = h' n$. The default value is $h' = 0.15$.
+\item \texttt{max\_breaks}, which can be used to calculate the maximum number of allowed segments
+  $m_{\text{user}} = \texttt{max\_breaks} + 1$. This parameter is optional.
+\end{itemize}
+
 
 %% \subsection{Calculation of confidence intervals for the break dates}
 %% \label{subsec:confidence_intervals}
