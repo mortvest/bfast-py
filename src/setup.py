@@ -8,5 +8,6 @@ def logging_setup():
                         help="set the logging level, default is WARNING")
     args = parser.parse_args()
     log_level = args.log
-    format_string = "%(levelname)s: %(message)s"
-    logging.basicConfig(format=format_string, level=getattr(logging, log_level.upper()))
+    # format_string = "%(levelname)s: %(message)s"
+    # logging.basicConfig(format=format_string, level=getattr(logging, log_level.upper()))
+    logging.basicConfig(level=getattr(logging, log_level.upper()))

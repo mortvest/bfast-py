@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def omit_nans(x, y):
     x_index = ~np.isnan(x).any(axis=1)
     if y is None:
-        return x[index]
+        return x[x_index]
     else:
         x = x[x_index]
         y = y[x_index]
@@ -36,7 +36,7 @@ def bfast0n(X, y, frequency, stl="none", period=None, order=3):
             raise ValueError("Unknown STL type:", stl)
 
     if stl != "none":
-        logging.info("Applying STL")
+        logger.info("Applying STL")
         if period is None:
             raise ValueError("Provide a period")
         if X.ndim > 1:
@@ -46,7 +46,7 @@ def bfast0n(X, y, frequency, stl="none", period=None, order=3):
         else:
             X = stl_adjust(X)
     else:
-        logging.info("STL ommited")
+        logger.info("STL ommited")
 
 
     nrow, ncol = np.shape(X)
@@ -54,7 +54,7 @@ def bfast0n(X, y, frequency, stl="none", period=None, order=3):
     ## set up harmonic trend matrix as well
     order = min(frequency, order)
 
-    logging.info("Calculating harmon matrix")
+    logger.info("Calculating harmon matrix")
     harmon = np.outer(2 * np.pi * X, np.arange(1, order + 1))
     harmon = np.column_stack((np.cos(harmon), np.sin(harmon)))
 
@@ -65,12 +65,11 @@ def bfast0n(X, y, frequency, stl="none", period=None, order=3):
     intercept = np.ones(y.shape[0])
     X = np.column_stack((intercept, trend, harmon))
 
-    logging.info("Removing nans")
+    logger.info("Removing nans")
     X, y = omit_nans(X, y)
 
-    logging.info("Esimating breakpoints")
+    logger.info("Esimating breakpoints")
     bp = Breakpoints(X, y).breakpoints
-    logging.info("Breakpoints finished")
     return bp
 
 

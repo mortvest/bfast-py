@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 from setup import logging_setup
 from recresid import recresid
 from datasets import nile, nile_dates, uk_driver_deaths, uk_driver_deaths_dates
+from rss_triang import rss_triang
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class Breakpoints():
     def __init__(self, X, y, h=0.15, breaks=None):
@@ -20,65 +21,55 @@ class Breakpoints():
         :param breaks: maximum number of breakpoints (optional)
         :returns: instance of Breakpoints
         """
-        def RSSi(i):
-            """
-            Compute i'th row of the RSS diagonal matrix, i.e,
-            the recursive residuals for segments starting at i = 1:(n-h+1)
-            """
-            if intercept_only:
-                arr1 = np.arange(1, (n-i+1))
-                arr2 = arr1[:-1]
-                ssr = (y[i:] - np.cumsum(y[i:]) / arr1)[1:] * np.sqrt(1 + 1 / arr2)
-            else:
-                ssr = recresid(X[i:], y[i:])
-            return np.concatenate((np.repeat(np.nan, k), np.cumsum(ssr**2)))
-
         n, k = X.shape
         self.nobs = n
-        logging.debug("n = {}, k = {}".format(n, k))
+        logger.debug("n = {}, k = {}".format(n, k))
 
         intercept_only = np.allclose(X, 1)
-        logging.debug("intercept_only = {}".format(intercept_only))
+        logger.debug("intercept_only = {}".format(intercept_only))
 
         h = int(np.floor(n * h))
         self.h = h
-        logging.debug("h = {}".format(h))
+        logger.debug("h = {}".format(h))
 
         max_breaks = int(np.ceil(n / h) - 2)
         if breaks is None:
             breaks = max_breaks
         elif breaks > max_breaks:
-            logging.warning("requested number of breaks = {} too large, changed to {}".
+            logger.warning("requested number of breaks = {} too large, changed to {}".
                             format(breaks, max_breaks))
             breaks = max_breaks
 
-        logging.debug("breaks = {}".format(breaks))
+        logger.debug("breaks = {}".format(breaks))
         ## compute optimal previous partner if observation i is the mth break
         ## store results together with RSSs in RSS_table
 
         ## breaks = 1
 
-        self.RSS_triang = \
-            np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
+        logger.info("Calculating triangular matrix")
+        # self.RSS_triang = \
+        #     np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
 
-        logging.debug("RSS_triang:\n{}".format(self.RSS_triang))
+        self.RSS_triang = rss_triang(n, h, X, y, k, intercept_only)
+
+        logger.debug("RSS_triang:\n{}".format(self.RSS_triang))
 
 
         index = np.arange((h - 1), (n - h)).astype(int)
-        logging.debug("index:\n{}".format(index))
+        logger.debug("index:\n{}".format(index))
 
         break_RSS = np.array([self.RSS(0, i) for i in index])
-        logging.debug("break_RSS:\n{}".format(break_RSS))
+        logger.debug("break_RSS:\n{}".format(break_RSS))
 
         RSS_table = np.column_stack((index, break_RSS))
-        logging.debug("RSS_table:\n{}".format(RSS_table))
+        logger.debug("RSS_table:\n{}".format(RSS_table))
 
         ## breaks >= 2
         RSS_table = self.extend_RSS_table(RSS_table, breaks)
-        logging.debug("extended RSS_table:\n{}".format(RSS_table))
+        logger.debug("extended RSS_table:\n{}".format(RSS_table))
 
         opt = self.extract_breaks(RSS_table, breaks).astype(int)
-        logging.debug("breakpoints extracted:\n{}".format(opt))
+        logger.debug("breakpoints extracted:\n{}".format(opt))
         self.breakpoints = opt
 
         self.RSS_table = RSS_table
@@ -146,12 +137,12 @@ class Breakpoints():
         return(np.array(opt))
 
     def breakpoints_for_m(self, breaks=None):
-        logging.debug("running breakpoints for m = {}".format(breaks))
+        logger.info("running breakpoints for m = {}".format(breaks))
         if breaks is None:
             sbp = self.summary()
             # breaks = np.argmin(sbp[1]) - 1
             breaks = np.argmin(sbp[1])
-            logging.debug("BIC:\n{}".format(sbp[1]))
+            logger.debug("BIC:\n{}".format(sbp[1]))
         if breaks < 1:
             RSS = self.RSS(0, self.nobs - 1)
             return RSS, None
@@ -191,7 +182,6 @@ class Breakpoints():
         """
         n = self.nobs
         bp = breakpoints
-        # df = (self.nreg + 1) * (len(bp[[~np.isnan(bp)]]) + 1)
         df = (self.nreg + 1) * (len(bp[~np.isnan(bp)]) + 1)
         # log-likelihood
         logL = -0.5 * n * (np.log(RSS) + 1 - np.log(n) + np.log(2 * np.pi))
@@ -214,6 +204,7 @@ class Breakpoints():
 
 if __name__ == "__main__":
     logging_setup()
+    logger = logging.getLogger(__name__)
 
     print("Testing synthetic")
     # Synthetic dataset with two breakpoints x = 15 and 35
