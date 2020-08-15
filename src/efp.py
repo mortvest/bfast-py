@@ -1,8 +1,11 @@
+import logging
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 import datasets
 import utils
+from setup import logging_setup
 
 
 class EFP():
@@ -24,6 +27,7 @@ class EFP():
 
         n, k = X.shape
 
+        logging.info("Performing linear regression")
         # fit linear model
         fm = np.polyfit(X.flatten(), y, deg=deg)
 
@@ -33,18 +37,20 @@ class EFP():
         else:
             e = y - fm @ np.vstack((X.T, np.ones(n)))
 
-        print("e")
-        print(fm[0])
-        print(e)
+        logging.debug("Residuals:\n{}".format(e))
 
         sigma = np.sqrt(np.sum(e**2) / (n - k))
+        logging.debug("sigma: {}".format(sigma))
+
         nh = np.floor(n * h)
+        logging.debug("nh: {}".format(nh))
 
         e_zero = np.insert(e, 0, 0)
 
         process = np.cumsum(e_zero)
         process = process[int(nh):] - process[:(n - int(nh) + 1)]
         process = process / (sigma * np.sqrt(n))
+        logging.debug("process:\n{}".format(process))
 
         self.coefficients = fm
         self.sigma = sigma
@@ -60,8 +66,10 @@ class EFP():
         :param k: number of rows of matrix X
         :returns: p value for the process
         """
+        logging.info("Calculating p-value")
+
         k = min(k, max_k)
-        # print(k)
+
         crit_table = utils.sc_me[((k - 1) * table_dim):(k * table_dim),:]
         tablen = crit_table.shape[1]
         tableh = np.arange(1, table_dim + 1) * 0.05
@@ -71,8 +79,7 @@ class EFP():
         for i in range(tablen):
             tableipl[i] = np.interp(h, tableh, crit_table[:, i])
 
-        print(tableipl)
-        print(x)
+        logging.debug("Interpolated row of p-values:\n{}".format(tableipl))
         tableipl = np.insert(tableipl, 0, 0)
         tablep = np.insert(tablep, 0, 1)
 
@@ -88,6 +95,7 @@ class EFP():
         :raises ValueError: wrong type of functional
         :returns: a tuple of applied functional and p value
         """
+        logging.info("Performing statistical test")
         if functional != "max":
             raise ValueError("Functional {} is not supported".format(functional))
 
@@ -98,16 +106,20 @@ class EFP():
         else:
             k = np.shape[0]
 
+        logging.info("Calculating statistic")
         stat = np.max(np.abs(x))
+        logging.debug("stat: {}".format(stat))
+
         p_value = EFP.p_value(stat, h, k)
+        logging.debug("p_value: {}".format(stat))
 
         return(stat, p_value)
 
 
 def test_dataset(y, name, deg=1, h=0.15, level=0.15):
+
     x = np.arange(1, y.shape[0] + 1).reshape(y.shape[0], 1)
     efp = EFP(x, y, h, deg=deg)
-    print(efp.process)
     stat, p_value = efp.sctest()
 
     print("Testing '{}', deg: {}".format(name, deg))
@@ -122,6 +134,7 @@ def test_dataset(y, name, deg=1, h=0.15, level=0.15):
 
 
 if __name__ == "__main__":
+    logging_setup()
     test_dataset(datasets.nhtemp, "nhtemp", deg=0, h=0.12)
     # test_dataset(datasets.nile, "nile", deg=1)
 

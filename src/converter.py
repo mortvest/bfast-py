@@ -13,15 +13,19 @@ def rda_to_npy(file_name, save=False):
 
 
 if __name__ == "__main__":
-    file_name = "USIncExp"
-    mat = rda_to_npy(file_name, save=True)
-    print(mat.shape)
+    rda_to_npy("ndvi", save=True)
+    rda_to_npy("simts", save=True)
 
-    mat_loaded = np.load(file_name + ".npy")
-    print(mat_loaded.shape)
 
-    for i in range(mat.shape[0]):
-        print("[{}, {}]".format(mat[i,0], mat[i,1]))
+    # file_name = "USIncExp"
+    # mat = rda_to_npy(file_name, save=True)
+    # print(mat.shape)
+
+    # mat_loaded = np.load(file_name + ".npy")
+    # print(mat_loaded.shape)
+
+    # for i in range(mat.shape[0]):
+    #     print("[{}, {}]".format(mat[i,0], mat[i,1]))
 
     # income = a[:,0]
     # expanditure = a[:,1]

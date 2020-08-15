@@ -1,72 +1,29 @@
+import logging
+
+import numpy as np
+
+import datasets
 from breakpoints import Breakpoints
+from setup import logging_setup
 
 
-def _bfast_pp(X, y, stl="none", order=3, sbins=1):
-    """
-    STL-based pre-processing to try to adjust for trend or season
-    """
-    def stl_adjust(x):
-        x_stl = stl(x, s_window="periodic").time_series
-        if stl == "trend":
-            return x - x_stl.trend
-        elif stl == "seasonal":
-            return x - x_stl.seasonal
-        elif stl == "both":
-            return x - x_stl.trend - x_stl.seasonal
-        else:
-            raise ValueError("Unknown STL type:", stl)
+logger = logging.getLogger(__name__)
 
-    if stl != "none":
-        # if data.shape[1] > 1:
-        if X.ndim > 1:
-            for i in range(X.shape[1]):
-                X[:, i] = stl_adjust(X[:, i])
-        else:
-            X = stl_adjust(X)
-
-    nrow, ncol = np.shape(X)
-    ## check for covariates
-    if data.shape[1] > 1:
-        x = coredata(data)[, -1L]
-        y = data[, 1L]
+def omit_nans(x, y):
+    x_index = ~np.isnan(x).any(axis=1)
+    if y is None:
+        return x[index]
     else:
-        x = None
-        y = data
-
-    ## data with trend and season factor
-    rval <- data.frame(
-        time = as.numeric(time(y)),
-        response = y,
-        trend = 1:y.shape[0]
-        season = cut(cycle(y), if (sbins > 1) sbins else frequency(y)*sbins, ordered_result = TRUE)
-    )
-
-    ## set up harmonic trend matrix as well
-    freq = frequency(y)
-    order = min(freq, order)
-    harmon = outer(2 * pi * as.vector(time(y)), 1:order)
-    harmon = cbind(apply(harmon, 2, cos), apply(harmon, 2, sin))
-    colnames(harmon) <- if(order == 1) {
-        c("cos", "sin")
-    } else {
-        c(paste("cos", 1:order, sep = ""), paste("sin", 1:order, sep = ""))
-    }
-    if((2 * order) == freq) harmon <- harmon[, -(2 * order)]
-    rval$harmon <- harmon
+        x = x[x_index]
+        y = y[x_index]
+        y_index = ~np.isnan(y)
+        return x[y_index], y[y_index]
 
 
-    ## omit missing values
-    rval <- na.action(rval)
-
-    ## return everything
-    return rval
-
-
-def bfast0n(X, y, stl="none", period=None):
+def bfast0n(X, y, frequency, stl="none", period=None, order=3):
     """
     Light-weight detection of multiple breaks in a time series
     """
-    # formula = response ~ trend + harmon
     def stl_adjust(x):
         seasonal, trend, _ = stl(x, periodic=True).time_series
         if stl == "trend":
@@ -79,13 +36,49 @@ def bfast0n(X, y, stl="none", period=None):
             raise ValueError("Unknown STL type:", stl)
 
     if stl != "none":
+        logging.info("Applying STL")
         if period is None:
             raise ValueError("Provide a period")
         if X.ndim > 1:
             for i in range(X.shape[1]):
                 X[:, i] = stl_adjust(X[:, i])
+
         else:
             X = stl_adjust(X)
+    else:
+        logging.info("STL ommited")
 
-    bp = Breakpoints(X, y)
+
+    nrow, ncol = np.shape(X)
+
+    ## set up harmonic trend matrix as well
+    order = min(frequency, order)
+
+    logging.info("Calculating harmon matrix")
+    harmon = np.outer(2 * np.pi * X, np.arange(1, order + 1))
+    harmon = np.column_stack((np.cos(harmon), np.sin(harmon)))
+
+    if 2 * order == freq:
+        harmon = np.delete(harmon, 2 * order - 1, axis=1)
+
+    trend = np.arange(1, y.shape[0] + 1)
+    intercept = np.ones(y.shape[0])
+    X = np.column_stack((intercept, trend, harmon))
+
+    logging.info("Removing nans")
+    X, y = omit_nans(X, y)
+
+    logging.info("Esimating breakpoints")
+    bp = Breakpoints(X, y).breakpoints
+    logging.info("Breakpoints finished")
     return bp
+
+
+if __name__ == "__main__":
+    logging_setup()
+    y = datasets.ndvi
+    x = datasets.ndvi_dates
+    freq = datasets.ndvi_freqency
+
+    v = bfast0n(x, y, freq, "none")
+    print(v)

@@ -2,7 +2,7 @@
 
 \begin{document}
 \chapter{Seasonal Trend Decomposition (STL)}
-\label{chap:seasonal_trend_decomposition_using_loess}
+\label{chap:stl}
 STL, as first described by Cleveland et al. \cite{stl}, is an
 algorithm for decomposition of time series, which is a common task in
 statistics and used by the BFAST algorithm to get the initial estimate of the
@@ -83,7 +83,7 @@ LOESS smoothing can be seen on Figure \ref{fig_loess}.
   \label{fig_loess}
 \end{figure}
 
-\section{The incremental algorithm}
+\section{The Incremental Algorithm}
 \label{sec:the_incremental_algorithm}
 STL is performed through two nested loops and we begin by setting:
 \begin{align*}
@@ -135,7 +135,7 @@ The outer loop consists of following steps:
 \]
 \end{enumerate}
 
-\section{Parameters and their values}
+\section{Parameters and Their Values}
 \label{sec:parameter_values}
 STL has following parameters \cite{stl}:
 \begin{enumerate}

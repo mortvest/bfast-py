@@ -3,10 +3,10 @@
 \begin{document}
 \chapter{Source code overview}
 \label{a_chap:source_code_overview}
-The source code for implementation, described in this report, can be found on GitHub \cite{my-github}.
+The source code for the implementation, described in this report, can be found on GitHub \cite{my-github}.
 \section{Source Files}
 \label{sec:source_files}
-The code is structured in a following manner:
+The source code is structured in a following manner:
 \begin{itemize}
 \item \texttt{bfast0n.py}\\
   Implementation of the BFAST0N algorithm, described in Chapter \ref{chap:bfast0n}
@@ -22,11 +22,16 @@ The code is structured in a following manner:
   as described in Chapter \ref{chap:breakpoints}.
 \item \texttt{stl.py} \\
   A wrapper for the \texttt{statsmodels} \cite{statsmodels} implementation of the STL decomposition as
-  .described in Chapter \ref{chap:stl}. The implementation
+  described in Chapter \ref{chap:stl}.
+\item \texttt{utils.py} \\
+  Helper functions and lookup tables, used by other modules. 
 \item \texttt{datasets.py}\\
   Collection of datasets for testing. They are taken from the R programming language standard library
   \cite{r-datasets} and
   the \texttt{strucchange} package for the R-language \cite{strucchange_code}.
+\item \texttt{converter.py}\\
+  Script that converts the datasets for the R programming language (\texttt{.rda}) into numpy
+  data files (\texttt{.npy}). It requires a working R installation.
 \end{itemize}
 
 \section{Tests}

@@ -1,12 +1,13 @@
 import logging
-import argparse
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+from setup import logging_setup
 from recresid import recresid
 from datasets import nile, nile_dates, uk_driver_deaths, uk_driver_deaths_dates
 
+# logger = logging.getLogger(__name__)
 
 class Breakpoints():
     def __init__(self, X, y, h=0.15, breaks=None):
@@ -153,7 +154,6 @@ class Breakpoints():
             logging.debug("BIC:\n{}".format(sbp[1]))
         if breaks < 1:
             RSS = self.RSS(0, self.nobs - 1)
-            print("RSS", RSS)
             return RSS, None
         else:
             RSS_tab = self.extend_RSS_table(self.RSS_table, breaks)
@@ -213,24 +213,20 @@ class Breakpoints():
 
 
 if __name__ == "__main__":
-    # set up logging
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--log",
-                        default="warning",
-                        help="set the logging level, default is WARNING")
-    args = parser.parse_args()
-    log_level = args.log
-    logging.basicConfig(level=getattr(logging, log_level.upper()))
-
+    logging_setup()
 
     print("Testing synthetic")
     # Synthetic dataset with two breakpoints x = 15 and 35
     n = 50
-    # X = np.ones(n).reshape((n, 1)).astype("float64")
+    ones = np.ones(n).reshape((n, 1)).astype("float64")
     y = np.arange(1, n+1).astype("float64")
-    X = np.copy(y).reshape((n, 1))
+    # X = np.copy(y).reshape((n, 1))
+    # X = np.column_stack((ones, X))
+    X = ones
     y[14:] = y[14:] * 0.03
     y[34:] = y[34:] + 10
+
+
 
     bp = Breakpoints(X, y).breakpoints
     print("Breakpoints:", bp)

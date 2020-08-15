@@ -342,20 +342,20 @@ breakpoints <- function(obj, ...)
 
 
 
-data("Nile")
-bp.nile <- breakpoints(Nile ~ 1)
-print(bp.nile$breakpoints)
+## data("Nile")
+## bp.nile <- breakpoints(Nile ~ 1)
+## print(bp.nile$breakpoints)
 
-## n <- 50
-## x <- matrix(1:n, nrow=n, ncol=1)
-## y <- x
-## y[15:nrow(y)] <- y[15:nrow(y)] * 0.03
-## y[35:nrow(y)] <- y[35:nrow(y)] + 10
+n <- 50
+x <- matrix(1:n, nrow=n, ncol=1)
+y <- x
+y[15:nrow(y)] <- y[15:nrow(y)] * 0.03
+y[35:nrow(y)] <- y[35:nrow(y)] + 10
 
-## ## form <- y ~ 1
+form <- y ~ 1
 ## form <- y ~ x
-## bp <- breakpoints(form)
-## print(bp$breakpoints)
+bp <- breakpoints(form)
+print(bp$breakpoints)
 
 
 

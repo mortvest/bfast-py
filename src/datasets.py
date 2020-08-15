@@ -1,5 +1,24 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
 from datetime import datetime, timedelta
+
+
+def r_style_interval(from_tuple, end_tuple, frequency):
+    """
+    create time interval using R-style double-tuple notation
+    """
+    from_year, from_seg = from_tuple
+    end_year, end_seg = end_tuple
+    n = (end_year - from_year + 1) * frequency
+    full_range = np.linspace(from_year, end_year + 1, num=n, endpoint=False)
+    real_range = full_range[(from_seg - 1):n - (frequency - end_seg)]
+    return real_range
+
+
+data_folder = "../data/"
+
 
 """
 R dataset: Average Yearly Temperatures in New Haven
@@ -37,7 +56,7 @@ A multivariate monthly time series from 1959(1) to 2001(2) with variables
 from the strucchange package.
 by: Achim Zeileis
 """
-us_inc_exp = np.load("USIncExp.npy")
+us_inc_exp = np.load(data_folder + "USIncExp.npy")
 
 
 """
@@ -73,8 +92,23 @@ uk_driver_deaths = np.array([1687, 1508, 1507, 1385, 1632, 1511, 1559, 1630,
 uk_driver_deaths_dates = np.arange("1969-01", "1985-01", dtype="datetime64[M]")
 
 
+"""
+NDVI time series, simulated by extracting key characteristics from MODIS 16-day
+NDVI time series.
+"""
+ndvi = np.load(data_folder + "ndvi.npy")
+ndvi_freqency = 24
+ndvi_dates = r_style_interval((1982, 1), (2011, 24), ndvi_freqency).reshape(ndvi.shape[0], 1)
+
+
+"""
+SIMTS dataset
+"""
+simts_frequency = 23
+simts = np.load(data_folder + "simts.npy")
+simts_dates = r_style_interval((2000, 4), (2008, 18), simts_frequency).reshape(simts.shape[1], 1)
+
+
 if __name__ == "__main__":
-    print(uk_driver_deaths_dates.shape)
-
-
+    pass
 
