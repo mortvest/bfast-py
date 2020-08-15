@@ -7,6 +7,7 @@ import datasets
 import utils
 from setup import logging_setup
 
+logger = logging.getLogger(__name__)
 
 class EFP():
     def __init__(self, X, y, h, deg=1, p_type="OLS-MOSUM"):
@@ -27,7 +28,7 @@ class EFP():
 
         n, k = X.shape
 
-        logging.info("Performing linear regression")
+        logger.info("Performing linear regression")
         # fit linear model
         fm = np.polyfit(X.flatten(), y, deg=deg)
 
@@ -37,20 +38,20 @@ class EFP():
         else:
             e = y - fm @ np.vstack((X.T, np.ones(n)))
 
-        logging.debug("Residuals:\n{}".format(e))
+        logger.debug("Residuals:\n{}".format(e))
 
         sigma = np.sqrt(np.sum(e**2) / (n - k))
-        logging.debug("sigma: {}".format(sigma))
+        logger.debug("sigma: {}".format(sigma))
 
         nh = np.floor(n * h)
-        logging.debug("nh: {}".format(nh))
+        logger.debug("nh: {}".format(nh))
 
         e_zero = np.insert(e, 0, 0)
 
         process = np.cumsum(e_zero)
         process = process[int(nh):] - process[:(n - int(nh) + 1)]
         process = process / (sigma * np.sqrt(n))
-        logging.debug("process:\n{}".format(process))
+        logger.debug("process:\n{}".format(process))
 
         self.coefficients = fm
         self.sigma = sigma
@@ -66,7 +67,7 @@ class EFP():
         :param k: number of rows of matrix X
         :returns: p value for the process
         """
-        logging.info("Calculating p-value")
+        logger.info("Calculating p-value")
 
         k = min(k, max_k)
 
@@ -79,7 +80,7 @@ class EFP():
         for i in range(tablen):
             tableipl[i] = np.interp(h, tableh, crit_table[:, i])
 
-        logging.debug("Interpolated row of p-values:\n{}".format(tableipl))
+        logger.debug("Interpolated row of p-values:\n{}".format(tableipl))
         tableipl = np.insert(tableipl, 0, 0)
         tablep = np.insert(tablep, 0, 1)
 
@@ -95,7 +96,7 @@ class EFP():
         :raises ValueError: wrong type of functional
         :returns: a tuple of applied functional and p value
         """
-        logging.info("Performing statistical test")
+        logger.info("Performing statistical test")
         if functional != "max":
             raise ValueError("Functional {} is not supported".format(functional))
 
@@ -106,12 +107,12 @@ class EFP():
         else:
             k = np.shape[0]
 
-        logging.info("Calculating statistic")
+        logger.info("Calculating statistic")
         stat = np.max(np.abs(x))
-        logging.debug("stat: {}".format(stat))
+        logger.debug("stat: {}".format(stat))
 
         p_value = EFP.p_value(stat, h, k)
-        logging.debug("p_value: {}".format(stat))
+        logger.debug("p_value: {}".format(stat))
 
         return(stat, p_value)
 
