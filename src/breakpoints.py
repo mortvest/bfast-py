@@ -8,7 +8,9 @@ from recresid import recresid
 from datasets import nile, nile_dates, uk_driver_deaths, uk_driver_deaths_dates
 from rss_triang import rss_triang
 
+
 logger = logging.getLogger(__name__)
+
 
 class Breakpoints():
     def __init__(self, X, y, h=0.15, breaks=None):

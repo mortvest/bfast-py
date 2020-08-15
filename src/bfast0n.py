@@ -79,5 +79,6 @@ if __name__ == "__main__":
     x = datasets.ndvi_dates
     freq = datasets.ndvi_freqency
 
+    print("Running bfast0n on NDVI")
     v = bfast0n(x, y, freq, "none")
     print(v)

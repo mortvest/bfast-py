@@ -7,11 +7,9 @@ from breakpoints import breakpoints
 
 
 class BFAST():
-    def __init__(self, Yt, h=0.15, season="dummy", max_iter=10,
-                 breaks=None, level=0.05, reg="lm", p_type="OLS-MOSUM"):
+    def __init__(self, Yt, ti, frequency, h=0.15, season="dummy", max_iter=10,
+                 breaks=None, level=0.05):
         # Error catching
-        if not reg in ["lm", "rlm"]:
-            raise ValueError("Regression method unknown, use either 'lm' or 'rlm'")
         level = np.repeat(level, 2)
         ti = time(Yt)
         f = frequency(Yt) # on cycle every f time points (seasonal cycle)
