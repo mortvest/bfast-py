@@ -1,9 +1,13 @@
+import logging
 import multiprocessing as mp
 from functools import partial
 
 import numpy as np
 
 from recresid import recresid
+
+
+logger = logging.getLogger(__name__)
 
 
 def rss_triang(n, h, X, y, k, intercept_only, use_mp=True):
@@ -32,6 +36,7 @@ def rss_triang_seq(n, h, X, y, k, intercept_only):
     """
     sequential version
     """
+    logger.info("sequential version of rss_triang chosen")
     my_RSSi = partial(RSSi, n=n, h=h, X=X, y=y, k=k, intercept_only=intercept_only)
     return np.array([my_RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
 
@@ -40,6 +45,7 @@ def rss_triang_par(n, h, X, y, k, intercept_only):
     """
     parallel version
     """
+    logger.info("mp-enabled version of rss_triang chosen")
     my_RSSi = partial(RSSi, n=n, h=h, X=X, y=y, k=k, intercept_only=intercept_only)
     pool = mp.Pool(mp.cpu_count())
     indexes = np.arange(n - h + 1).astype(int)

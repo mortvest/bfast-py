@@ -10,6 +10,17 @@ def qr_lm(X, y):
     return M
 
 
+def omit_nans(x, y):
+    x_index = ~np.isnan(x).any(axis=1)
+    if y is None:
+        return x[x_index]
+    else:
+        x = x[x_index]
+        y = y[x_index]
+        y_index = ~np.isnan(y)
+        return x[y_index], y[y_index]
+
+
 """
 Table of simulated asymptotic critical values of the
 ME tests with the maximum norm.

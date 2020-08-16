@@ -2,15 +2,18 @@ import logging
 
 import numpy as np
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
 
 import datasets
 import utils
 from setup import logging_setup
 
+
 logger = logging.getLogger(__name__)
 
+
 class EFP():
-    def __init__(self, X, y, h, deg=1, p_type="OLS-MOSUM"):
+    def __init__(self, X, y, h, p_type="OLS-MOSUM"):
         """
         Empirical fluctuation process. For now, only the Ordinary Least Squares MOving
         SUM (OLS-MOSUM) is supported
@@ -26,18 +29,14 @@ class EFP():
         if p_type != "OLS-MOSUM":
             raise ValueError("Process type {} is not supported".format(p_type))
 
+        X, y = utils.omit_nans(X, y)
         n, k = X.shape
 
         logger.info("Performing linear regression")
         # fit linear model
-        fm = np.polyfit(X.flatten(), y, deg=deg)
+        fm = sm.OLS(y, X, missing='drop').fit()
 
-        # residuals
-        if deg == 0:
-            e = y - fm[0]
-        else:
-            e = y - fm @ np.vstack((X.T, np.ones(n)))
-
+        e = y - fm.predict(exog=X)
         logger.debug("Residuals:\n{}".format(e))
 
         sigma = np.sqrt(np.sum(e**2) / (n - k))
@@ -49,9 +48,11 @@ class EFP():
         e_zero = np.insert(e, 0, 0)
 
         process = np.cumsum(e_zero)
+        logger.debug("process1:\n{}".format(process))
         process = process[int(nh):] - process[:(n - int(nh) + 1)]
+        logger.debug("process2:\n{}".format(process))
         process = process / (sigma * np.sqrt(n))
-        logger.debug("process:\n{}".format(process))
+        logger.debug("process3:\n{}".format(process))
 
         self.coefficients = fm
         self.sigma = sigma
@@ -117,13 +118,13 @@ class EFP():
         return(stat, p_value)
 
 
-def test_dataset(y, name, deg=1, h=0.15, level=0.15):
-
-    x = np.arange(1, y.shape[0] + 1).reshape(y.shape[0], 1)
-    efp = EFP(x, y, h, deg=deg)
+def test_dataset(y, name, h=0.15, level=0.15):
+    # x = np.arange(1, y.shape[0] + 1).reshape(y.shape[0], 1)
+    x = np.ones(y.shape[0]).reshape(y.shape[0], 1)
+    efp = EFP(x, y, h)
     stat, p_value = efp.sctest()
 
-    print("Testing '{}', deg: {}".format(name, deg))
+    print("Testing '{}'".format(name))
     if p_value <= level:
         print("Breakpoint detected")
     else:
@@ -136,7 +137,10 @@ def test_dataset(y, name, deg=1, h=0.15, level=0.15):
 
 if __name__ == "__main__":
     logging_setup()
-    test_dataset(datasets.nhtemp, "nhtemp", deg=0, h=0.12)
-    # test_dataset(datasets.nile, "nile", deg=1)
+    ds = datasets.nhtemp
+    ds[5] = np.nan
+    # print(ds)
+    test_dataset(ds, "nhtemp")
+    # test_dataset(datasets.nile, "nile")
 
 

@@ -5,22 +5,13 @@ import numpy as np
 import datasets
 from breakpoints import Breakpoints
 from setup import logging_setup
+from utils import omit_nans
 
 
 logger = logging.getLogger(__name__)
 
-def omit_nans(x, y):
-    x_index = ~np.isnan(x).any(axis=1)
-    if y is None:
-        return x[x_index]
-    else:
-        x = x[x_index]
-        y = y[x_index]
-        y_index = ~np.isnan(y)
-        return x[y_index], y[y_index]
 
-
-def bfast0n(X, y, frequency, stl="none", period=None, order=3):
+def bfast0n(X, y, frequency, stl="none", period=None, order=3, use_mp=True):
     """
     Light-weight detection of multiple breaks in a time series
     """
@@ -69,7 +60,7 @@ def bfast0n(X, y, frequency, stl="none", period=None, order=3):
     X, y = omit_nans(X, y)
 
     logger.info("Esimating breakpoints")
-    bp = Breakpoints(X, y).breakpoints
+    bp = Breakpoints(X, y, use_mp=use_mp).breakpoints
     return bp
 
 

@@ -54,7 +54,8 @@ def recresid(x, y, start=None, end=None, tol=None):
 
     x_q = x[:q]
     # coeffs = np.polyfit(x_q.flatten(), y1, deg=deg)
-    model = sm.OLS(y1, x_q).fit()
+
+    model = sm.OLS(y1, x_q, missing='drop').fit()
     coeffs = model.params
 
     X1 = _Xinv0(x_q, coeffs)
@@ -86,8 +87,7 @@ def recresid(x, y, start=None, end=None, tol=None):
             # print("y1", y1)
             x_i = x[:r]
             # print("x_i", x_i)
-
-            model = sm.OLS(y1, x_i).fit()
+            model = sm.OLS(y1, x_i, missing='drop').fit()
             coeffs = model.params
             # print("coeffs", coeffs)
             nona = nona and _no_nans(betar) and _no_nans(coeffs)

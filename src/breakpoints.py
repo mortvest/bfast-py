@@ -2,10 +2,10 @@ import logging
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from setup import logging_setup
-from recresid import recresid
-from datasets import nile, nile_dates, uk_driver_deaths, uk_driver_deaths_dates
+import datasets
 from rss_triang import rss_triang
 
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class Breakpoints():
-    def __init__(self, X, y, h=0.15, breaks=None):
+    def __init__(self, X, y, h=0.15, breaks=None, use_mp=False):
         """
         Computation of optimal breakpoints in regression relationships.
 
@@ -23,6 +23,8 @@ class Breakpoints():
         :param breaks: maximum number of breakpoints (optional)
         :returns: instance of Breakpoints
         """
+        y = np.array(pd.DataFrame(y).interpolate().values.ravel().tolist())
+
         n, k = X.shape
         self.nobs = n
         logger.debug("n = {}, k = {}".format(n, k))
@@ -52,7 +54,7 @@ class Breakpoints():
         # self.RSS_triang = \
         #     np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
 
-        self.RSS_triang = rss_triang(n, h, X, y, k, intercept_only)
+        self.RSS_triang = rss_triang(n, h, X, y, k, intercept_only, use_mp=use_mp)
 
         logger.debug("RSS_triang:\n{}".format(self.RSS_triang))
 
@@ -163,8 +165,11 @@ class Breakpoints():
 
         n = self.nobs
         RSS = np.concatenate(([self.RSS(0, n-1)], np.repeat(np.nan, breaks)))
-        BIC_vals = n * (np.log(RSS[0]) + 1 - np.log(n) + np.log(2*np.pi)) \
-            + np.log(n) * (self.nreg + 1)
+        if np.isclose(RSS[0], 0.0):
+            BIC_vals = -np.inf
+        else:
+            BIC_vals = n * (np.log(RSS[0]) + 1 - np.log(n) + np.log(2*np.pi)) \
+                + np.log(n) * (self.nreg + 1)
         BIC = np.concatenate(([BIC_vals], np.repeat(np.nan, breaks)))
         RSS1, breakpoints = self.breakpoints_for_m(breaks)
         RSS[breaks] = RSS1
@@ -182,6 +187,8 @@ class Breakpoints():
         """
         Bayesian Information Criterion
         """
+        if np.isclose(RSS, 0.0):
+            return -np.inf
         n = self.nobs
         bp = breakpoints
         df = (self.nreg + 1) * (len(bp[~np.isnan(bp)]) + 1)
@@ -213,12 +220,13 @@ if __name__ == "__main__":
     n = 50
     ones = np.ones(n).reshape((n, 1)).astype("float64")
     y = np.arange(1, n+1).astype("float64")
-    # X = np.copy(y).reshape((n, 1))
+    X = np.copy(y).reshape((n, 1))
     # X = np.column_stack((ones, X))
-    X = ones
+    # X = ones
+    # X[5] = np.nan
     y[14:] = y[14:] * 0.03
+    y[5] = np.nan
     y[34:] = y[34:] + 10
-
 
 
     bp = Breakpoints(X, y).breakpoints
