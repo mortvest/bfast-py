@@ -21,6 +21,25 @@ def omit_nans(x, y):
         return x[y_index], y[y_index]
 
 
+def partition(part, arr):
+    """
+    Create a partition matrix, given a partition vector and a vector
+    """
+    if part.shape[0] != arr.shape[0]:
+        raise ValueError("Partition and Array must have the same length")
+    # number of partitions
+    n_parts = part[-1] + 1
+    n_rows = arr.shape[0]
+    ret_val = np.zeros((n_rows, n_parts * 2)).astype(float)
+    ret_val[:, 0] = np.ones(n_rows)
+    # fill 0/1 columns
+    for i in range(1, n_parts):
+        ret_val[part == i, i] = 1
+    for i in range(n_parts):
+        ret_val[(part == i), i + n_parts] = arr[part == i]
+    return ret_val
+
+
 """
 Table of simulated asymptotic critical values of the
 ME tests with the maximum norm.
@@ -55,4 +74,12 @@ sc_me = np.array([0.7552, 0.9809, 1.1211, 1.217, 1.2811, 1.3258, 1.3514, 1.3628,
 
 
 if __name__ == "__main__":
-    print(sc_me)
+    part = np.array([0, 0, 0, 1, 1, 2, 2, 2])
+    arr = np.arange(8) + 4
+    arr_p = partition(part, arr)
+    print(arr_p)
+
+    # arr = np.arange(20).reshape(10,2)
+    # mask = arr > 8
+    # arr[mask] += 10
+    # print(arr)

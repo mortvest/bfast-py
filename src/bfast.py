@@ -8,8 +8,9 @@ import pandas as pd
 from stl import STL
 from efp import EFP
 from breakpoints import Breakpoints
-import datasets
 from setup import logging_setup
+import datasets
+import utils
 
 
 logger = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class BFAST():
     def __init__(self, Yt, ti, frequency, h=0.15, season="dummy",
-                 max_iter=10, breaks=None, level=0.05):
+                 max_iter=10, breaks=None, level=0.05, use_mp=True):
         nrow = Yt.shape[0]
         Tt = 0
         f = frequency
@@ -75,7 +76,9 @@ class BFAST():
             logger.info("Vt:\n{}".format(Vt))
             p_Vt = EFP(ti, Vt, h).sctest()
             if p_Vt[1] <= level:
-                bp_Vt = Breakpoints(Vt, ti, h=h, breaks=breaks)
+                print(Vt)
+                bp_Vt = Breakpoints(ti, Vt, h=h, breaks=breaks, use_mp=use_mp)
+                print(bp_Vt.breakpoints)
                 nobp_Vt = bp_Vt.breakpoints is None
             else:
                 nobp_Vt = True
@@ -85,16 +88,20 @@ class BFAST():
                 ## No Change detected
                 fm0 = sm.OLS(Vt, ti, missing='drop').fit()
                 Vt_bp = 0  # no breaks times
+
                 Tt = fm0.predict(exog=ti)  # Overwrite non-missing with fitted values
                 Tt[np.isnan(Yt)] = np.nan
             else:
-                X1 = bp_Vt.breakfactor / ti[~np.isnan(Yt)]
-                Y1 = Vt[~np.isnan(Yt)]
-                fm1 = sm.OLS(Y1, X1, missing='drop')
+                part = bp_Vt.breakfactor()
+                X1 = utils.partition(part[~np.isnan(Yt)], ti[~np.isnan(Yt)].flatten())
+                y1 = Vt[~np.isnan(Yt)]
+
+                fm1 = sm.OLS(y1, X1, missing='drop').fit()
                 Vt_bp = bp_Vt.breakpoints
-                # Define empty copy of original time series
-                Tt = fm1.predict(exog=ti)  # Overwrite non-missing with fitted values
-                Tt[np.isnan(Yt)] = np.nan
+
+                Tt = np.repeat(np.nan, ti.shape[0])
+                Tt[~np.isnan(Yt)] = fm1.predict()
+
             exit()
         #     if season == "none":
         #         Wt = 0

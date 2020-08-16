@@ -24,7 +24,7 @@ class Breakpoints():
         :returns: instance of Breakpoints
         """
         y = np.array(pd.DataFrame(y).interpolate().values.ravel().tolist())
-
+        print(X.shape)
         n, k = X.shape
         self.nobs = n
         logger.debug("n = {}, k = {}".format(n, k))
@@ -198,17 +198,17 @@ class Breakpoints():
         return bic
 
     def breakfactor(self):
+        logger.info("running breakfactor")
         breaks = self.breakpoints
         nobs = self.nobs
         if np.isnan(breaks).all():
             return (np.repeat(1, nobs), np.array(["segment1"]))
 
         nbreaks = breaks.shape[0]
-        v = np.insert(np.diff(np.append(breaks, nobs)), 0, breaks[0])
+        v = np.insert(np.diff(np.append(breaks, nobs)), 0, breaks[0]).astype(int)
         fac = np.repeat(np.arange(1, nbreaks + 2), v)
-        labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
-        # labels[fac-1]
-        return(fac, labels)
+        # labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
+        return fac - 1
 
 
 if __name__ == "__main__":
