@@ -82,7 +82,8 @@ class Breakpoints():
 
         # find the optimal amount of breakpoints using Bayesian Information Criterion
         breakpoints_bic = self.breakpoints_for_m()[1]
-        self.breakpoints = breakpoints_bic
+        self.breakpoints = breakpoints_bic.astype(int)
+        self.breakpoints_no_nans = breakpoints_bic.astype(int)
 
     def RSS(self, i, j):
         return self.RSS_triang[int(i)][int(j - i)]
@@ -201,10 +202,12 @@ class Breakpoints():
         breaks = self.breakpoints
         nobs = self.nobs
         if np.isnan(breaks).all():
-            return (np.repeat(1, nobs), np.array(["segment1"]))
+            return np.repeat(1, nobs)
 
+        print(np.diff(np.append(breaks, nobs)))
         nbreaks = breaks.shape[0]
         v = np.insert(np.diff(np.append(breaks, nobs)), 0, breaks[0]).astype(int)
+        print(v)
         fac = np.repeat(np.arange(1, nbreaks + 2), v)
         # labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
         return fac - 1

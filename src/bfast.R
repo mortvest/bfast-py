@@ -89,10 +89,6 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
       modelterms <- terms(formula, data = data)
       X <- model.matrix(modelterms, data = data)
 
-      print(bp.Vt)
-      print(dim(X))
-
-      quit()
       fm1 <- lm(Vt[which(!is.na(Yt))] ~ breakfactor(bp.Vt)/ti[which(!is.na(Yt))] )
       ci.Vt <- confint(bp.Vt, het.err = FALSE)
       Vt.bp <- ci.Vt$confint[, 2]
@@ -182,4 +178,4 @@ library(strucchange)
 library(forecast)
 load("ndvi.rda")
 v <- bfast(ndvi, season="harmonic")
-## v <- bfast(ndvi)
+print(v$output[[2]])
