@@ -10,8 +10,20 @@ def qr_lm(X, y):
     return M
 
 
-def omit_nans(x, y):
-    x_index = ~np.isnan(x).any(axis=1)
+def nan_map(x):
+    iota = np.arange(x.shape[0])
+    if x.ndim > 1:
+        x_nn = x[~np.isnan(x).any(axis=1)]
+    else:
+        x_nn = iota[~np.isnan(x)]
+    return x_nn
+
+
+def omit_nans(x, y=None, return_map=False):
+    if x.ndim > 1:
+        x_index = ~np.isnan(x).any(axis=1)
+    else:
+        x_index = ~np.isnan(x)
     if y is None:
         return x[x_index]
     else:
@@ -38,6 +50,29 @@ def partition(part, arr):
     for i in range(n_parts):
         ret_val[(part == i), i + n_parts] = arr[part == i]
     return ret_val
+
+
+def partition_matrix(part, mat):
+    """
+    Create a partition matrix, given a partition vector and a matrix
+    """
+    if part.shape[0] != mat.shape[0]:
+        raise ValueError("Partition length must equal Matrix nrows")
+    if mat.ndim != 2:
+        raise TypeError("mat must be a 2D matrix")
+    # number of partitions
+    n_rows, n_cols = mat.shape
+    n_parts = part[-1] + 1
+    print("n_parts", n_parts, n_cols)
+    # TODO add ones
+    ret_val = np.zeros((n_rows, n_parts * n_cols + 1)).astype(float)
+    ret_val[:, 0] = np.ones(n_rows)
+    for i in range(n_cols):
+        for j in range(n_parts):
+            ret_val[(part == j), 1 + (i * n_parts) + j] = mat[part == j, i]
+            # print(mat[part==j, i])
+    return ret_val
+
 
 
 """
@@ -74,12 +109,27 @@ sc_me = np.array([0.7552, 0.9809, 1.1211, 1.217, 1.2811, 1.3258, 1.3514, 1.3628,
 
 
 if __name__ == "__main__":
-    part = np.array([0, 0, 0, 1, 1, 2, 2, 2])
-    arr = np.arange(8) + 4
-    arr_p = partition(part, arr)
-    print(arr_p)
+    Wt = np.arange(8)
+    si = 2 * np.sin(Wt)
+    co = np.sin(Wt)
+    f = 4
 
-    # arr = np.arange(20).reshape(10,2)
-    # mask = arr > 8
-    # arr[mask] += 10
-    # print(arr)
+    Yt = Wt
+
+    w   = 1.0/f
+    tl  = np.arange(1, Yt.shape[0] + 1)
+    co  = np.cos(2 * np.pi * tl * w)
+    si  = np.sin(2 * np.pi * tl * w)
+    co2 = np.cos(2 * np.pi * tl * w * 2)
+    si2 = np.sin(2 * np.pi * tl * w * 2)
+    co3 = np.cos(2 * np.pi * tl * w * 3)
+    si3 = np.sin(2 * np.pi * tl * w * 3)
+
+    smod = np.column_stack((co, si, co2, si2, co3, si3))
+
+    part = np.array([0, 0, 1, 1, 2, 2, 2, 2])
+    X = partition_matrix(part, smod)
+    print(X.shape)
+    print(X[:,16])
+    print(X[:,17])
+    print(X[:,18])

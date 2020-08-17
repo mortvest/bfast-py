@@ -24,7 +24,6 @@ class Breakpoints():
         :returns: instance of Breakpoints
         """
         y = np.array(pd.DataFrame(y).interpolate().values.ravel().tolist())
-        print(X.shape)
         n, k = X.shape
         self.nobs = n
         logger.debug("n = {}, k = {}".format(n, k))

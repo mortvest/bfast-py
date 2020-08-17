@@ -35,6 +35,7 @@ class BFAST():
             si3 = np.sin(2 * np.pi * tl * w * 3)
 
             # smod = Wt ~ co + si + co2 + si2 + co3 + si3
+            # smod = np.column_stack((np.ones(nrow), co, si, co2, si2, co3, si3))
             smod = np.column_stack((co, si, co2, si2, co3, si3))
 
             # Start the iterative procedure and for first iteration St=decompose result
@@ -49,8 +50,6 @@ class BFAST():
             n_boxes = int(np.ceil(nrow / f))
             D = np.tile(eye_box, (n_boxes, 1))
             D = D[:nrow]
-
-            # smod = Wt ~ -1 + D
             smod = np.column_stack((np.repeat(-1.0, nrow), D))
         elif season == "none":
             logger.info("'none' season is chosen")
@@ -64,6 +63,8 @@ class BFAST():
         CheckTimeTt = 1
         CheckTimeSt = 1
         i = 0
+        output = []
+        nan_map = utils.nan_map(Yt)
 
         while (not np.isclose(CheckTimeTt, Vt_bp).all()
                or not np.isclose(CheckTimeSt, Wt_bp).all()) and i < max_iter:
@@ -74,12 +75,15 @@ class BFAST():
             with np.errstate(invalid="ignore"):
                 Vt = Yt - St  # Deseasonalized Time series
             logger.info("Vt:\n{}".format(Vt))
-            p_Vt = EFP(ti, Vt, h).sctest()
+            p_Vt = EFP(sm.add_constant(ti), Vt, h).sctest()
             if p_Vt[1] <= level:
-                print(Vt)
-                bp_Vt = Breakpoints(ti, Vt, h=h, breaks=breaks, use_mp=use_mp)
-                print(bp_Vt.breakpoints)
-                nobp_Vt = bp_Vt.breakpoints is None
+                ti1, Vt1 = utils.omit_nans(ti, Vt)
+                bp_Vt = Breakpoints(sm.add_constant(ti1), Vt1, h=h, breaks=breaks, use_mp=use_mp)
+                if bp_VT.breakpoints is not None:
+                    bp_Vt.breakpoints = np.array([nan_map[i] for i in bp_Vt.breakpoints])
+                    nobp_Vt = False
+                else:
+                    nobp_Vt = True
             else:
                 nobp_Vt = True
                 bp_Vt = None
@@ -93,7 +97,7 @@ class BFAST():
                 Tt[np.isnan(Yt)] = np.nan
             else:
                 part = bp_Vt.breakfactor()
-                X1 = utils.partition(part[~np.isnan(Yt)], ti[~np.isnan(Yt)].flatten())
+                X1 = utils.partition(part, ti[~np.isnan(Yt)].flatten())
                 y1 = Vt[~np.isnan(Yt)]
 
                 fm1 = sm.OLS(y1, X1, missing='drop').fit()
@@ -102,48 +106,52 @@ class BFAST():
                 Tt = np.repeat(np.nan, ti.shape[0])
                 Tt[~np.isnan(Yt)] = fm1.predict()
 
-            exit()
-        #     if season == "none":
-        #         Wt = 0
-        #         St = 0
-        #         bp_Wt = None
-        #         ci_Wt = None
-        #         nobp_Wt = True
-        #     else:
-        #         ### Change in seasonal component
-        #         Wt = Yt - Tt
-        #         p_Wt = EFP(smod, h).sctest()  # preliminary test
-        #         if p_Wt.p_value <= level:
-        #             bp_Wt = breakpoints(smod, h=h, breaks=breaks)
-        #             nobp_Wt = np.isnan(breakpoints(bp_Wt)[0])
-        #         else:
-        #             nobp_Wt = True
-        #             bp_Wt = None
-        #         if nobp_Wt:
-        #             ## No seasonal change detected
-        #             sm0 = lm(smod)
-        #             St = ts(data=NA,start = ti[1], end = ti[length(ti)],frequency = f)
-        #             St[which(!is.na(Yt))] = fitted(sm0) # Overwrite non-missing with fitted values
-        #             tsp(St) = tsp(Yt)
-        #             Wt_bp = 0
-        #             ci_Wt <- None
-        #         else:
-        #             if season == "dummy":
-        #                 sm1 = lm(Wt ~ -1 + D %in% breakfactor(bp.Wt))
-        #             if season == "harmonic":
-        #                 sm1 = lm(Wt ~ (co + si + co2 + si2 + co3 + si3) %in% breakfactor(bp.Wt))
-        #             ci_Wt = confint(bp.Wt, het.err=False)
-        #             Wt_bp = ci_Wt.confint[, 2]
+            if season == "none":
+                Wt = np.zeros(nrow).astype(float)
+                St = np.zeros(nrow).astype(float)
+                bp_Wt = None
+                nobp_Wt = True
+            else:
+                ### Change in seasonal component
+                with np.errstate(invalid="ignore"):
+                    Wt = Yt - Tt
+                p_Wt = EFP(sm.add_constant(smod), Wt, h).sctest()  # preliminary test
+                if p_Wt[1] <= level:
+                    smod1, Wt1 = utils.omit_nans(smod, Wt1)
+                    bp_Wt = Breakpoints(sm.add_constants(mod1), Wt1, h=h, breaks=breaks)
+                    if bp_Wt.breakpoints is not None:
+                        bp_Wt.breakpoints = np.array([nan_map[i] for i in bp_Wt.breakpoints])
+                        nobp_Wt = False
+                    else:
+                        nobp_Wt = True
+                else:
+                    nobp_Wt = True
+                    bp_Wt = None
 
-        #             # Define empty copy of original time series
-        #             St = ts(data=NA,start = ti[1], end = ti[length(ti)],frequency = f)
-        #             St[which(!is.na(Yt))] = fitted(sm1) # Overwrite non-missing with fitted values
-        #             tsp(St) = tsp(Yt)
-        #     i += 1
+                if nobp_Wt:
+                    ## No seasonal change detected
+                    sm0 = sm.OLS(Wt, smod, missing='drop').fit()
+                    St = np.repeat(np.nan, nrow)
+                    St[~np.isnan(Yt)] = sm0.predict()  # Overwrite non-missing with fitted values
+                    Wt_bp = 0
+                else:
+                    part = bp_Wt.breakfactor()
+                    if season == "dummy":
+                        X_sm1 = utils.partition_matrix(part, smod1)
+                    if season == "harmonic":
+                        X_sm1 = utils.partition_matrix(part, smod1)
 
-        #     output[i] = list(Tt = Tt, St = St, Nt = Yt - Tt - St, Vt = Vt, bp.Vt = bp.Vt,
-        #                      Vt.bp = Vt.bp, ci.Vt = ci.Vt, Wt = Wt, bp.Wt = bp.Wt,
-        #                      Wt.bp = Wt.bp, ci.Wt = ci.Wt)
+                    sm1 = sm.OLS(Wt1, X_sm1, missing='drop').fit()
+                    Wt_bp = bp_Wt.breakpoints
+
+                    # Define empty copy of original time series
+                    St = np.repeat(np.nan, nrow)
+                    St[~np.isnan(Yt)] = sm1.predict()  # Overwrite non-missing with fitted values
+
+            with np.errstate(invalid="ignore"):
+                Nt = Yt - Tt - St
+
+            output.append((Tt, St, Nt, Vt, Vt_bp, Wt, Wt_bp))
 
         # if not nobp_Vt: # probably only works well for dummy model!
         #     Vt_nrbp = len(bp_Vt.breakpoints)
@@ -173,13 +181,14 @@ class BFAST():
         #     Time = None # if we do not detect a break then we have no timing of the break
         #     Mag = 0
 
-        # self.Yt = Yt
-        # self.output = output
-        # self.nobp = [nobp_Vt, nobp_Wt]
+        self.Yt = Yt
+        self.output = output
+        self.nobp = (nobp_Vt, nobp_Wt)
         # self.magnitude = Magnitude
         # self.mags = mags
         # self.time = Time
         # self.jump = [ti[m_x], m_y]
+
 
 if __name__ == "__main__":
     logging_setup()
