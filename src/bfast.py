@@ -16,6 +16,15 @@ import utils
 logger = logging.getLogger(__name__)
 
 
+class BFASTResult():
+    def __init__(self, Tt, St, Nt, Vt_bp, Wt_bp):
+        self.trend = Tt
+        self.season = St
+        self.remainder = Nt
+        self.trend_breakpoints = Vt_bp
+        self.season_breakpoints = Wt_bp
+
+
 class BFAST():
     def __init__(self, Yt, ti, frequency, h=0.15, season="dummy",
                  max_iter=10, breaks=None, level=0.05, use_mp=True):
@@ -63,7 +72,7 @@ class BFAST():
         CheckTimeTt = 1
         CheckTimeSt = 1
         i = 0
-        output = []
+        output = None
         nan_map = utils.nan_map(Yt)
 
         while (not np.isclose(CheckTimeTt, Vt_bp).all()
@@ -151,10 +160,10 @@ class BFAST():
             with np.errstate(invalid="ignore"):
                 Nt = Yt - Tt - St
 
-            output.append((Tt, St, Nt, Vt, Vt_bp, Wt, Wt_bp))
+            output = BFASTResult(Tt, St, Nt, Vt_bp, Wt_bp)
 
         # if not nobp_Vt: # probably only works well for dummy model!
-        #     Vt_nrbp = len(bp_Vt.breakpoints)
+        #     Vt_nrbp = Vt_bp.shape[0] if Vt_bp is not None else 0
         #     co = coef(fm1) # final fitted trend model
         #     Mag = matrix(NA, Vt.nrbp, 3)
         #     for (r in 1:Vt.nrbp):

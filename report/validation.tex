@@ -3,6 +3,34 @@
 \begin{document}
 \chapter{Validation}
 \label{chap:validation}
+\section{Datasets}
+\label{sec:datasets}
+The implementation was validated by applying the \texttt{bfast} and \texttt{bfast0n} functions
+to the following datasets:
+\begin{itemize}
+\item \texttt{harvest}
+  \begin{itemize}
+  \item \textbf{Description:}\\
+  16-day NDVI Time Series for a Pinus Radiata Plantation, with approximately 23
+  observation per year.
+  \item \textbf{Source:} \cite{bfast}
+  \end{itemize}
+\item \texttt{modisraster}
+  \begin{itemize}
+  \item \textbf{Description:}\\ A raster brick of 16-day satellite image NDVI
+    time series for a small subset in south eastern Somalia.
+  \item \textbf{Source:} \cite{bfast_monitor1}
+  \end{itemize}
+\item \texttt{ndvi}
+  \begin{itemize}
+  \item \textbf{Description:}\\ A random NDVI time series. Frequency is set to 24
+  \end{itemize}
+\item \texttt{simts}
+  \begin{itemize}
+  \item \textbf{Description:}\\ Simulated seasonal 16-day NDVI time series.
+  \item \textbf{Source:} \cite{bfast}
+  \end{itemize}
+\end{itemize}
 
 \biblio
 \end{document}
