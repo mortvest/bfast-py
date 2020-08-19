@@ -4,53 +4,297 @@
 \chapter{Estimation of Breakpoints}
 \label{chap:breakpoints}
 In the paper from 2003 \cite{bai_perron}, Jushan Bai and Pierre Perron provide an
-efficient algorithm for time series breakpoint estimation. It uses a dynamic-programming
+efficient algorithm for time series breakpoint estimation that uses a dynamic-programming
 approach and requires $O(T^2)$ least-squares operations for any number of breakpoints.
 
 \section{The Model}
 \label{sec:breakpoints_the_model}
+For this algorithm, we assume a pure structural change model for $m$ breaks ($m+1$ segments):
+
+\[
+y_{t} = x_{t}^{\top} \beta_{j}+u_{t} \quad t=T_{j-1}+1, \ldots, T_{j}
+\]
+for $j = 1,...,m+1$, and where:
+\begin{itemize}
+\item $x_t \in \mathbb{R}^q$ is the value of the independent variable at time
+  $t = 1..T$, known
+\item $y_{t} \in \mathbb{R}$ is the observation at time $t$, known
+\item $\beta_j \; (j=1,...,m+1)$ is the vector of coefficients that
+  we wish to estimate using linear regression 
+\item $u_{t} \in \mathbb{R}$ is the disturbance (error) at time $t$, unknown
+\item $(T_1,..,T_m)$ are the indices of the $m$ breakpoints and are unknown.
+ We additionally set $T_0 = 0$ and $T_{m+1} = T$
+\end{itemize}
+This linear regression system can also be expressed in matrix form:
+\[
+Y = \overline{X}\beta + U
+\]
+where:
+\[
+Y =
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_T
+\end{bmatrix}
+\quad
+\beta =
+\begin{bmatrix}
+\vert & \vert &  & \vert \\
+\beta_{1} & \beta_{2}  & \hdots & \beta_{m+1}\\
+\vert & \vert &  & \vert\\
+\end{bmatrix}
+\quad
+U =
+\begin{bmatrix}
+u_1 \\
+u_2 \\
+\vdots \\
+u_T
+\end{bmatrix}
+\]
+and $\overline{X}$ is a block matrix that
+diagonally partitions $X$ at breaking points $(T_1,..., T_m)$:
+\[
+\overline{X} =
+\begin{bmatrix}
+X_1 & 0 & \hdots & 0\\
+ 0 & X_2 & \hdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+ 0 & 0 & \hdots & X_{m+1} 
+\end{bmatrix}
+\quad
+X_i = 
+\begin{bmatrix}
+  \text{---} \hspace{-0.2cm} & x_{T_{i-1} + 1}^{\top} & \hspace{-0.2cm}\text{---} \\
+  \text{---} \hspace{-0.2cm} & x_{T_{i-1} + 2}^{\top} & \hspace{-0.2cm}\text{---} \\
+  & \vdots & \\ 
+ \text{---} \hspace{-0.2cm} & x_{T_i}^{\top} & \hspace{-0.2cm}\text{---}  \\
+\end{bmatrix}
+\]
+In other words, we split the dataset into $m+1$ segments and perform linear
+regression independently for each segment, where for segment $i$, we estimate
+a coefficient vector $\beta_i$.
+Hence, we find the estimate of the coefficient vector ($\hat{\beta}$) for each
+m-partition $(T_1, ..., T_m)$ by minimizing the sum of squared residuals:
+\[
+(Y - \overline{X}^{\top}\delta)^{\top} (Y - \overline{X}^{\top}\delta) =
+\sum_{i=1}^{m+1}\sum_{i=T_{i-1} + 1}^{T_i} \left[ y_t - x_t^{\top}\delta_i \right]^2
+\]
+Let $\{T_j\}$ denote an m-partition $(T_1, ..., T_m)$ and $S_T(T_1, ..., T_m)$
+denote the resulting sum of squared residuals. Since we can estimate the
+coefficient vector for each partition, we can minimize the sum of
+squared residuals by finding the optimal position for the breakpoints
+\[
+(\hat{T}_1, ..., \hat{T}_m) = \operatorname{argmin}_{T_{1}, \ldots, T_{m}}
+S_{T}\left(T_{1}, \ldots, T_{m}\right)
+\]
+There is a finite number of possible breakpoints, and we only need to look at
+a subset of possible partitions. We start by realizing that there are $T(T+1)/2$
+possible segments that can be chosen. This can be demonstrated by building a
+table of possible segments, with starting date on the y-axis and terminal date
+on the y-axis. A length of a segment is must be positive, hence we can eliminate
+one half of the potential segments and get a familiar expression, being the sum
+of natural numbers up to $T$, which is quadratic. There are further reductions
+that can be made that reduce the number of segements to be considered to
+$T(T+1)/2 - \left(T(h-1)-m h(h-1)-(h-1)^{2}-h(h-1) / 2\right)$, where $h$ is the minimal
+allowed length of the segment. Those are covered
+in the original paper by Bai and Perron, 
 
 \section{Recursive Residuals}
 \label{sec:recursive_residuals}
+The algorithm by Bai and Perron utilizes the recursive residuals
+of a linear regression model, that were first described by Brown et al.
+\cite{brown75}. We calculate the recursive residuals for each of $m + 1$
+segments individually, hence we can assume a simple linear regression model:
+\[
+y_i = x_i^{\top} \beta + u_i
+\]
+Let $\hat{\beta}^{(i)}$ be the OLS-estimate of the regression coefficient
+vector based on all observations up to $i$, and $X^{(i)}$ be the subset of the
+regressor $X$ with with rows from $q$ to $i$. Then the recursive residuals can
+be calculated using a recursive procedure:
+\[
+\bar{u}_{i}=\frac{y_{i}-x_{i}^{\top}
+  \hat{\beta}^{(i-1)}}{\sqrt{1+x_{i}^{\top}\left(X^{(i-1)^{\top}}
+    X^{(i-1)}\right)^{-1} x_{i}}} \quad(i=q+1, \ldots, n)
+\]
+We initialize the recursion by taking $X^{(q-1)}$, $y_{q}$ and $x_{q}$ in order to
+use OLS-based regression to estimate $\beta^{q}$. The coefficient vector can
+then be used to compute the next iteration. This procedure continues until we
+reach iteration $n$. 
 
 \section{The Triangular Matrix of Sums of Squared Residuals}
 \label{sec:triangular_matrix}
-\subsection{Reductions}
-\subsection{Computation of the triangular matrix}
+Before we apply the dynamic programming approach to find the optimal
+partition, we must construct a table of squared residuals for all possible
+segments. Since we are considering a pure
+structural change model, there are no constraints between the segments and we
+can therefore apply OLS one by one. Let $u_i(j)$ be the recursive residual at
+time $j$ that we received from a sample starting at date $i$.
+Let $\text{SSR}(i, j)$  be the sum of squared residuals, acquired from
+application of OLS to segment that starts at $i$ and ends at $j$.
+Please note the difference between the squared residuals, described in Section
+\ref{sec:breakpoints_the_model} and recursive residuals, described in Section
+\ref{sec:recursive_residuals}. 
+It was shown by Brown et al. \cite{brown75}, that we can calculate the values in
+the table using a recursive relation:
+\[
+\text{SSR}(i,j) = \text{SSR}(i, j - 1) + u_i(j)^2
+\]
 
+%% return np.concatenate((np.repeat(np.nan, k), np.cumsum(ssr**2)))
 \section{The dynamic programming algorithm}
 \label{sec:dynamic_algorithm}
+After the table of squared residuals is constructed, we can apply the dynamic
+programming algorithm in order to find the optimal partition that solves the
+following recursive problem:
+\[
+\operatorname{SSR}\left(\left\{T_{m, T}\right\}\right)=\min _{m h \leq j \leq
+  T-h}\left[\operatorname{SSR}\left(\left\{T_{m-1,
+    j}\right\}\right)+\operatorname{SSR}(j+1, T)\right]
+\]
+where $m$ is the number of breakpoints, $T$ is the number of observations and
+$h$ is the minimal segment length (distance between two breakpoints). The idea
+behind this algorithm is conceptually similar to the bottom-up solution to
+the rod cutting problem \cite{CLRS_rod}. \\\\
+We can substitute the recursive calls in order to gain more insight into the workings of this method
+and get a following expression:
+\[
+\begin{array}{c}
+  S S R\left(\left\{T_{m, T}\right\}\right)= \\
+  \min _{m h \leq j_{1} \leq T-h}\left[S S R\left(j_{1}+1, T\right)+\right. \\
+  \min _{(m-1) h \leq j_{2} \leq j_{1}-h}\left[S S R\left(j_{2}+1, j_{1}\right)+\right. \\
+  \vdots \\
+  \left.\left.\left.\min _{h \leq j_{m} \leq j_{m-1}-h}
+  \left[\operatorname{SSR}\left(1, j_{m}\right)+\operatorname{SSR}\left(j_{m}+1, j_{m-1}\right)\right]
+  \ldots\right]\right]\right]
+\end{array}
+\]
+In order to find the solution to the minimization problem in an efficient
+manner, we will utilize the bottom-up approach.
+We start the procedure by solving the minimization problem from the
+last line of the expression. We evaluate the optimal one-break partition for all
+sub-samples that allow a possible break ranging from observations $h$ to
+$T - mh$ (since we still have to fit $m$ segments of minimal size $h$ after
+the first breakpoint). We then store $T - (m + 1)h + 1$ optimal breakpoints
+along with the corresponding sums of squared residuals. These one-break
+partitions would have an endpoint between $2h$ and $T - (m-1)h$. 
+
+Then, we continue to 2-partitions that can have and endpoint between $3h$ and
+$T - (m-2)h$. For each of $T - (m + 1)h + 1$ endpoints, we select an
+1-partition that we have calculated earlier that would minimize the sum of
+squared residuals. We then store the 2-partitions and corresponding sums of
+squared residuals.
+
+We iterate until we have computed the $T - (m + 1)h + 1$
+$(m-1)$-partitions with endpoints between $(m-1)h$ and $T-2h$.
+We finish by finding the optimal $(m-1)$ partition that gives the overall
+minimal sum of squared residuals, when the last segment is appended to it.\\\\
+Consider this example. Let $T=20$, $h=4$ and $m=3$. The allowed placements
+and the possible endpoints of the 1-partition can bee seen on Figure \ref{plt_4_1} (in
+green) and Figure \ref{plt_4_2} (in orange) respectively. 
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{imgs/breakpoints1}
+  \caption{Allowed placements of $j_m$}
+  \label{plt_4_1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{imgs/breakpoints2}
+  \caption{Possible endpoints of 1-partion}
+  \label{plt_4_2}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{imgs/breakpoints3}
+  \caption{Possible start points of the last segment}
+  \label{plt_4_3}
+\end{figure}
+We have obtained the optimal $(m - 1)$-partitions with endpoints between
+$(m - 1)h$
+and $T - 2h$. We find the optimal partition by calculating the sum of squared
+residuals for all possible segments that startpoints between $3h$ and $T - h$
+(Figure \ref{plt_4_3} in blue) and finding one that yields the minimal sum of
+squared residuals.\\\\
+This bottom-up approach scales very efficiently with the number of breakpoints,
+and the time it takes to find the optimal m-partition is negligible, compared to
+the time it takes to compute the upper-triangular matrix of squared residuals.
+
 
 \section{Bayesian Information Criterion}
 \label{sec:bayesian_information_criterion}
-\cite{schwarz1978}
+The dynamic programming algorithm from the previous section is only applicable when we know
+the number of breakpoints. However, in most cases, this information is not available to us.
+Hence, in order to determine the optimal number of breakpoints, we must utilize
+one of the existing criterions for model selection. Bai and Perron \cite{bai_perron} discuss
+multiple approaches that can be applied for this purpose, one of which being
+the Bayesian Information Criterion (BIC) \cite{schwarz1978}.
+Bai and Perron state that BIC works well when breaks are present
+in time series and poorly when it is not the case. However, this would not
+constitute a issue for
+the BFAST algorithm, because the breakpoint by Bai and Perron is only applied if
+the OLS-MOSUM test signifies that there are structural change present in the
+time series. Therefore, BIC constitutes a viable criterion for selecting the
+optimal number of breakpoints $m_{\text{best}}$ in the context of this project.\\\\
+For each possible number of breakpoints, up to some
+limit $m_{\text{max}}$, we find the sum of squared residuals for all breakpoints
+and
+then calculate the Bayesian Information Criterion:
+\[
+\text{BIC} = k \ln{n} - 2 {\hat{L}}
+\]
+where:
+\begin{itemize}
+\item $k$: the number of degrees of freedom for our model, in our case
+  $k = (q + 1) (m + 1)$, where $q$ is the dimensionality of the vector $x$ and
+  $m$ is the number of breakpoints.
+\item $n$ is the number of observations
+\item $\hat{L}$ is the maximized value of the log-likelihood of the model. In our case,
+  the value is given by \cite{yao1988}:
+  \[
+  \hat{L} = -\frac{n}{2} \left(\ln \left(S_T(\hat{T}_1,..,\hat{T}_m)\right)
+  + \ln{\frac{2\pi}{n}} + 1\right)
+  \]
+  where $S_T(\hat{T}_1,..,\hat{T}_m)$ is the sum of squared residuals for the m-partition of
+  the dataset.
+\end{itemize}
+The optimal number of breakpoints would be the number of breakpoints for which
+the value of BIC is lowest.
 
 \section{Steps of the Algorithm}
 \label{sec:steps_of_the_algorithm}
-The algorithm by Bai and Perron works by taking following steps:
+The algorithm by Bai and Perron operates in following steps:
 \begin{enumerate}
 \item \textbf{Calculate the upper-triangular matrix of sums of squared residuals}\\
-  We calculate the matrix, by following the guidelines, described in \ref{sec:triangular_matrix}.
+  We calculate the matrix, by following the guidelines, described in Section \ref{sec:triangular_matrix}.
   For each entry in the matrix, we perform the linear regression using the given the matrix
-  $X$ and observations $y$, and the recursive residuals are calculated 
-  using \ref{sec:recursive_residuals}.
-\item \textbf{Find the largest number of allowed segments}\\
+  $X$ and observations $y$, and the recursive residuals are calculated
+  using the approach, outlined in Section \ref{sec:recursive_residuals}. This is
+  the most computationally intensive operation of the algorithm.
+\item \textbf{Find the largest number of allowed breakpoints}\\
   Given a value of $0\leq h' \leq 1$, which signifies the smallest allowed size of
-  a segment, and $m_{\text{user}}$ which is the maximum number of segments, determined by the user, 
+  a segment, and $m_{\text{user}}$ which is the maximum number of breakpoints, determined by the user, 
   we can then find the largest number of allowed
-  segments $m_{\text{max}} = \min(\floor{\frac{1}{h'}}, m_{\text{user}})$.
-\item \textbf{Create a table \texttt{BIC} of size $m_{\text{max}}$}
-\item \textbf{For $m \in (m_{\text{max}}, ... 1)$, do following:}
+  breakpoints $m_{\text{max}} = \min(\floor{\frac{1}{h'}}, m_{\text{user}})$.
+\item \textbf{Create a table \texttt{BIC} of size $m_{\text{max}} + 1$}
+\item \textbf{For $m \in (m_{\text{max}}, ... 0)$, do following:}
   \begin{enumerate}[1)]
-  \item Find the optimal position of the $m-1$ breakpoints, using algorithm
-    \ref{sec:dynamic_algorithm}.
+  \item Find the optimal position of the $m$ breakpoints, using algorithm
+    from Section \ref{sec:dynamic_algorithm}.
   \item Calculate the sum of squared residuals, and then use it to
-    calculate the Bayesian Information Criterion $\text{BIC}_m$ of this partition, using
+    calculate the Bayesian Information Criterion $\text{BIC}_m$ of this
+    partition by following the guidelines from Section
     \ref{sec:bayesian_information_criterion}.
   \item Add $\text{BIC}_m$ to the table
   \end{enumerate}
 \item \textbf{Find the value of $m_{best}$ that corresponds to the minimal value in the \texttt{BIC}}
-\item \textbf{Use the algorithm \ref{sec:dynamic_algorithm} to find the $m_{best} - 1$ breakpoints}
+\item \textbf{Use the algorithm from Section \ref{sec:dynamic_algorithm} again to find the $m_{best}$ breakpoints}
 \end{enumerate}
 
 \section{Parameters and Their Values}
@@ -60,7 +304,8 @@ The algorithm takes two parameters:
 \item  $0\leq h' \leq 1$, which can be used to calculate the minimal allowed size of the segment
   $h = h' n$. The default value is $h' = 0.15$.
 \item \texttt{max\_breaks}, which can be used to calculate the maximum number of allowed segments
-  $m_{\text{user}} = \texttt{max\_breaks} + 1$. This parameter is optional.
+  $m_{\text{user}}$. This parameter is optional, and in that case, $m_{\text{user}}$ would be calculated
+  from the value of $h'$.
 \end{itemize}
 
 

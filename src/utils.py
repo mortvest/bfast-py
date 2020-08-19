@@ -1,14 +1,5 @@
 import numpy as np
 
-def qr_lm(X, y):
-    """
-    lm.fit in R uses QR decomposition exclusively
-    """
-    Q, R = np.linalg.qr(X)
-    z = Q.T @ y
-    M = np.linalg.solve(R, z)
-    return M
-
 
 def nan_map(x):
     iota = np.arange(x.shape[0])

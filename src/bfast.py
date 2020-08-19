@@ -234,6 +234,4 @@ if __name__ == "__main__":
     v = BFAST(x, y, freq, season="harmonic")
     print(v.output)
 
-    # nan_map = utils.nan_map(x)
-    # v = 594
-    # print(nan_map[457])
+A    

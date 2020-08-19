@@ -47,7 +47,6 @@ class Breakpoints():
         ## compute optimal previous partner if observation i is the mth break
         ## store results together with RSSs in RSS_table
 
-        ## breaks = 1
 
         logger.info("Calculating triangular matrix")
         # self.RSS_triang = \
@@ -61,6 +60,7 @@ class Breakpoints():
         index = np.arange((h - 1), (n - h)).astype(int)
         logger.debug("index:\n{}".format(index))
 
+        ## 1 break
         break_RSS = np.array([self.RSS(0, i) for i in index])
         logger.debug("break_RSS:\n{}".format(break_RSS))
 
@@ -193,8 +193,10 @@ class Breakpoints():
         bp = breakpoints
         df = (self.nreg + 1) * (len(bp[~np.isnan(bp)]) + 1)
         # log-likelihood
-        logL = -0.5 * n * (np.log(RSS) + 1 - np.log(n) + np.log(2 * np.pi))
-        bic = df * np.log(n) - 2 * logL
+        # logL = -0.5 * n * (np.log(RSS) + 1 - np.log(n) + np.log(2 * np.pi))
+        # bic = df * np.log(n) - 2 * logL
+        logL = n * (np.log(RSS) + 1 - np.log(n) + np.log(2 * np.pi))
+        bic = df * np.log(n) + logL
         return bic
 
     def breakfactor(self):
@@ -231,7 +233,7 @@ if __name__ == "__main__":
     y[34:] = y[34:] + 10
 
 
-    bp = Breakpoints(X, y).breakpoints
+    bp = Breakpoints(X, y, use_mp=False).breakpoints
     print("Breakpoints:", bp)
     print()
 

@@ -176,6 +176,14 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
 }
 library(strucchange)
 library(forecast)
-load("ndvi.rda")
-v <- bfast(ndvi, season="harmonic")
-print(v$output[[2]])
+## load("ndvi.rda")
+## v <- bfast(ndvi, season="harmonic")
+## print(v$output[[2]])
+
+load("simts.rda") # stl object containing simulated NDVI time series
+datats <- ts(rowSums(simts$time.series))
+# sum of all the components (season,abrupt,remainder)
+tsp(datats) <- tsp(simts$time.series)
+v <- bfast(datats, season="harmonic")
+print(v$output)
+
