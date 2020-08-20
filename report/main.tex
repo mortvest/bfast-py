@@ -51,8 +51,6 @@
 %% Remove subsection from the table of contents
 \setcounter{tocdepth}{1}
 
-%% Rename bibliography
-\renewcommand{\bibname}{References}
 
 %% Reduce vertical space in chapter
 \titleformat{\chapter}[display]   
@@ -68,10 +66,13 @@
 \author{Dmitry Serykh\\ \small\href{mailto:dmise@di.ku.dk}{dmise@di.ku.dk}}
 
 \begin{document}
+%% Rename bibliography
+\renewcommand{\bibname}{References}
+%% define bibliography
 \def\biblio{}
+
 \maketitle
 {\small\tableofcontents}
-%% \tableofcontents
 
 \subfile{intro.tex}
 

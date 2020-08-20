@@ -26,8 +26,8 @@ For more information about the time series components, please refer to Chapter
 \subsection{The Trend Component}
 \label{subsec:trend}
 We assume that $T_t$ is piecewise linear and has breakpoints $t_1^*,\hdots, t_m^*$,
-where $m$ is the number of breakpoints and set $T_0^* = 0$. Then, the trend component
-can be described as
+where $m$ is the number of breakpoints in the trend component and set $t_0^* = 0$.
+Then, the trend component can be described as
 \[
 T_t = \alpha_j + \beta_j t \quad \text{for}\quad t^*_{j-1}<t\leq t_j^*
 \]
@@ -40,25 +40,79 @@ calculating the magnitude of the change:
 \]
 where $j = 1,...,m$.
 
-\subsection{The Seasonal Component (Dummy Model)}
-\label{subsec:seasonal_dummy}
+\subsection{The Seasonal Component}
+\label{subsec:seasonal}
 The breakpoints in the seasonal component can occur at different times than the
-breaks in the trend component. We define the seasonal breakpoints:
+breaks in the trend component. Let
+$t_1^{\#},\hdots, t_p^{\#}$ be the breakpoints in the seasonal component,
+where $p$ is the number of breakpoints and $t_0^{\#} = 0$.
 
+\subsection{Dummy Model}
+For $t_{j-1}^{\#} < t \leq t_j^{\#}$, the seasonal term can be expressed as:
+\[
+S_t = \sum_{i=1}^{s-1}\gamma_{i,j}(d_{t, i} - d_{t, 0})
+\]
+where
+\begin{itemize}
+\item $s$ is the period of seasonality (the number of observations per year)
+\item $\gamma_{i,j}$  is the influence of season $i$ that we are going to estimate
+with linear regression. 
+\item $d_{t,i}$ is the dummy variable \cite{makridakis}, for which it holds that
+  $d_{t,i} = 1$ when $t$ is in season i and 0 otherwise. Then for season 0, we
+  have that $d_{t, i} - d_{t, 0} = -1$ and $d_{t, i} - d_{t, 0} = 1$ otherwise.
+\end{itemize}
+An important observation is that $\sum_{t=t_{j-1}^{\#}+1}^{t_j^{\#}}S_t = 0$.
+The model is build this way in order to avoid breakpoints in
+trend being caused by seasonal breaks. \\\\
+In matrix form, the dummy seasonal model can be expressed as:
+\[
+X =
+\begin{bmatrix}
+ 1 & 0 & 0 & \hdots & 0\\
+ 0 & 1 & 0 & \hdots & 0 \\
+ 0 & 0 & 1 & \hdots & 0 \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+ 0 & 0 & 0 & \hdots & 1 \\
+ -1 & -1 & -1 & \hdots & -1 
+\end{bmatrix}
+\]
+where $X$ has $s-1$ columns and $s$ rows.
 
-\subsection{The Seasonal Component (Harmonic Model)}
-\label{subsec:seasonal_harm}
-Alternatively, we can use the Harmonic model from the BFAST0n algorithm. For
-more information, please refer to Chapter \ref{chap:bfast0n}.
-
-
+\subsection{Harmonic Model}
+Alternatively, we can use the Harmonic model that was mentioned in the context
+of BFAST0n. For more information, please refer to Chapter \ref{chap:bfast0n}.
 
 \section{Steps of the Algorithm}
 \label{sec:bfast_algorithm_steps}
-BFAST is an iterative algorithm that for $i = 1 \hdots \operatorname{max}_\text{iter}$,
-takes following steps:
+BFAST operates in a following way:
 \begin{enumerate}
-\item 
+\item Estimate $\hat{S}_t$, using STL and finding the average of all seasons, by
+  setting $n_s =$ ``harmonic''. For more information about STL parameters,
+  please refer to Chapter \ref{chap:stl}.
+\item Then iterate:
+  \begin{enumerate}[1)]
+    \item Calculate the deasonalized time series: $V_t = Y_t - \hat{S}_t$
+    \item Apply the OLS-MOSUM test (Chapter \ref{chap:mosum}) to $V_t$. If the
+      returned p-value is lower than the significance level $\alpha$, estimate
+      the number and position of the trend components using the breakpoint
+      estimation algorithm by Bai and Perron (Chapter \ref{chap:breakpoints}) from $V_t$.
+    \item Compute the trend coefficients $\alpha_j$ and $\beta_j$ for
+      $j = 1, \hdots, m$ using linear regression. Set the trend estimate
+      $\hat{T}_t = \hat{\alpha}_j + \hat{\beta}_j t$ for
+      $t = t^*_{j-1} + 1, \hdots, t^*_j$.
+    \item Calculate the detrended time series: $W_t = Y_t - \hat{T}_t$
+    \item If the OLS-MOSUM test, applied to $W_t$ signifies that the breakpoints
+      are present in the seasonal data, estimate
+      the number and position of the trend components using the breakpoint
+      estimation algorithm by Bai and Perron (Chapter \ref{chap:breakpoints}) from $W_t$.
+    \item Compute the coefficients for the seasonal component $\gamma_{i,j}$ for
+      $j = 1, \hdots, m$ and $i = 1,\hdots s-1$. And reconstruct $\hat{S}_t$
+      from the selected seasonal model and the seasonal coefficients.
+  \end{enumerate}
+  The iteration is stopped when the number and position of the breakpoints do
+  not change or when we reach the maximum number of iterations.
+\item Return $\hat{T}_t$, $\hat{S}_t$ the number and position of trend and
+  seasonal breakpoints and the maximum breakpoint magnitude.
 \end{enumerate}
 
 \section{Parameters and Their Values}
@@ -72,11 +126,11 @@ BFAST algorithm has following paramers
   The default value is $0.15$.
 \item \texttt{seasonal}. Type of model to be fitted. Should be either
   ``harmonic'', ``dummy'' or ``none''. The later means that no seasonal model
-  would be fitted.
+  would be fitted, i.e. $S_t=0$.
 \item \texttt{max\_iter}. Maximal number of iterations of the main loop. The
   default value is $10$. In practice 1 or 2 iterations is normally enough.
 \item \texttt{max\_breaks}. Upper limit on the number of breakpoints that would be found by
-  the breakpoint estimation algorithm. The default value is $None$, i.e. no upper limit.
+  the breakpoint estimation algorithm. The default value is ``None'', i.e. no upper limit.
   For more information, please refer to Chapter \ref{chap:breakpoints}.
 \item $\alpha$. The confidence interval for the OLS-MOSUM test. If the returned
   p value is below that threshold - we consider that there is structural change

@@ -67,10 +67,9 @@ class BFAST():
 
             eye_box = np.row_stack((np.eye(f - 1), np.repeat(-1, f - 1)))
             n_boxes = int(np.ceil(nrow / f))
-            D = np.tile(eye_box, (n_boxes, 1))
-            D = D[:nrow]
 
-            smod = np.column_stack((np.repeat(-1.0, nrow), D))
+            smod = np.tile(eye_box, (n_boxes, 1))
+            smod = smod[:nrow]
         elif season == "none":
             logger.info("'none' season is chosen")
             logger.warning("No sesonal model will be fitted!")
@@ -230,6 +229,8 @@ if __name__ == "__main__":
     y = datasets.ndvi_dates
     x = datasets.ndvi
     freq = datasets.ndvi_freqency
+    print("freq", freq)
 
-    v = BFAST(x, y, freq, season="harmonic")
+    # v = BFAST(x, y, freq, season="harmonic")
+    v = BFAST(x, y, freq, season="dummy")
     print(v.output)
