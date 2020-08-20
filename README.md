@@ -10,7 +10,7 @@ the requirements:
 
 `pip install -f requirements.txt`
 
-## How to Run the Tests
+## How to run the tests
 Tests for each file in the `src` directory are contained withing that
 source file. In order to run the test, run:
 

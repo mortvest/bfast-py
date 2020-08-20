@@ -5,8 +5,14 @@
 \label{chap:validation}
 \section{Datasets}
 \label{sec:datasets}
-The implementation was validated by applying the \texttt{bfast} and \texttt{bfast0n} functions
-to the following datasets:
+The implementation was tested using the same methodology as in the paper by
+Verbesselt et al. \cite{bfast}. The \texttt{bfast} and \texttt{bfast0n}
+functions were applied to the simulated 16-day Normalized Difference Vegetation
+Index(NDVI) time series, 16-day NDVI Moderate Resolution Imaging
+Spectroradiometer (MODIS) composites and others. The results were compared to
+the same data applied to the original R-implementation of BFAST and BFAST0n
+\cite{bfast-github}.\\\\ 
+Following list datasets were used:
 \begin{itemize}
 \item \texttt{harvest}
   \begin{itemize}

@@ -2,37 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import statsmodels.tsa.seasonal as sm
-# from statsmodels.datasets import co2
 import datasets
 import pandas as pd
 
 
-
-
-
-
-
-
-
-
-
-
-
 class STL():
-    # def __init__(self, y, period, periodic=True):
-    #     self.period = period
-    #     y = np.array(pd.DataFrame(y).interpolate().values.ravel().tolist())
-    #     stl = sm.STL(y, period=period)
-    #     res = stl.fit()
-    #     seasonal = res.seasonal
-    #     trend = res.trend
-    #     residual = res.resid
-    #     if periodic:
-    #         seasonal = self.seasonal_average(seasonal)
-
-    #     self.seasonal = seasonal
-    #     self.trend = trend
-    #     self.residual = residual
     def __init__(self, y, period, periodic=True):
         y = np.array(pd.DataFrame(y).interpolate().values.ravel().tolist())
         # stl = sm.STL(y, period=period)

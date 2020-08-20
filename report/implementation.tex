@@ -27,6 +27,9 @@ on GitHub \cite{my-github} and is structured in a following manner:
 \item \texttt{recresid.py}\\
   Implementation of the recursive residuals for the linear regression relationships,
   as described in Chapter \ref{chap:breakpoints}.
+\item \texttt{ssr\_triang.py}\\
+  Calculation of the upper-triangular matrix of sums of squared residuals for
+  the breakpoint estimation algorithm as described in Chapter \ref{chap:breakpoints}.
 \item \texttt{stl.py} \\
   A wrapper for the \texttt{statsmodels} \cite{statsmodels} implementation of the STL decomposition as
   described in Chapter \ref{chap:stl}.
@@ -43,12 +46,29 @@ on GitHub \cite{my-github} and is structured in a following manner:
 
 \section{Linear Regression}
 \label{sec:linear_regression}
+Linear regression the cornerstone of BFAST and all
+its components such as OLS-MOSUM test and the breakpoint estimation
+algorithm. Therefore it is essential to choose a suitable
+implementation for this operation. There exist a plethora of linear regression
+implementations for Python, but I have decided to use the \texttt{statsmodels.regression.linear\_model.OLS}
+function from the \texttt{statsmodels} library \cite{statsmodels}. It was chosen
+for its stability, flexibility and detailed documentation.
 
 \section{STL}
 \label{sec:impl_stl}
+For the STL decomposition algorithm, I have chosen the \texttt{tsa.seasonal.STL} function
+from the \texttt{statsmodels} library. Source file \texttt{stl.py} includes a
+wrapper around the \texttt{STL} method that also replaces the missing values
+(NaNs) with interpolated values. It also includes a function 
+\texttt{seasonal\_average} that emulates the functionality of
+setting the $n_s$ parameter to ``periodic'' by taking the seasonal average of
+the seasonal component of the decomposition, since \texttt{statsmodels}
+implementation does not have a support for this option. For more information
+about the STL parameters, please refer to Chapter \ref{chap:stl}.
 
 \section{OLS-MOSUM Test}
 \label{sec:impl_mosum}
+
 
 
 \section{Breakpoint Estimation}

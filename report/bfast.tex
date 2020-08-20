@@ -3,6 +3,34 @@
 \begin{document}
 \chapter{BFAST}
 \label{chap:bfast}
+In paper from 2010, Verbesselt et. al \cite{bfast} outline a generic change detection approach
+that combines iterative decomposition into trend, seasonal and noise components and detection
+and characterizing of breakpoints within a time series. 
+
+\section{The model}
+\label{sec:bfast_the_model}
+In BFAST, the Following data model is considered:
+\[
+Y_t = T_t + S_t + e_t, \quad t = 1,...,n
+\]
+where:
+\begin{itemize}
+\item $Y_t \in \mathbb{R}$ is the observation at time $t$
+\item $T_t \in \mathbb{R}$ is the trend component at time $t$
+\item $S_t \in \mathbb{R}$ is the seasonal component at time $t$
+\item $e_t \in \mathbb{R}$ is the remainder component at time $t$
+\item $n$ is the number of observations in time series
+\end{itemize}
+For more information on the time series components, please refer to Chapter \ref{chap:stl}.\\\\
+We assume that $T_t$ is piecewise linear and has breakpoints $t_1^*,\hdots, t_m^*$, and set
+$T_0^* = 0$. 
+
+
+
+that is based on application of STL decomposition \ref{chap:stl} in order to get the initial
+
+
+
 
 %% in which the BFAST approach differs from the similar methods is that it uses the
 %% OLS-MOSUM statistical test to determine whether the breakpoints are taking place in the seasonal and
@@ -11,8 +39,6 @@
 %% breakpoints. In the R implementation, Verbeselt et al.\cite{bfast-github} use
 %% the \texttt{strucchange} package, originally by Zelis et. al \cite{strucchange}.
 
-\section{Iterative Change Detection}
-\label{sec:iterative_change_detection}
 \section{Algorithm Overview}
 \label{sec:bfast_algorithm_overview}
 \section{Algorithm Steps}
