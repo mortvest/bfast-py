@@ -20,7 +20,7 @@ efficient data-parallel approaches, this approach quickly becomes infeasible in
 practice, even when equipped with significant computational resources and
 specialized hardware. \\\\
 Recently, a novel massively-parallel implementation for a
-change detection method has been proposed. It combines state-of-the-art methods
+change detection method has been proposed \cite{bfast_monitor}. It combines state-of-the-art methods
 for the seasonal data change-detection with modern data-parallel programming
 models and yields an implementation that makes the task feasible for giant sets.
 Furthermore, this implementation is feasibly executable on consumer-grade
@@ -28,12 +28,9 @@ graphical processing hardware. The authors of the paper provide a
 massively-parallel implementation for the BFAST-Monitor unsupervised change
 detection algorithm. \\\\
 In this project, I will research alternative approaches to
-the BFAST-Monitor by surveying the relevant literature. I would then investigate
-and analyze the strengths and weaknesses of the different methods. Finally, one
-or more algorithms would be implemented using a general-purpose programming
-language (Python). The results of this project would form a solid foundation for
-the future work, where the parallelized implementation would be developed and
-could potentially serve as an alternative to the existing solution.
+BFAST-Monitor. In particular, I will cover the BFAST and BFAST0n algorithms by
+Jan Verbesselt et al. \cite{bfast}.
+
 
 %% Hence the main
 %% contributions of this project are:
@@ -52,9 +49,24 @@ could potentially serve as an alternative to the existing solution.
 
 \section{Contributions}
 \label{sec:contributions}
+The principal contributions of this project are: 
 
-\section{Report Structure}
-\label{sec:structure}
+\begin{itemize}
+\item Describe the underlying theory and concrete steps of the STL time series
+  decomposition algorithm, including the description and values for all
+  algorithm parameters. (Chapter \ref{chap:stl})
+\item Describe the underlying theory and connect it to the concrete steps of
+  the OLS-MOSUM test from the \texttt{strucchange} package \cite{strucchange} for the R programming
+  language by Achim Zeileis. (Chapter \ref{chap:mosum})
+\item Describe the theory and steps of the multiple breakpoint estimation
+  algorithm by Bai and Perron \cite{bai_perron}. (Chapter \ref{chap:breakpoints})
+\item Describe the theory and steps of the BFAST and BFAST0n structural change
+  detection algorithms by Jan Verbesselt et. al. \cite{bfast}.
+\item Provide a prototype implementation of BFAST0n and BFAST in a
+  general-purpose programming language (Python). (Chapters \ref{chap:bfast} and \ref{chap:bfast0n})
+\item Validate the Python implementation using artificial and real-life small
+  datasets (Chapter \ref{chap:validation})
+\end{itemize}
 
 
 \biblio

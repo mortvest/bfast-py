@@ -10,5 +10,55 @@ original R implementation of BFAST and BFAST0n by Verbesselt et al.
 \cite{bfast-github} and the \texttt{strucchange} library by Zeileis
 \cite{strucchange_code}.
 
+\section{Source Files}
+\label{sec:source_files}
+The source code for the implementation, described in this report, can be found
+on GitHub \cite{my-github} and is structured in a following manner:
+\begin{itemize}
+\item \texttt{bfast0n.py}\\
+  Implementation of the BFAST0N algorithm, described in Chapter \ref{chap:bfast0n}
+\item \texttt{bfast.py}\\
+  Implementation of the BFAST algorithm, described in Chapter \ref{chap:bfast}
+\item \texttt{breakpoints.py}\\
+  Implementation of the breakpoint estimation algorithm, described in Chapter \ref{chap:breakpoints}
+\item \texttt{efp.py}\\
+  Implementation of the empirical fluctuation processes, in particular the OLS-MOSUM test that is
+  described in Chapter \ref{chap:mosum}.
+\item \texttt{recresid.py}\\
+  Implementation of the recursive residuals for the linear regression relationships,
+  as described in Chapter \ref{chap:breakpoints}.
+\item \texttt{stl.py} \\
+  A wrapper for the \texttt{statsmodels} \cite{statsmodels} implementation of the STL decomposition as
+  described in Chapter \ref{chap:stl}.
+\item \texttt{utils.py} \\
+  Helper functions and lookup tables, used by other modules. 
+\item \texttt{datasets.py}\\
+  Collection of datasets for testing. They are taken from the R programming language standard library
+  \cite{r-datasets} and
+  the \texttt{strucchange} package for the R-language \cite{strucchange_code}.
+\item \texttt{converter.py}\\
+  Script that converts the datasets for the R programming language (\texttt{.rda}) into numpy
+  data files (\texttt{.npy}). It requires a working R installation.
+\end{itemize}
+
+\section{Linear Regression}
+\label{sec:linear_regression}
+
+\section{STL}
+\label{sec:impl_stl}
+
+\section{OLS-MOSUM Test}
+\label{sec:impl_mosum}
+
+
+\section{Breakpoint Estimation}
+\label{sec:impl_breakpoints}
+
+\section{BFAST0n}
+\label{sec:impl_bfast0n}
+
+\section{BFAST}
+\label{sec:bfast}
+
 \biblio
 \end{document}
