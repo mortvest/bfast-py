@@ -4,12 +4,12 @@
 \chapter{BFAST}
 \label{chap:bfast}
 In paper from 2010, Verbesselt et. al \cite{bfast} outline a generic change detection approach
-that combines iterative decomposition into trend, seasonal and noise components and detection
+that combines iterative decomposition into trend, seasonal and remainder components and detection
 and characterizing of breakpoints within a time series. 
 
 \section{The model}
 \label{sec:bfast_the_model}
-In BFAST, the Following data model is considered:
+For BFAST, we consider a following data model:
 \[
 Y_t = T_t + S_t + e_t, \quad t = 1,...,n
 \]
@@ -21,30 +21,68 @@ where:
 \item $e_t \in \mathbb{R}$ is the remainder component at time $t$
 \item $n$ is the number of observations in time series
 \end{itemize}
-For more information on the time series components, please refer to Chapter \ref{chap:stl}.\\\\
-We assume that $T_t$ is piecewise linear and has breakpoints $t_1^*,\hdots, t_m^*$, and set
-$T_0^* = 0$. 
+For more information about the time series components, please refer to Chapter
+\ref{chap:stl}.
+\subsection{The Trend Component}
+\label{subsec:trend}
+We assume that $T_t$ is piecewise linear and has breakpoints $t_1^*,\hdots, t_m^*$,
+where $m$ is the number of breakpoints and set $T_0^* = 0$. Then, the trend component
+can be described as
+\[
+T_t = \alpha_j + \beta_j t \quad \text{for}\quad t^*_{j-1}<t\leq t_j^*
+\]
+where $j$ is the number of the next breakpoint, i.e. $j = 1,...,m$. One way, in
+which we can characterize the abrupt changes in the trend component is by
+calculating the magnitude of the change:
+\[
+\operatorname{Magnitude}(j) = T_{j-1} - T_{j} = \alpha_{j-1} + \beta_{j-1} t -
+(\alpha_j + \beta_j t) = (\alpha_{j-1} - \alpha_j) + (\beta_{j-1} - \beta_j)t
+\]
+where $j = 1,...,m$.
+
+\subsection{The Seasonal Component (Dummy Model)}
+\label{subsec:seasonal_dummy}
+The breakpoints in the seasonal component can occur at different times than the
+breaks in the trend component. We define the seasonal breakpoints:
+
+
+\subsection{The Seasonal Component (Harmonic Model)}
+\label{subsec:seasonal_harm}
+Alternatively, we can use the Harmonic model from the BFAST0n algorithm. For
+more information, please refer to Chapter \ref{chap:bfast0n}.
 
 
 
-that is based on application of STL decomposition \ref{chap:stl} in order to get the initial
+\section{Steps of the Algorithm}
+\label{sec:bfast_algorithm_steps}
+BFAST is an iterative algorithm that for $i = 1 \hdots \operatorname{max}_\text{iter}$,
+takes following steps:
+\begin{enumerate}
+\item 
+\end{enumerate}
 
-
-
-
-%% in which the BFAST approach differs from the similar methods is that it uses the
-%% OLS-MOSUM statistical test to determine whether the breakpoints are taking place in the seasonal and
-%% trend components of the time series before committing to the costly
-%% dynamic-programming algorithm that determines the location and quality of the
-%% breakpoints. In the R implementation, Verbeselt et al.\cite{bfast-github} use
-%% the \texttt{strucchange} package, originally by Zelis et. al \cite{strucchange}.
-
-\section{Algorithm Overview}
-\label{sec:bfast_algorithm_overview}
-\section{Algorithm Steps}
-\label{sec:algorithm_steps}
 \section{Parameters and Their Values}
 \label{sec:bfast_params}
+BFAST algorithm has following paramers
+\begin{itemize}
+\item $s$. Period of seasonality.
+\item $0<h<1$. Minimal segment length for the Breakpoint estimation and
+  bandwidth parameter for the OLS-MOSUM test. For more information please refer
+  to Chapters \ref{chap:mosum} and \ref{chap:breakpoints} respectively.
+  The default value is $0.15$.
+\item \texttt{seasonal}. Type of model to be fitted. Should be either
+  ``harmonic'', ``dummy'' or ``none''. The later means that no seasonal model
+  would be fitted.
+\item \texttt{max\_iter}. Maximal number of iterations of the main loop. The
+  default value is $10$. In practice 1 or 2 iterations is normally enough.
+\item \texttt{max\_breaks}. Upper limit on the number of breakpoints that would be found by
+  the breakpoint estimation algorithm. The default value is $None$, i.e. no upper limit.
+  For more information, please refer to Chapter \ref{chap:breakpoints}.
+\item $\alpha$. The confidence interval for the OLS-MOSUM test. If the returned
+  p value is below that threshold - we consider that there is structural change
+  and proceed with the linear regression. For more information, please refer to
+  the Chapter \ref{chap:breakpoints}. The default value is $0.05$. 
+\end{itemize}
 
 \biblio
 \end{document}
