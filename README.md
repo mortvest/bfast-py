@@ -9,3 +9,17 @@ In order to install all the necessary libraries, start the virtual environment a
 the requirements:
 
 `pip install -f requirements.txt`
+
+## How to Run the Tests
+Tests for each file in the `src` directory are contained withing that
+source file. In order to run the test, run:
+
+`python file.py`
+
+In order to get the more verbose output, run:
+
+`python file.py --log=INFO`
+
+In order to see the debug information, run:
+
+`python file.py --log=DEBUG`

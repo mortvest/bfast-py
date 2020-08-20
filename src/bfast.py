@@ -233,5 +233,3 @@ if __name__ == "__main__":
 
     v = BFAST(x, y, freq, season="harmonic")
     print(v.output)
-
-A    

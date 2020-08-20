@@ -6,7 +6,7 @@ import pandas as pd
 
 from setup import logging_setup
 import datasets
-from rss_triang import rss_triang
+from ssr_triang import ssr_triang
 
 
 logger = logging.getLogger(__name__)
@@ -45,37 +45,37 @@ class Breakpoints():
 
         logger.debug("breaks = {}".format(breaks))
         ## compute optimal previous partner if observation i is the mth break
-        ## store results together with RSSs in RSS_table
+        ## store results together with SSRs in SSR_table
 
 
         logger.info("Calculating triangular matrix")
-        # self.RSS_triang = \
-        #     np.array([RSSi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
+        # self.SSR_triang = \
+        #     np.array([SSRi(i) for i in np.arange(n-h+1).astype(int)], dtype=object)
 
-        self.RSS_triang = rss_triang(n, h, X, y, k, intercept_only, use_mp=use_mp)
+        self.SSR_triang = ssr_triang(n, h, X, y, k, intercept_only, use_mp=use_mp)
 
-        logger.debug("RSS_triang:\n{}".format(self.RSS_triang))
+        logger.debug("SSR_triang:\n{}".format(self.SSR_triang))
 
 
         index = np.arange((h - 1), (n - h)).astype(int)
         logger.debug("index:\n{}".format(index))
 
         ## 1 break
-        break_RSS = np.array([self.RSS(0, i) for i in index])
-        logger.debug("break_RSS:\n{}".format(break_RSS))
+        break_SSR = np.array([self.SSR(0, i) for i in index])
+        logger.debug("break_SSR:\n{}".format(break_SSR))
 
-        RSS_table = np.column_stack((index, break_RSS))
-        logger.debug("RSS_table:\n{}".format(RSS_table))
+        SSR_table = np.column_stack((index, break_SSR))
+        logger.debug("SSR_table:\n{}".format(SSR_table))
 
         ## breaks >= 2
-        RSS_table = self.extend_RSS_table(RSS_table, breaks)
-        logger.debug("extended RSS_table:\n{}".format(RSS_table))
+        SSR_table = self.extend_SSR_table(SSR_table, breaks)
+        logger.debug("extended SSR_table:\n{}".format(SSR_table))
 
-        opt = self.extract_breaks(RSS_table, breaks).astype(int)
+        opt = self.extract_breaks(SSR_table, breaks).astype(int)
         logger.debug("breakpoints extracted:\n{}".format(opt))
         self.breakpoints = opt
 
-        self.RSS_table = RSS_table
+        self.SSR_table = SSR_table
         self.nreg = k
         self.y = y
         self.X = X
@@ -85,11 +85,11 @@ class Breakpoints():
         self.breakpoints = breakpoints_bic.astype(int)
         self.breakpoints_no_nans = breakpoints_bic.astype(int)
 
-    def RSS(self, i, j):
-        return self.RSS_triang[int(i)][int(j - i)]
+    def SSR(self, i, j):
+        return self.SSR_triang[int(i)][int(j - i)]
 
-    def extend_RSS_table(self, RSS_table, breaks):
-        _, ncol = RSS_table.shape
+    def extend_SSR_table(self, SSR_table, breaks):
+        _, ncol = SSR_table.shape
         h = self.h
         n = self.nobs
 
@@ -105,39 +105,39 @@ class Breakpoints():
             for m in loop_range:
                 my_index = np.arange((m * h) - 1, (n - h))
                 index_arr = np.arange((m-1)*2 - 2, (m-1)*2)
-                my_RSS_table = RSS_table[:, index_arr]
-                nans = np.repeat(np.nan, my_RSS_table.shape[0])
-                my_RSS_table = np.column_stack((my_RSS_table, nans, nans))
+                my_SSR_table = SSR_table[:, index_arr]
+                nans = np.repeat(np.nan, my_SSR_table.shape[0])
+                my_SSR_table = np.column_stack((my_SSR_table, nans, nans))
                 for i in my_index:
                     pot_index = np.arange((m - 1) * h - 1, (i - h + 1)).astype(int)
-                    fun = lambda j: my_RSS_table[j - h + 1, 1] + self.RSS(j + 1, i)
-                    break_RSS = np.vectorize(fun)(pot_index)
-                    opt = np.nanargmin(break_RSS)
-                    my_RSS_table[i - h + 1, np.array((2, 3))] = \
-                        np.array((pot_index[opt], break_RSS[opt]))
-                RSS_table = np.column_stack((RSS_table, my_RSS_table[:, np.array((2,3))]))
-        return(RSS_table)
+                    fun = lambda j: my_SSR_table[j - h + 1, 1] + self.SSR(j + 1, i)
+                    break_SSR = np.vectorize(fun)(pot_index)
+                    opt = np.nanargmin(break_SSR)
+                    my_SSR_table[i - h + 1, np.array((2, 3))] = \
+                        np.array((pot_index[opt], break_SSR[opt]))
+                SSR_table = np.column_stack((SSR_table, my_SSR_table[:, np.array((2,3))]))
+        return(SSR_table)
 
-    def extract_breaks(self, RSS_table, breaks):
+    def extract_breaks(self, SSR_table, breaks):
         """
         extract optimal breaks
         """
-        _, ncol = RSS_table.shape
+        _, ncol = SSR_table.shape
         n = self.nobs
         h = self.h
 
         if (breaks * 2) > ncol:
-            raise ValueError("compute RSS_table with enough breaks before")
+            raise ValueError("compute SSR_table with enough breaks before")
 
-        index = RSS_table[:, 0].astype(int)
-        fun = lambda i: RSS_table[int(i - self.h + 1), int(breaks * 2 - 1)] \
-            + self.RSS(i + 1, n - 1)
-        break_RSS = np.vectorize(fun)(index)
-        opt = [index[np.nanargmin(break_RSS)]]
+        index = SSR_table[:, 0].astype(int)
+        fun = lambda i: SSR_table[int(i - self.h + 1), int(breaks * 2 - 1)] \
+            + self.SSR(i + 1, n - 1)
+        break_SSR = np.vectorize(fun)(index)
+        opt = [index[np.nanargmin(break_SSR)]]
 
         if breaks > 1:
             for i in 2 * np.arange(breaks, 1, -1).astype(int) - 2:
-                opt.insert(0, RSS_table[int(opt[0] - h + 1), i])
+                opt.insert(0, SSR_table[int(opt[0] - h + 1), i])
         return(np.array(opt))
 
     def breakpoints_for_m(self, breaks=None):
@@ -148,54 +148,54 @@ class Breakpoints():
             breaks = np.argmin(sbp[1])
             logger.debug("BIC:\n{}".format(sbp[1]))
         if breaks < 1:
-            RSS = self.RSS(0, self.nobs - 1)
-            return RSS, None
+            SSR = self.SSR(0, self.nobs - 1)
+            return SSR, None
         else:
-            RSS_tab = self.extend_RSS_table(self.RSS_table, breaks)
-            breakpoints = self.extract_breaks(RSS_tab, breaks)
+            SSR_tab = self.extend_SSR_table(self.SSR_table, breaks)
+            breakpoints = self.extract_breaks(SSR_tab, breaks)
             bp = np.concatenate(([0], breakpoints, [self.nobs-1]))
             cb = np.column_stack((bp[:-1] + 1, bp[1:]))
-            fun = lambda x: self.RSS(x[0], x[1])
-            RSS = np.sum([fun(i) for i in cb])
-            return RSS, breakpoints
+            fun = lambda x: self.SSR(x[0], x[1])
+            SSR = np.sum([fun(i) for i in cb])
+            return SSR, breakpoints
 
     def summary(self, breaks=None, sort=True, format_times=None):
         if breaks is None:
-            breaks = int(self.RSS_table.shape[1]/2)
+            breaks = int(self.SSR_table.shape[1]/2)
 
         n = self.nobs
-        RSS = np.concatenate(([self.RSS(0, n-1)], np.repeat(np.nan, breaks)))
-        if np.isclose(RSS[0], 0.0):
+        SSR = np.concatenate(([self.SSR(0, n-1)], np.repeat(np.nan, breaks)))
+        if np.isclose(SSR[0], 0.0):
             BIC_vals = -np.inf
         else:
-            BIC_vals = n * (np.log(RSS[0]) + 1 - np.log(n) + np.log(2*np.pi)) \
+            BIC_vals = n * (np.log(SSR[0]) + 1 - np.log(n) + np.log(2*np.pi)) \
                 + np.log(n) * (self.nreg + 1)
         BIC = np.concatenate(([BIC_vals], np.repeat(np.nan, breaks)))
-        RSS1, breakpoints = self.breakpoints_for_m(breaks)
-        RSS[breaks] = RSS1
-        BIC[breaks] = self.BIC(RSS1, breakpoints)
+        SSR1, breakpoints = self.breakpoints_for_m(breaks)
+        SSR[breaks] = SSR1
+        BIC[breaks] = self.BIC(SSR1, breakpoints)
 
         if breaks > 1:
             for m in range(breaks - 1, 0, -1):
-                RSS_m, breakpoints_m = self.breakpoints_for_m(breaks=m)
-                RSS[m] = RSS_m
-                BIC[m] = self.BIC(RSS_m, breakpoints_m)
-        RSS = np.vstack((RSS, BIC))
-        return RSS
+                SSR_m, breakpoints_m = self.breakpoints_for_m(breaks=m)
+                SSR[m] = SSR_m
+                BIC[m] = self.BIC(SSR_m, breakpoints_m)
+        SSR = np.vstack((SSR, BIC))
+        return SSR
 
-    def BIC(self, RSS, breakpoints):
+    def BIC(self, SSR, breakpoints):
         """
         Bayesian Information Criterion
         """
-        if np.isclose(RSS, 0.0):
+        if np.isclose(SSR, 0.0):
             return -np.inf
         n = self.nobs
         bp = breakpoints
         df = (self.nreg + 1) * (len(bp[~np.isnan(bp)]) + 1)
         # log-likelihood
-        # logL = -0.5 * n * (np.log(RSS) + 1 - np.log(n) + np.log(2 * np.pi))
+        # logL = -0.5 * n * (np.log(SSR) + 1 - np.log(n) + np.log(2 * np.pi))
         # bic = df * np.log(n) - 2 * logL
-        logL = n * (np.log(RSS) + 1 - np.log(n) + np.log(2 * np.pi))
+        logL = n * (np.log(SSR) + 1 - np.log(n) + np.log(2 * np.pi))
         bic = df * np.log(n) + logL
         return bic
 
