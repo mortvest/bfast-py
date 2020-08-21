@@ -20,6 +20,8 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
   Tt <- 0
   if (season == "harmonic") {
     w <- 1/f
+    cat("f", f, "\n")
+    cat("w", w, "\n")
     tl <- 1:length(Yt)
     co <- cos(2 * pi * tl * w)
     si <- sin(2 * pi * tl * w)
@@ -44,12 +46,10 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
         St <- stl(Yt, "periodic")$time.series[, "seasonal"]
     }
     D <- seasonaldummy(Yt)
-    print(f)
+    ## print(f)
     D[rowSums(D) == 0, ] <- -1
-    print(dim(D))
-    print(dim(as_matrix(Yt)))
+    ## print(D)
     smod <- Wt ~ -1 + D
-    quit()
   }
   else if (season == "none") {
     print("No seasonal model will be fitted!")
@@ -180,15 +180,16 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
 }
 library(strucchange)
 library(forecast)
-## load("ndvi.rda")
-## v <- bfast(ndvi, season="harmonic")
+load("ndvi.rda")
+## v <- bfast(ndvi, season="dummy")
+v <- bfast(ndvi, season="harmonic")
 ## print(v$output[[2]])
 
-load("simts.rda") # stl object containing simulated NDVI time series
-datats <- ts(rowSums(simts$time.series))
-# sum of all the components (season,abrupt,remainder)
-tsp(datats) <- tsp(simts$time.series)
-## v <- bfast(datats, season="harmonic")
-v <- bfast(datats, season="dummy")
-## print(v$output)
+## load("simts.rda") # stl object containing simulated NDVI time series
+## datats <- ts(rowSums(simts$time.series))
+## # sum of all the components (season,abrupt,remainder)
+## tsp(datats) <- tsp(simts$time.series)
+## ## v <- bfast(datats, season="harmonic")
+## v <- bfast(datats, season="dummy")
+## ## print(v$output)
 

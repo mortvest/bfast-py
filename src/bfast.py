@@ -165,9 +165,7 @@ class BFAST():
                     Wt_bp = np.array([0])
                 else:
                     part = bp_Wt.breakfactor()
-                    if season == "dummy":
-                        X_sm1 = utils.partition_matrix(part, smod1)
-                    if season == "harmonic":
+                    if season in ["dummy", "harmonic"]:
                         X_sm1 = utils.partition_matrix(part, smod1)
 
                     sm1 = sm.OLS(Wt1, X_sm1, missing='drop').fit()

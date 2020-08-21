@@ -43,6 +43,24 @@ def partition(part, arr):
     return ret_val
 
 
+# def partition_matrix(part, mat):
+#     """
+#     Create a partition matrix, given a partition vector and a matrix
+#     """
+#     if part.shape[0] != mat.shape[0]:
+#         raise ValueError("Partition length must equal Matrix nrows")
+#     if mat.ndim != 2:
+#         raise TypeError("mat must be a 2D matrix")
+#     # number of partitions
+#     n_rows, n_cols = mat.shape
+#     n_parts = part[-1] + 1
+#     ret_val = np.zeros((n_rows, n_parts * n_cols + 1)).astype(float)
+#     ret_val[:, 0] = np.ones(n_rows)
+#     for i in range(n_cols):
+#         for j in range(n_parts):
+#             ret_val[(part == j), 1 + (i * n_parts) + j] = mat[part == j, i]
+#     return ret_val
+
 def partition_matrix(part, mat):
     """
     Create a partition matrix, given a partition vector and a matrix
@@ -54,14 +72,10 @@ def partition_matrix(part, mat):
     # number of partitions
     n_rows, n_cols = mat.shape
     n_parts = part[-1] + 1
-    print("n_parts", n_parts, n_cols)
-    # TODO add ones
-    ret_val = np.zeros((n_rows, n_parts * n_cols + 1)).astype(float)
-    ret_val[:, 0] = np.ones(n_rows)
+    ret_val = np.zeros((n_rows, n_parts * n_cols)).astype(float)
     for i in range(n_cols):
         for j in range(n_parts):
-            ret_val[(part == j), 1 + (i * n_parts) + j] = mat[part == j, i]
-            # print(mat[part==j, i])
+            ret_val[(part == j), (i * n_parts) + j] = mat[part == j, i]
     return ret_val
 
 

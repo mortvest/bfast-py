@@ -48,7 +48,8 @@ In the paper from 2010, Verbesselt et al. \cite{bfast}, describe an approach for
 time series change detection, which involves
 detection of multiple abrupt changes in the seasonal and trend components of the time series and
 characterization of such changes by their magnitude and direction. The
-piecewise linear model is assumed for the seasonal and trend component and the
+piecewise linear model is assumed for the trend component and a
+periodic models is applied to the seasonal component. The
 coefficients for the linear models are estimated using ordinary least squares (OLS)
 based linear regression.
 This report covers the underlying theory and implementation of two algorithms based
@@ -70,16 +71,18 @@ The principal contributions of this project are:
   language by Achim Zeileis. I also provide examples to illustrate the
   operation of the non-trivial parts of the algorithm. OLS-MOSUM test is another
   important building block of BFAST (Chapter \ref{chap:mosum}).
-\item Describe the theory and algorithm steps of the nontrivial multiple
+\item Describe the theory and algorithm steps of the multiple
   breakpoint estimation algorithm by Bai and Perron, based on the paper from 2003 \cite{bai_perron}
   and provide illustrative examples. This dynamic programming-based algorithm is
   an integral component of BFAST (Chapter \ref{chap:breakpoints}).
 \item Describe the theory and steps of the BFAST and BFAST0n structural change
-  detection algorithms by Jan Verbesselt et. al. \cite{bfast} (Chapters
-  \ref{chap:bfast} and \ref{chap:bfast0n}).
-\item Provide a prototype implementation of BFAST0n and BFAST in a
+  detection algorithms by Jan Verbesselt et. al. \cite{bfast}. In particular,
+  two seasonal models are explained in depth and matrix form of both models is
+  provided (not included in the original paper).
+  (Chapters \ref{chap:bfast} and \ref{chap:bfast0n}).
+\item Provide and describe a prototype implementation of BFAST0n and BFAST in a
   general-purpose programming language (Python) (Chapter \ref{chap:implementation}).
-\item Validate the Python implementation using artificial and real-life small
+\item Validate the implementation using simulated and real-life small
   datasets from the original paper by Verbesselt et al. \cite{bfast} (Chapter \ref{chap:validation}).
 \end{itemize}
 

@@ -40,47 +40,117 @@ calculating the magnitude of the change:
 \]
 where $j = 1,...,m$.
 
-\subsection{The Seasonal Component}
-\label{subsec:seasonal}
+\subsection{The Seasonal Component - Dummy Model}
+\label{subsec:seasonal_dummy}
 The breakpoints in the seasonal component can occur at different times than the
 breaks in the trend component. Let
 $t_1^{\#},\hdots, t_p^{\#}$ be the breakpoints in the seasonal component,
-where $p$ is the number of breakpoints and $t_0^{\#} = 0$.
-
-\subsection{Dummy Model}
+where $p$ is the number of breakpoints and $t_0^{\#} = 0$.\\\\
 For $t_{j-1}^{\#} < t \leq t_j^{\#}$, the seasonal term can be expressed as:
 \[
 S_t = \sum_{i=1}^{s-1}\gamma_{i,j}(d_{t, i} - d_{t, 0})
 \]
 where
 \begin{itemize}
-\item $s$ is the period of seasonality (the number of observations per year)
+\item $s$ is the period of seasonality
 \item $\gamma_{i,j}$  is the influence of season $i$ that we are going to estimate
 with linear regression. 
 \item $d_{t,i}$ is the dummy variable \cite{makridakis}, for which it holds that
   $d_{t,i} = 1$ when $t$ is in season i and 0 otherwise. Then for season 0, we
   have that $d_{t, i} - d_{t, 0} = -1$ and $d_{t, i} - d_{t, 0} = 1$ otherwise.
 \end{itemize}
-An important observation is that $\sum_{t=t_{j-1}^{\#}+1}^{t_j^{\#}}S_t = 0$.
+An important observation is that the sum of $S_t$ across $s-1$ successive elements is zero.
 The model is build this way in order to avoid breakpoints in
 trend being caused by seasonal breaks. \\\\
-In matrix form, the dummy seasonal model can be expressed as:
+\subsubsection{Breakpoint Detection and Estimation}
+When detecting breakpoints in the seasonal component, we apply the breakpoint
+detection algorithm to the model (in matrix form):
 \[
-X =
+X_d =
 \begin{bmatrix}
  1 & 0 & 0 & \hdots & 0\\
  0 & 1 & 0 & \hdots & 0 \\
  0 & 0 & 1 & \hdots & 0 \\
 \vdots & \vdots & \vdots & \ddots & \vdots \\
  0 & 0 & 0 & \hdots & 1 \\
- -1 & -1 & -1 & \hdots & -1 
+ -1 & -1 & -1 & \hdots & -1 \\
+ 1 & 0 & 0 & \hdots & 0\\
+ 0 & 1 & 0 & \hdots & 0 \\
+ 0 & 0 & 1 & \hdots & 0 \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+ 0 & 0 & 0 & \hdots & 1 \\
+ -1 & -1 & -1 & \hdots & -1 \\
+ 1 & 0 & 0 & \hdots & 0\\
+\vdots & \vdots & \vdots & \vdots & \vdots \\
 \end{bmatrix}
 \]
-where $X$ has $s-1$ columns and $s$ rows.
+where $X_\text{d}$ has $s-1$ columns and $n$ rows.\\\\
+We then use the same model for the breakpoint estimation algorithm by Bai and Perron.
+The estimated breakpoints
+$t_1^{\#},\hdots, t_p^{\#}$ can then be used to apply the linear regression to estimate
+the vector of seasonal coefficients $\gamma$ ($\gamma_{i,j}$ for
+$j = 1, \hdots, p$ and $i = 1,\hdots s-1$).
+\[
+Y - T = X_{part} \gamma
+\]
+where $Y$ is the vector of observations, $T$ is the trend component and
+$X_{part}$ is matrix $X_d$ that was partitioned according to the
+estimated breakpoints $t_1^{\#},\hdots, t_p^{\#}$. Consider an example with a
+single breakpoint, where $n = 12$, $s=4$ and $t_1^{\#} = 5$. Then:
+\[
+X_{part} =
+\begin{bmatrix}
+  1 & 0 & 0 & 0 & 0 & 0\\
+  0 & 1 & 0 & 0 & 0 & 0\\
+  0 & 0 & 1 & 0 & 0 & 0\\
+  -1 & -1 & -1 & 0 & 0 & 0\\
+  1 & 0 & 0 & 0 & 0 & 0\\
+  0 & 0 & 0 & 0 & 1 & 0\\
+  0 & 0 & 0 & 0 & 0 & 1\\
+  0 & 0 & 0 & -1 & -1 & -1\\
+  0 & 0 & 0 & 1 & 0 & 0\\
+  0 & 0 & 0 & 0 & 1 & 0\\
+  0 & 0 & 0 & 0 & 0 & 1\\
+  0 & 0 & 0 & -1 & -1 & -1
+\end{bmatrix}
+\]
+Linear regression is applied to estimate the values:
+$\hat{\gamma}_{1,1}, \hat{\gamma}_{1,2}, \hat{\gamma}_{1,3}, \hat{\gamma}_{2,1},
+\hat{\gamma}_{2,2}$ and $\hat{\gamma}_{2,3}$.\\\\
+The seasonal component can then be estimated:
+$\hat{S}_t = \sum_{i=1}^{s-1}\hat{\gamma}_{i,j}(d_{t,i} - d_{t,0})$, or in
+matrix form $\hat{S} = X_{\text{part}} \gamma$
 
-\subsection{Harmonic Model}
-Alternatively, we can use the Harmonic model that was mentioned in the context
-of BFAST0n. For more information, please refer to Chapter \ref{chap:bfast0n}.
+\subsection{The Seasonal Component - Harmonic Model}
+\label{subsec:seasonal_harmonic}
+Alternatively, we can use the Harmonic model that is also used by the
+BFAST0n algorithm, for $K=3$. For more information, please refer to Chapter
+\ref{chap:bfast0n}. We have:
+\[
+X_{h} =
+\begin{bmatrix}
+  \sin\nicefrac{2 \pi}{f} & \cos\nicefrac{2 \pi}{f} & \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4
+    \pi}{f} &  \sin\nicefrac{6 \pi}{f} & \cos\nicefrac{6 \pi}{f} \\
+  \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4 \pi}{f} & \sin\nicefrac{8 \pi}{f} & \cos\nicefrac{8
+    \pi}{f} &  \sin\nicefrac{12 \pi}{f} & \cos\nicefrac{12 \pi}{f} \\
+  \vdots & \vdots  & \vdots & \vdots & \vdots & \vdots \\
+  \sin\nicefrac{2 \pi n}{f} & \cos\nicefrac{2 \pi n}{f} & \sin\nicefrac{4 \pi n}{f} &
+  \cos\nicefrac{4 \pi n}{f} &  \sin\nicefrac{6 \pi n}{f} & \cos\nicefrac{6 \pi n}{f}
+\end{bmatrix}
+\]
+For the application of linear regression $X_h$ would be partitioned the same way
+as $X_d$ (dummy model), resulting in matrix $X_{\text{part}}$ with $n$ rows and
+$6p$ columns, where $p$ is the number of breakpoints in the seasonal component.
+The estimate for the seasonal component can be rebuilt using:
+\[
+\hat{S} = X_{\text{part}} \omega
+\]
+where $\omega$ is a $(1 \times 6p)$ vector
+$(\gamma_{1, 1}, \; \theta_{1, 1},\;  \gamma_{1, 2},\;  \theta_{1, 2},\;
+\hdots,\;  \gamma_{p, 3},\;  \theta_{p, 3})^{\top}$
+
+
+
 
 \section{Steps of the Algorithm}
 \label{sec:bfast_algorithm_steps}
@@ -92,25 +162,30 @@ BFAST operates in a following way:
 \item Then iterate:
   \begin{enumerate}[1)]
     \item Calculate the deasonalized time series: $V_t = Y_t - \hat{S}_t$
-    \item Apply the OLS-MOSUM test (Chapter \ref{chap:mosum}) to $V_t$. If the
-      returned p-value is lower than the significance level $\alpha$, estimate
-      the number and position of the trend components using the breakpoint
-      estimation algorithm by Bai and Perron (Chapter \ref{chap:breakpoints}) from $V_t$.
+    \item Apply the OLS-MOSUM test (Chapter \ref{chap:mosum}) to $x=\operatorname{ti}$ and
+      $y = V_t$. Where $\operatorname{ti}$ denotes the values of the time interval of $Y_t$.
+      If the returned p-value is lower than the significance level $\alpha$,
+      estimate the number and position of the trend components using the
+      breakpoint estimation algorithm by Bai and Perron (Chapter
+      \ref{chap:breakpoints}) from $ti$ and $V_t$.
     \item Compute the trend coefficients $\alpha_j$ and $\beta_j$ for
       $j = 1, \hdots, m$ using linear regression. Set the trend estimate
       $\hat{T}_t = \hat{\alpha}_j + \hat{\beta}_j t$ for
       $t = t^*_{j-1} + 1, \hdots, t^*_j$.
     \item Calculate the detrended time series: $W_t = Y_t - \hat{T}_t$
-    \item If the OLS-MOSUM test, applied to $W_t$ signifies that the breakpoints
-      are present in the seasonal data, estimate
-      the number and position of the trend components using the breakpoint
-      estimation algorithm by Bai and Perron (Chapter \ref{chap:breakpoints}) from $W_t$.
-    \item Compute the coefficients for the seasonal component $\gamma_{i,j}$ for
-      $j = 1, \hdots, m$ and $i = 1,\hdots s-1$. And reconstruct $\hat{S}_t$
-      from the selected seasonal model and the seasonal coefficients.
+    \item If the OLS-MOSUM test, applied to $y=W_t$ and
+      the chosen seasonal model signifies that the breakpoints are present in the
+      seasonal data, estimate the number and position of the
+      breakpoints in the trend component using the breakpoint estimation
+      algorithm, as described in Section \ref{subsec:seasonal_dummy} and
+      \ref{subsec:seasonal_harmonic}.
+    \item Compute the coefficients for the seasonal component
+      and reconstruct $\hat{S}_t$ from the chosen seasonal model and seasonal
+      coefficient, as described in Section \ref{subsec:seasonal_dummy} and
+      \ref{subsec:seasonal_harmonic}.
   \end{enumerate}
   The iteration is stopped when the number and position of the breakpoints do
-  not change or when we reach the maximum number of iterations.
+  not change during the iteration, or when we reach the maximum allowed number of iterations.
 \item Return $\hat{T}_t$, $\hat{S}_t$ the number and position of trend and
   seasonal breakpoints and the maximum breakpoint magnitude.
 \end{enumerate}
@@ -119,7 +194,7 @@ BFAST operates in a following way:
 \label{sec:bfast_params}
 BFAST algorithm has following paramers
 \begin{itemize}
-\item $s$. Period of seasonality.
+\item $s$. Period of seasonality. Specific for each dataset.
 \item $0<h<1$. Minimal segment length for the Breakpoint estimation and
   bandwidth parameter for the OLS-MOSUM test. For more information please refer
   to Chapters \ref{chap:mosum} and \ref{chap:breakpoints} respectively.
@@ -128,8 +203,8 @@ BFAST algorithm has following paramers
   ``harmonic'', ``dummy'' or ``none''. The later means that no seasonal model
   would be fitted, i.e. $S_t=0$.
 \item \texttt{max\_iter}. Maximal number of iterations of the main loop. The
-  default value is $10$. In practice 1 or 2 iterations is normally enough.
-\item \texttt{max\_breaks}. Upper limit on the number of breakpoints that would be found by
+  default value is $10$. In practice 1 or 2 iterations are usually sufficient.
+\item \texttt{max\_breaks}. Upper limit on the number of breakpoints that could be computed by
   the breakpoint estimation algorithm. The default value is ``None'', i.e. no upper limit.
   For more information, please refer to Chapter \ref{chap:breakpoints}.
 \item $\alpha$. The confidence interval for the OLS-MOSUM test. If the returned

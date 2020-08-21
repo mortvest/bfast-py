@@ -1,23 +1,84 @@
 \documentclass[main.tex]{subfiles}
 
 \begin{document}
-\chapter{BFAST0N}
+\chapter{BFAST0n}
 \label{chap:bfast0n}
-The BFAST0N algorithm is the light-weight version of the BFAST approach that is based on
-the application of the \texttt{breakpoints} function from the
-\texttt{strucchange} package, which is described in Chapter
-\ref{chap:breakpoints}.
+BFAST0N is the light-weight variation on the BFAST approach (Chapter
+\ref{chap:bfast}). The idea behind this method is to apply the breakpoint
+estimation algorithm by Bai and Perron \cite{bai_perron},  which is described in Chapter
+\ref{chap:breakpoints},  to a pre-processed dataset,
 
-\section{Harmonic model}
+\section{Dataset Pre-processing}
 \label{sec:harmonic_model}
-We apply the harmonic model, that was described in paper
-by Verbesselt et. al from 2010. \cite{bfast1}.
+Let $Y_t$ be the observed data for $t$ in $(1, \hdots, n)$.
+\subsection{STL}
+\label{subsec:stl}
+Before any other pre-processing takes place, STL time series decomposition algorithm is
+used for trend- and/or season-adjustment. For more information about the STL
+algorithm, please refer to Chapter {\ref{chap:stl}}.
+
+\subsection{Harmonic model}
+\label{subsec:harmonic_model}
+The second step of dataset pre-processing is the application of the harmonic
+model, that was described in paper by Verbesselt et. al from 2010.
+\cite{bfast1}.
+\[
+S_{t} =
+\sum_{k=1}^{K}\left[\gamma_{j, k} \sin \left(\frac{2 \pi k t}{f}\right)+
+  \theta_{j, k} \cos \left(\frac{2 \pi k t}{f}\right)\right]\\
+\]
+where
+\begin{itemize}
+\item $K$ is the harmonic term, i.e. how many of pairs of sin + cos terms we use,
+\item $\gamma_{j, k}$ and $\theta_{j, k}$ are the seasonal coefficients to be
+  estimated by linear regression in the breakpoint estimation algorithm.
+\item $t$ is the observation time.
+\item $f$ frequency of the dataset
+\end{itemize}
+In order to apply the model to the time-series s.t. it could be used by the
+breakpoint estimation algorithm, we need to compute the matrix form of the
+harmonic model (for $K=3$):
+\[
+X_{h} =
+\begin{bmatrix}
+  \sin\nicefrac{2 \pi}{f} & \cos\nicefrac{2 \pi}{f} & \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4
+    \pi}{f} &  \sin\nicefrac{6 \pi}{f} & \cos\nicefrac{6 \pi}{f} \\
+  \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4 \pi}{f} & \sin\nicefrac{8 \pi}{f} & \cos\nicefrac{8
+    \pi}{f} &  \sin\nicefrac{12 \pi}{f} & \cos\nicefrac{12 \pi}{f} \\
+  \vdots & \vdots  & \vdots & \vdots & \vdots & \vdots \\
+  \sin\nicefrac{2 \pi n}{f} & \cos\nicefrac{2 \pi n}{f} & \sin\nicefrac{4 \pi n}{f} &
+  \cos\nicefrac{4 \pi n}{f} &  \sin\nicefrac{6 \pi n}{f} & \cos\nicefrac{6 \pi n}{f}
+\end{bmatrix}
+\]
+$X_h$ has $n$ rows and $2K$ columns.
 
 \section{Steps of the Algorithm}
 \label{sec:bfast0n_algorithm_steps}
+BFAST0n consists of following steps:
+\begin{enumerate}
+\item Apply STL to the observation matrix $Y$ in order to get the adjusted
+  time series $\tilde{Y}$
+\item Apply the harmonic model to $\tilde{Y}$
+\item Use the breakpoint estimation algorithm (Chapter \ref{chap:breakpoints})
+  to $x=X_h$ and $y=\tilde{Y}$
+\item Return the number and placement of the breakpoints
+\end{enumerate}
 
 \section{Parameters and Their Values}
 \label{sec:bfast0n_params}
-
+BFAST0n has following parameters:
+\begin{itemize}
+\item $f$. Frequency of the time series. Specific for each dataset.
+\item \texttt{stl}. Which type of STL-based pre-processing to use.
+  Allowed values:
+  \begin{itemize}
+  \item ``none'' - the default value. No STL adjustment would be performed
+  \item ``trend'' - Trend component is removed from the input time series
+  \item ``seasonal'' - Seasonal component is removed from the input time series
+  \item ``both'' - Seasonal component is removed from the input time series
+  \end{itemize}
+\item $0 \leq K \leq 3$. The integer value of the harmonic term, if no value
+  provided, a value of $3$ is used.
+\end{itemize}
 \biblio
 \end{document}
