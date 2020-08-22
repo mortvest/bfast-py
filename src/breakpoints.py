@@ -72,7 +72,6 @@ class Breakpoints():
         logger.debug("extended SSR_table:\n{}".format(SSR_table))
 
         opt = self.extract_breaks(SSR_table, breaks).astype(int)
-        logger.debug("breakpoints extracted:\n{}".format(opt))
         self.breakpoints = opt
 
         self.SSR_table = SSR_table
@@ -81,9 +80,14 @@ class Breakpoints():
         self.X = X
 
         # find the optimal amount of breakpoints using Bayesian Information Criterion
-        breakpoints_bic = self.breakpoints_for_m()[1]
-        self.breakpoints = breakpoints_bic.astype(int)
-        self.breakpoints_no_nans = breakpoints_bic.astype(int)
+        bp = self.breakpoints_for_m()[1]
+
+        if bp is None:
+            self.breakpoints_no_nans = bp
+            self.breakpoints = bp
+        else:
+            self.breakpoints_no_nans = bp.astype(int)
+            self.breakpoints = bp.astype(int)
 
     def SSR(self, i, j):
         return self.SSR_triang[int(i)][int(j - i)]
@@ -207,7 +211,6 @@ class Breakpoints():
         nbreaks = breaks.shape[0]
         v = np.insert(np.diff(np.append(breaks, nobs)), 0, breaks[0]).astype(int)
         fac = np.repeat(np.arange(1, nbreaks + 2), v)
-        # labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
         return fac - 1
 
 

@@ -200,14 +200,16 @@ BFAST algorithm has following paramers
   ``harmonic'', ``dummy'' or ``none''. The later means that no seasonal model
   would be fitted, i.e. $S_t=0$.
 \item \texttt{max\_iter}. Maximal number of iterations of the main loop. The
-  default value is $10$. In practice 1 or 2 iterations are usually sufficient.
+  default value is $10$. 
 \item \texttt{max\_breaks}. Upper limit on the number of breakpoints that could be computed by
   the breakpoint estimation algorithm. The default value is ``None'', i.e. no upper limit.
   For more information, please refer to Chapter \ref{chap:breakpoints}.
-\item $\alpha$. The confidence interval for the OLS-MOSUM test. If the returned
+\item $\alpha$. The significance level for the OLS-MOSUM test. If the returned
   p value is below that threshold - we consider that there is structural change
-  and proceed with the linear regression. For more information, please refer to
-  the Chapter \ref{chap:breakpoints}. The default value is $0.05$. 
+  and proceed with the linear regression. Higher values of $\alpha$ make BFAST
+  more sensitive to structural change. For more information about the confidence
+  intervals, please refer to the Chapter \ref{chap:breakpoints}. The default
+  value is $0.05$.
 \end{itemize}
 
 \biblio

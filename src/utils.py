@@ -11,6 +11,13 @@ def nan_map(x):
 
 
 def omit_nans(x, y=None, return_map=False):
+    if y is None:
+        if not np.isnan(x).any():
+            return x
+    else:
+        if not np.isnan(y).any() and not np.isnan(y).any():
+            return x, y
+
     if x.ndim > 1:
         x_index = ~np.isnan(x).any(axis=1)
     else:

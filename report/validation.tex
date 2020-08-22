@@ -3,8 +3,11 @@
 \begin{document}
 \chapter{Validation}
 \label{chap:validation}
-\section{Datasets}
-\label{sec:datasets}
+In order to validate the implementation of BFAST and BFAST0n, four datasets were
+chosen, each testing a specific property of the algorithm. Three of the datasets were
+taken from the paper by Verbesselt et al. \cite{bfast} and one from the standard
+dataset library for the R programming language \cite{r-datasets}
+
 The implementation was tested using the same methodology as in the paper by
 Verbesselt et al. \cite{bfast}. The \texttt{bfast} and \texttt{bfast0n}
 functions were applied to the simulated 16-day Normalized Difference Vegetation
@@ -37,6 +40,20 @@ Following list datasets were used:
   \item \textbf{Source:} \cite{bfast}
   \end{itemize}
 \end{itemize}
+
+\section{\texttt{nile}}
+\label{sec:val_nile}
+
+\section{\texttt{harvest}}
+\label{sec:val_harvest}
+
+\section{\texttt{simts}}
+\label{sec:val_simts}
+
+\section{\texttt{ndvi}}
+\label{sec:val_ndvi}
+
+
 
 \biblio
 \end{document}

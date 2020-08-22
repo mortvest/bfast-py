@@ -28,7 +28,8 @@
 \lstset{
   frame=tb,
   language=Python,
-  aboveskip=3mm,
+  aboveskip=3mm
+  ,
   belowskip=3mm,
   showstringspaces=false,
   formfeed=newpage,
@@ -47,11 +48,11 @@
 \newcommand{\dotpr}[2]{\langle #1,\; #2 \rangle}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
+%% Set bibliography
 \def\biblio{\bibliographystyle{plain}\bibliography{mybib}}
 
 %% Remove subsection from the table of contents
 \setcounter{tocdepth}{1}
-
 
 %% Reduce vertical space in chapter
 \titleformat{\chapter}[display]   
@@ -74,6 +75,7 @@
 
 \maketitle
 {\small\tableofcontents}
+%% {\footnotesize\tableofcontents}
 
 \subfile{intro.tex}
 

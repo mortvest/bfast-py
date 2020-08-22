@@ -1,11 +1,10 @@
 import logging
 
 import numpy as np
-import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
-import datasets
 import utils
+from datasets import *
 from stl import STL
 from efp import EFP
 from breakpoints import Breakpoints
@@ -20,7 +19,7 @@ class BFASTResult():
         self.trend = Tt
         self.season = St
         self.remainder = Nt
-        if Vt_bp == np.array([0]).all():
+        if (Vt_bp == np.array([0])).all():
             self.trend_breakpoints = None
         else:
             self.trend_breakpoints = Vt_bp
@@ -41,6 +40,13 @@ class BFASTResult():
 class BFAST():
     def __init__(self, Yt, ti, frequency, h=0.15, season="dummy",
                  max_iter=10, breaks=None, level=0.05, use_mp=True):
+        """
+        Iterative break detection in seasonal and trend component of a time
+        series. Seasonal breaks is a function that combines the iterative
+        decomposition of time series into trend, seasonal and remainder
+        components with significant break detection in the decomposed
+        components of the time series.
+        """
         nrow = Yt.shape[0]
         Tt = None
         f = frequency
@@ -70,6 +76,7 @@ class BFAST():
 
             smod = np.tile(eye_box, (n_boxes, 1))
             smod = smod[:nrow]
+            smod = sm.add_constant(smod)
         elif season == "none":
             logger.info("'none' season is chosen")
             logger.warning("No sesonal model will be fitted!")
@@ -139,13 +146,13 @@ class BFAST():
                 ### Change in seasonal component
                 with np.errstate(invalid="ignore"):
                     Wt = Yt - Tt
-                p_Wt = EFP(sm.add_constant(smod), Wt, h).sctest()  # preliminary test
+                p_Wt = EFP(smod, Wt, h).sctest()  # preliminary test
                 if p_Wt[1] <= level:
                     logger.info("Breakpoints in season detected")
-                    smod1, Wt1 = utils.omit_nans(smod, Wt1)
+                    smod1, Wt1 = utils.omit_nans(smod, Wt)
 
                     logger.info("Finding breakpoints in season")
-                    bp_Wt = Breakpoints(sm.add_constants(mod1), Wt1, h=h, breaks=breaks)
+                    bp_Wt = Breakpoints(smod1, Wt1, h=h, breaks=breaks)
                     if bp_Wt.breakpoints is not None:
                         bp_Wt.breakpoints_no_nans = np.array([nan_map[i] for i in bp_Wt.breakpoints])
                         nobp_Wt = False
@@ -198,7 +205,6 @@ class BFAST():
                 Mag[r, 0] = y1
                 Mag[r, 1] = y2
                 Mag[r, 2] = y2 - y1
-                print("Mag {} = {}".format(r, Mag))
 
             index = np.argmin(np.abs(Mag[:, 2]) - 1)
             m_x = np.repeat(Vt_bp[index], 2)
@@ -212,6 +218,7 @@ class BFAST():
             Time = None  # if we do not detect a break then we have no timing of the break
             Mag = 0
 
+        self.n_iter = i
         self.Yt = Yt
         self.output = output
         self.nobp = (nobp_Vt, nobp_Wt)
@@ -221,16 +228,25 @@ class BFAST():
         self.jump = (ti[m_x], m_y)
 
 
+def run_test(y, x, f, season, level=0.05, h=0.15, max_iter=10):
+    v = BFAST(y, x, f, season=season, level=level, h=h, max_iter=max_iter)
+    Vt_bp = v.output.trend_breakpoints
+    Vt_dates = x[Vt_bp] if (Vt_bp is not None) else None
+
+    Wt_bp = v.output.season_breakpoints
+    Wt_dates = x[Wt_bp] if (Wt_bp is not None) else None
+
+    print("n_iters", v.n_iter)
+    print("Trend breakpoints", Vt_bp)
+    print("Trend time", Vt_dates)
+    print("Season breakpoints", Wt_bp)
+    print("Season time", Wt_dates)
+
+
 if __name__ == "__main__":
     logging_setup()
-    y = datasets.ndvi_dates
-    x = datasets.ndvi
-    freq = datasets.ndvi_freqency
 
-    v = BFAST(x, y, freq, season="harmonic")
-    # v = BFAST(x, y, freq, season="dummy")
-    print(v.output.trend_breakpoints)
-    print(v.output.season_breakpoints)
-    print(v.magnitude)
-    print(v.time)
-    print(v.jump)
+    run_test(nile, nile_dates, None, "none")
+    run_test(simts_sum, simts_dates, simts_freq, "harmonic", level=0.35, h=0.3, max_iter=2)
+    run_test(ndvi, ndvi_dates, ndvi_freq, "dummy")
+    run_test(harvest, harvest_dates, harvest_freq, "harmonic")

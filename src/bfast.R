@@ -1,3 +1,6 @@
+library(strucchange)
+library(forecast)
+
 bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
                    max.iter = 10, breaks = NULL, hpc = "none", level = 0.05,
                    reg = c("lm", "rlm"), decomp=c("stlplus", "stl"),
@@ -109,6 +112,7 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
       ### Change in seasonal component
       Wt <- Yt - Tt
       p.Wt <- sctest(efp(smod, h = h, type = type)) # preliminary test
+      print(p.Wt)
       if (p.Wt$p.value <= level[2]) {
         bp.Wt <- breakpoints(smod, h = h, breaks = breaks,
                              hpc = hpc)
@@ -178,37 +182,43 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
 }
 
 
-test <- function(data, type) {
-    v <- bfast(data, season=type)
+test <- function(data, type, level=0.05, max.iter=10, h=0.15) {
+    v <- bfast(data, season=type, level=level, max.iter=max.iter, h=h)
     o <- v$output[[length(v$output)]]
+    cat("n_iters", length(v$output), "\n")
     cat("Trend breakpoints", o$Vt.bp, "\n")
+    cat("Trend Time", time(data)[o$Vt.bp], "\n")
     cat("Seasonal breakpoints", o$Wt.bp, "\n")
+    cat("Seasonal Time", time(data)[o$Wt.bp], "\n")
 }
 
-library(strucchange)
-library(forecast)
-
 load("ndvi.rda")
+load("simts.rda") # stl object containing simulated NDVI time series
+load("harvest.rda")
+
+
 ## test(ndvi, "dummy")
 
-## load("simts.rda") # stl object containing simulated NDVI time series
-## simts_sum <- ts(rowSums(simts$time.series))
-## tsp(simts_sum) <- tsp(simts$time.series)
-## test(simts_sum, "harmonic")
+simts_sum <- ts(rowSums(simts$time.series))
+tsp(simts_sum) <- tsp(simts$time.series)
+test(simts_sum, "harmonic", level=0.3, h=0.3)
+## test(simts_sum, "dummy", level=0.4, h=0.3)
 
+## plot(simts)
+## plot(simts_sum)
+## print(simts_sum)
 
-load("harvest.rda")
-print(harvest)
-
-## print(Nile)
 
 ## test(harvest, "harmonic")
 
+## test(Nile, "none")
 
-## load("somaliadat.rda")
+## uk_ts <- ts(as.vector(UKDriverDeaths), start=c(1969, 1), end=c(1984, 12), frequency = 12)
+## test(uk_ts, "harmonic")
+
+
+
+## plot(ndvi)
+## plot(simts_sum)
 ## plot(Nile)
-## nile <- Nile
-## print(nile)
-## ## class(ndvi))
-
-## test(nile, "none")
+## plot(harvest)

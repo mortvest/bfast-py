@@ -49,7 +49,7 @@ nile = np.array([1120, 1160, 963,  1210, 1160, 1160, 813,  1230, 1370, 1140,
                  1020, 906,  901,  1170, 912,  746,  919,  718,  714,  740])
 
 # nile_dates = np.arange("1871", "1971", dtype="datetime64[Y]")
-nile_dates = np.arange("1871", "1971")
+nile_dates = np.arange(1871, 1971).astype(float)
 
 
 """
@@ -90,6 +90,7 @@ uk_driver_deaths = np.array([1687, 1508, 1507, 1385, 1632, 1511, 1559, 1630,
                              1427, 1487, 1483, 1513, 1357, 1165, 1282, 1110,
                              1297, 1185, 1222, 1284, 1444, 1575, 1737, 1763])
 
+# uk_driver_deaths_dates = np.arange("1969-01", "1985-01", dtype="datetime64[M]")
 uk_driver_deaths_dates = np.arange("1969-01", "1985-01", dtype="datetime64[M]")
 
 
@@ -98,26 +99,29 @@ NDVI time series, simulated by extracting key characteristics from MODIS 16-day
 NDVI time series.
 """
 ndvi = np.load(data_folder + "ndvi.npy")
-ndvi_freqency = 24
-ndvi_dates = r_style_interval((1982, 1), (2011, 24), ndvi_freqency).reshape(ndvi.shape[0], 1)
+ndvi_freq = 24
+ndvi_dates = r_style_interval((1982, 1), (2011, 24), ndvi_freq).reshape(ndvi.shape[0], 1)
 
 
 """
 SIMTS dataset
 """
-simts_frequency = 23
+simts_freq = 23
 simts = np.load(data_folder + "simts.npy")
-simts_dates = r_style_interval((2000, 4), (2008, 18), simts_frequency).reshape(simts.shape[1], 1)
+simts_sum = np.sum(simts, axis=2).reshape(simts.shape[1])
+simts_dates = r_style_interval((2000, 4), (2008, 18), simts_freq).reshape(simts.shape[1], 1)
 
 
 """
 harvest dataset
 """
-harvest_frequency = 23
+harvest_freq = 23
 harvest = np.load(data_folder + "harvest.npy")
-harvest_dates = r_style_interval((2000, 4), (2008, 18), harvest_frequency).reshape(harvest.shape[1], 1)
+harvest_dates = r_style_interval((2000, 4), (2008, 18), harvest_freq).reshape(harvest.shape[0], 1)
 
 
 if __name__ == "__main__":
-    pass
+    # print(ndvi)
+    print(simts_sum.shape)
+    print(simts_dates.shape)
 

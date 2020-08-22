@@ -1,6 +1,7 @@
 import numpy as np
-# A working R installation is required
+# working R installation is required
 import rpy2.robjects as robjects
+
 
 def rda_to_npy(file_name, save=False):
     """
