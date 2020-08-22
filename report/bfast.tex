@@ -149,44 +149,41 @@ where $\omega$ is a $(1 \times 6p)$ vector
 $(\gamma_{1, 1}, \; \theta_{1, 1},\;  \gamma_{1, 2},\;  \theta_{1, 2},\;
 \hdots,\;  \gamma_{p, 3},\;  \theta_{p, 3})^{\top}$
 
-
-
-
 \section{Steps of the Algorithm}
 \label{sec:bfast_algorithm_steps}
 BFAST operates in a following way:
 \begin{enumerate}
-\item Estimate $\hat{S}_t$, using STL and finding the average of all seasons, by
+\item \textbf{Estimate $\hat{S}_t$ using STL} and finding the average of all seasons, by
   setting $n_s =$ ``harmonic''. For more information about STL parameters,
   please refer to Chapter \ref{chap:stl}.
 \item Then iterate:
   \begin{enumerate}[1)]
-    \item Calculate the deasonalized time series: $V_t = Y_t - \hat{S}_t$
-    \item Apply the OLS-MOSUM test (Chapter \ref{chap:mosum}) to $x=\operatorname{ti}$ and
+    \item \textbf{Calculate the deasonalized time series: $V_t = Y_t - \hat{S}_t$}
+    \item \textbf{Apply the OLS-MOSUM test} (Chapter \ref{chap:mosum}) to $x=\operatorname{ti}$ and
       $y = V_t$. Where $\operatorname{ti}$ denotes the values of the time interval of $Y_t$.
       If the returned p-value is lower than the significance level $\alpha$,
-      estimate the number and position of the trend components using the
+      \textbf{estimate the number and position of the trend components} using the
       breakpoint estimation algorithm by Bai and Perron (Chapter
       \ref{chap:breakpoints}) from $ti$ and $V_t$.
-    \item Compute the trend coefficients $\alpha_j$ and $\beta_j$ for
+    \item \textbf{Compute the trend coefficients} $\alpha_j$ and $\beta_j$ for
       $j = 1, \hdots, m$ using linear regression. Set the trend estimate
       $\hat{T}_t = \hat{\alpha}_j + \hat{\beta}_j t$ for
       $t = t^*_{j-1} + 1, \hdots, t^*_j$.
-    \item Calculate the detrended time series: $W_t = Y_t - \hat{T}_t$
+    \item \textbf{Calculate the detrended time series}: $W_t = Y_t - \hat{T}_t$
     \item If the OLS-MOSUM test, applied to $y=W_t$ and
       the chosen seasonal model signifies that the breakpoints are present in the
-      seasonal data, estimate the number and position of the
-      breakpoints in the trend component using the breakpoint estimation
+      seasonal data, \textbf{estimate the number and position of the
+      breakpoints in the trend component} using the breakpoint estimation
       algorithm, as described in Section \ref{subsec:seasonal_dummy} and
       \ref{subsec:seasonal_harmonic}.
-    \item Compute the coefficients for the seasonal component
-      and reconstruct $\hat{S}_t$ from the chosen seasonal model and seasonal
+    \item \textbf{Compute the coefficients for the seasonal component
+      and reconstruct $\hat{S}_t$} from the chosen seasonal model and seasonal
       coefficient, as described in Section \ref{subsec:seasonal_dummy} and
       \ref{subsec:seasonal_harmonic}.
   \end{enumerate}
   The iteration is stopped when the number and position of the breakpoints do
   not change during the iteration, or when we reach the maximum allowed number of iterations.
-\item Return $\hat{T}_t$, $\hat{S}_t$ the number and position of trend and
+\item \textbf{Return} $\hat{T}_t$, $\hat{S}_t$ the number and position of trend and
   seasonal breakpoints and the maximum breakpoint magnitude.
 \end{enumerate}
 

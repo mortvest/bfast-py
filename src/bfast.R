@@ -152,6 +152,7 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
     Mag <- matrix(NA, Vt.nrbp, 3)
     for (r in 1:Vt.nrbp) {
       if (r == 1) {
+        cat("co[r + Vt.nrbp + 1]", co[r + Vt.nrbp + 1], "\n")
         y1 <- co[1] + co[r + Vt.nrbp + 1] * ti[Vt.bp[r]]
       } else {
         y1 <- co[1] + co[r] + co[r + Vt.nrbp + 1] * ti[Vt.bp[r]]
@@ -161,6 +162,7 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
       Mag[r, 1] <- y1
       Mag[r, 2] <- y2
       Mag[r, 3] <- y2 - y1
+      cat("Mag", r, "=", Mag, "\n")
     }
     index <- which.max(abs(Mag[, 3]))
     m.x <- rep(Vt.bp[index], 2)
@@ -181,8 +183,15 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
 library(strucchange)
 library(forecast)
 load("ndvi.rda")
-## v <- bfast(ndvi, season="dummy")
-v <- bfast(ndvi, season="harmonic")
+v <- bfast(ndvi, season="dummy")
+## print(v$Mags)
+## print(v$output[[2]])
+print(v$Magnitude)
+print(v$Time)
+print(v$jump)
+
+## v <- bfast(ndvi, season="harmonic")
+
 ## print(v$output[[2]])
 
 ## load("simts.rda") # stl object containing simulated NDVI time series

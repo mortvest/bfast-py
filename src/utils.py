@@ -61,6 +61,7 @@ def partition(part, arr):
 #             ret_val[(part == j), 1 + (i * n_parts) + j] = mat[part == j, i]
 #     return ret_val
 
+
 def partition_matrix(part, mat):
     """
     Create a partition matrix, given a partition vector and a matrix
@@ -69,13 +70,13 @@ def partition_matrix(part, mat):
         raise ValueError("Partition length must equal Matrix nrows")
     if mat.ndim != 2:
         raise TypeError("mat must be a 2D matrix")
-    # number of partitions
+
     n_rows, n_cols = mat.shape
+    # number of partitions
     n_parts = part[-1] + 1
     ret_val = np.zeros((n_rows, n_parts * n_cols)).astype(float)
-    for i in range(n_cols):
-        for j in range(n_parts):
-            ret_val[(part == j), (i * n_parts) + j] = mat[part == j, i]
+    for j in range(n_parts):
+        ret_val[(part == j), (j * n_cols):((j + 1) * n_cols)] = mat[part == j, :]
     return ret_val
 
 
@@ -114,27 +115,33 @@ sc_me = np.array([0.7552, 0.9809, 1.1211, 1.217, 1.2811, 1.3258, 1.3514, 1.3628,
 
 
 if __name__ == "__main__":
-    Wt = np.arange(8)
-    si = 2 * np.sin(Wt)
-    co = np.sin(Wt)
-    f = 4
+    # Wt = np.arange(8)
+    # si = 2 * np.sin(Wt)
+    # co = np.sin(Wt)
+    # f = 4
 
-    Yt = Wt
+    # Yt = Wt
 
-    w   = 1.0/f
-    tl  = np.arange(1, Yt.shape[0] + 1)
-    co  = np.cos(2 * np.pi * tl * w)
-    si  = np.sin(2 * np.pi * tl * w)
-    co2 = np.cos(2 * np.pi * tl * w * 2)
-    si2 = np.sin(2 * np.pi * tl * w * 2)
-    co3 = np.cos(2 * np.pi * tl * w * 3)
-    si3 = np.sin(2 * np.pi * tl * w * 3)
+    # w   = 1.0/f
+    # tl  = np.arange(1, Yt.shape[0] + 1)
+    # co  = np.cos(2 * np.pi * tl * w)
+    # si  = np.sin(2 * np.pi * tl * w)
+    # co2 = np.cos(2 * np.pi * tl * w * 2)
+    # si2 = np.sin(2 * np.pi * tl * w * 2)
+    # co3 = np.cos(2 * np.pi * tl * w * 3)
+    # si3 = np.sin(2 * np.pi * tl * w * 3)
 
-    smod = np.column_stack((co, si, co2, si2, co3, si3))
+    # smod = np.column_stack((co, si, co2, si2, co3, si3))
 
-    part = np.array([0, 0, 1, 1, 2, 2, 2, 2])
-    X = partition_matrix(part, smod)
-    print(X.shape)
-    print(X[:,16])
-    print(X[:,17])
-    print(X[:,18])
+    # part = np.array([0, 0, 1, 1, 2, 2, 2, 2])
+    # X = partition_matrix(part, smod)
+    # print(X.shape)
+    # print(X[:,16])
+    # print(X[:,17])
+    # print(X[:,18])
+
+    part = np.array([0, 0, 0, 1, 1, 2])
+    arr = np.arange(30).reshape(6, 5)
+    X = partition_matrix(part, arr)
+    print(arr)
+    print(X)

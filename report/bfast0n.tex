@@ -56,12 +56,12 @@ $X_h$ has $n$ rows and $2K$ columns.
 \label{sec:bfast0n_algorithm_steps}
 BFAST0n consists of following steps:
 \begin{enumerate}
-\item Apply STL to the observation matrix $Y$ in order to get the adjusted
+\item \textbf{Apply STL to the observation matrix $Y$} in order to get the adjusted
   time series $\tilde{Y}$
-\item Apply the harmonic model to $\tilde{Y}$
-\item Use the breakpoint estimation algorithm (Chapter \ref{chap:breakpoints})
+\item \textbf{Apply the harmonic model to $\tilde{Y}$}
+\item \textbf{Use the breakpoint estimation algorithm} (Chapter \ref{chap:breakpoints})
   to $x=X_h$ and $y=\tilde{Y}$
-\item Return the number and placement of the breakpoints
+\item \textbf{Return the number and placement of the breakpoints}
 \end{enumerate}
 
 \section{Parameters and Their Values}

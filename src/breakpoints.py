@@ -193,8 +193,6 @@ class Breakpoints():
         bp = breakpoints
         df = (self.nreg + 1) * (len(bp[~np.isnan(bp)]) + 1)
         # log-likelihood
-        # logL = -0.5 * n * (np.log(SSR) + 1 - np.log(n) + np.log(2 * np.pi))
-        # bic = df * np.log(n) - 2 * logL
         logL = n * (np.log(SSR) + 1 - np.log(n) + np.log(2 * np.pi))
         bic = df * np.log(n) + logL
         return bic
@@ -206,10 +204,8 @@ class Breakpoints():
         if np.isnan(breaks).all():
             return np.repeat(1, nobs)
 
-        print(np.diff(np.append(breaks, nobs)))
         nbreaks = breaks.shape[0]
         v = np.insert(np.diff(np.append(breaks, nobs)), 0, breaks[0]).astype(int)
-        print(v)
         fac = np.repeat(np.arange(1, nbreaks + 2), v)
         # labels = np.array(["segment" + str(i) for i in range(1, nbreaks + 2)])
         return fac - 1

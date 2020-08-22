@@ -181,8 +181,6 @@ class BFAST():
 
             i += 1
             output = BFASTResult(Tt, St, Nt, Vt_bp, Wt_bp)
-            print("Wt_bp", Wt_bp)
-            print("Vt_bp", Vt_bp)
 
         if not nobp_Vt: # probably only works well for dummy model!
             logger.info("Calculating breakpoint magnitude")
@@ -190,7 +188,7 @@ class BFAST():
             co = fm1.params  # final fitted trend model
             Mag = np.tile(np.nan, (Vt_nrbp, 3))
             for r in range(Vt_nrbp):
-                if r == 1:
+                if r == 0:
                     y1 = co[0] + co[r + Vt_nrbp + 1] * ti[Vt_bp[r]]
                 else:
                     y1 = co[0] + co[r] + co[r + Vt_nrbp + 1] * ti[Vt_bp[r]]
@@ -200,6 +198,7 @@ class BFAST():
                 Mag[r, 0] = y1
                 Mag[r, 1] = y2
                 Mag[r, 2] = y2 - y1
+                print("Mag {} = {}".format(r, Mag))
 
             index = np.argmin(np.abs(Mag[:, 2]) - 1)
             m_x = np.repeat(Vt_bp[index], 2)
@@ -227,8 +226,10 @@ if __name__ == "__main__":
     y = datasets.ndvi_dates
     x = datasets.ndvi
     freq = datasets.ndvi_freqency
-    print("freq", freq)
 
     # v = BFAST(x, y, freq, season="harmonic")
     v = BFAST(x, y, freq, season="dummy")
-    print(v.output)
+    # print(v.output)
+    print(v.magnitude)
+    print(v.time)
+    print(v.jump)
