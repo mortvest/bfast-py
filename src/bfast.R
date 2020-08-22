@@ -20,8 +20,6 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
   Tt <- 0
   if (season == "harmonic") {
     w <- 1/f
-    cat("f", f, "\n")
-    cat("w", w, "\n")
     tl <- 1:length(Yt)
     co <- cos(2 * pi * tl * w)
     si <- sin(2 * pi * tl * w)
@@ -152,7 +150,6 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
     Mag <- matrix(NA, Vt.nrbp, 3)
     for (r in 1:Vt.nrbp) {
       if (r == 1) {
-        cat("co[r + Vt.nrbp + 1]", co[r + Vt.nrbp + 1], "\n")
         y1 <- co[1] + co[r + Vt.nrbp + 1] * ti[Vt.bp[r]]
       } else {
         y1 <- co[1] + co[r] + co[r + Vt.nrbp + 1] * ti[Vt.bp[r]]
@@ -162,7 +159,6 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
       Mag[r, 1] <- y1
       Mag[r, 2] <- y2
       Mag[r, 3] <- y2 - y1
-      cat("Mag", r, "=", Mag, "\n")
     }
     index <- which.max(abs(Mag[, 3]))
     m.x <- rep(Vt.bp[index], 2)
@@ -180,25 +176,39 @@ bfast <- function (Yt, h = 0.15, season = c("dummy", "harmonic", "none"),
                         Magnitude = Magnitude, Mags = Mag, Time = Time,
                         jump = list(x = ti[m.x], y = m.y)), class = "bfast"))
 }
+
+
+test <- function(data, type) {
+    v <- bfast(data, season=type)
+    o <- v$output[[length(v$output)]]
+    cat("Trend breakpoints", o$Vt.bp, "\n")
+    cat("Seasonal breakpoints", o$Wt.bp, "\n")
+}
+
 library(strucchange)
 library(forecast)
+
 load("ndvi.rda")
-v <- bfast(ndvi, season="dummy")
-## print(v$Mags)
-## print(v$output[[2]])
-print(v$Magnitude)
-print(v$Time)
-print(v$jump)
-
-## v <- bfast(ndvi, season="harmonic")
-
-## print(v$output[[2]])
+## test(ndvi, "dummy")
 
 ## load("simts.rda") # stl object containing simulated NDVI time series
-## datats <- ts(rowSums(simts$time.series))
-## # sum of all the components (season,abrupt,remainder)
-## tsp(datats) <- tsp(simts$time.series)
-## ## v <- bfast(datats, season="harmonic")
-## v <- bfast(datats, season="dummy")
-## ## print(v$output)
+## simts_sum <- ts(rowSums(simts$time.series))
+## tsp(simts_sum) <- tsp(simts$time.series)
+## test(simts_sum, "harmonic")
 
+
+load("harvest.rda")
+print(harvest)
+
+## print(Nile)
+
+## test(harvest, "harmonic")
+
+
+## load("somaliadat.rda")
+## plot(Nile)
+## nile <- Nile
+## print(nile)
+## ## class(ndvi))
+
+## test(nile, "none")

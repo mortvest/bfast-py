@@ -27,7 +27,7 @@ class BFASTResult():
         if Wt_bp == np.array([0]).all():
             self.season_breakpoints = None
         else:
-            self.seasonal_breakpoints = Wt_bp
+            self.season_breakpoints = Wt_bp
 
     def __str__(self):
         st = "Trend:\n{}\n\n".format(self.trend) +\
@@ -227,9 +227,10 @@ if __name__ == "__main__":
     x = datasets.ndvi
     freq = datasets.ndvi_freqency
 
-    # v = BFAST(x, y, freq, season="harmonic")
-    v = BFAST(x, y, freq, season="dummy")
-    # print(v.output)
+    v = BFAST(x, y, freq, season="harmonic")
+    # v = BFAST(x, y, freq, season="dummy")
+    print(v.output.trend_breakpoints)
+    print(v.output.season_breakpoints)
     print(v.magnitude)
     print(v.time)
     print(v.jump)

@@ -1,9 +1,12 @@
 import numpy as np
-# import matplotlib.pyplot as plt
+# A working R installation is required
 import rpy2.robjects as robjects
 
-
 def rda_to_npy(file_name, save=False):
+    """
+    Convert an .rda object from the R programming language
+    to a .npy object for use with numpy
+    """
     robjects.r["load"](file_name + ".rda")
     matrix = robjects.r[file_name]
     a = np.array(matrix)
@@ -13,25 +16,9 @@ def rda_to_npy(file_name, save=False):
 
 
 if __name__ == "__main__":
-    rda_to_npy("ndvi", save=True)
-    rda_to_npy("simts", save=True)
+    # rda_to_npy("ndvi", save=True)
+    # rda_to_npy("simts", save=True)
+    rda_to_npy("harvest", save=True)
 
-
-    # file_name = "USIncExp"
-    # mat = rda_to_npy(file_name, save=True)
-    # print(mat.shape)
-
-    # mat_loaded = np.load(file_name + ".npy")
-    # print(mat_loaded.shape)
-
-    # for i in range(mat.shape[0]):
-    #     print("[{}, {}]".format(mat[i,0], mat[i,1]))
-
-    # income = a[:,0]
-    # expanditure = a[:,1]
-    # xs = np.arange(income.shape[0])
-    # plt.plot(xs, income, label="income")
-    # plt.plot(xs, expanditure, label="expanditure")
-    # plt.legend()
-    # plt.show()
-
+    mat_loaded = np.load("harvest.npy")
+    print(mat_loaded)

@@ -48,7 +48,8 @@ nile = np.array([1120, 1160, 963,  1210, 1160, 1160, 813,  1230, 1370, 1140,
                  744,  749,  838,  1050, 918,  986,  797,  923,  975,  815,
                  1020, 906,  901,  1170, 912,  746,  919,  718,  714,  740])
 
-nile_dates = np.arange("1871", "1971", dtype="datetime64[Y]")
+# nile_dates = np.arange("1871", "1971", dtype="datetime64[Y]")
+nile_dates = np.arange("1871", "1971")
 
 
 """
@@ -107,6 +108,14 @@ SIMTS dataset
 simts_frequency = 23
 simts = np.load(data_folder + "simts.npy")
 simts_dates = r_style_interval((2000, 4), (2008, 18), simts_frequency).reshape(simts.shape[1], 1)
+
+
+"""
+harvest dataset
+"""
+harvest_frequency = 23
+harvest = np.load(data_folder + "harvest.npy")
+harvest_dates = r_style_interval((2000, 4), (2008, 18), harvest_frequency).reshape(harvest.shape[1], 1)
 
 
 if __name__ == "__main__":
