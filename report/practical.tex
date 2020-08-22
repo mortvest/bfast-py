@@ -3,35 +3,6 @@
 \begin{document}
 \chapter{Practical Matters}
 \label{a_chap:practical}
-\section*{Dependencies}
-\label{sec:deps}
-The implementation was tested using Python 3.8.3.
-In order to install all the necessary libraries, start the virtual environment and import
-the requirements:
-\begin{verbatim}
-pip install -f requirements.txt
-\end{verbatim}
-
-\section*{How to Run the Tests}
-\label{sec:source_code_overview}
-Tests for each file in the \emph{src} directory are contained withing that
-source file. In order to run the test, run:
-\begin{verbatim}
-python file.py
-\end{verbatim}
-In order to get the more verbose output, run:
-\begin{verbatim}
-python file.py --log=INFO
-\end{verbatim}
-In order to see the debug information, run:
-\begin{verbatim}
-python file.py --log=DEBUG
-\end{verbatim}
-In order to reproduce the plots, run:
-\begin{verbatim}
-python plots.py
-\end{verbatim}
-
 \section*{Source Files}
 \label{sec:source_files}
 The source code for the implementation, described in this report, can be found
@@ -50,6 +21,8 @@ on GitHub \cite{my-github} and is structured in a following manner:
   Collection of datasets for testing. They are taken from the R programming language standard library
   \cite{r-datasets} and
   the \texttt{strucchange} package for the R-language \cite{strucchange_code}.
+\item \texttt{loess.py}\\
+  Implementation of the LOESS algorithm (Chapter \cite{chap:stl}). Used only for demonstration.
 \item \texttt{efp.py}\\
   Implementation of the empirical fluctuation processes, in particular the OLS-MOSUM test that is
   described in Chapter \ref{chap:mosum}.
@@ -67,6 +40,35 @@ on GitHub \cite{my-github} and is structured in a following manner:
 \item \texttt{utils.py} \\
   Helper functions and lookup tables. Used by other modules. 
 \end{itemize}
+
+\section*{Dependencies}
+\label{sec:deps}
+The implementation was tested using Python 3.8.3.
+In order to install all the necessary libraries, start the virtual environment and import
+the requirements:
+\begin{verbatim}
+pip install -f requirements.txt
+\end{verbatim}
+
+\section*{How to Run the Tests}
+\label{sec:source_code_overview}
+Tests for each file in the \emph{src} directory are contained withing that
+source file. In order to run test use following:
+\begin{verbatim}
+python file.py
+\end{verbatim}
+In order to get a more verbose output, run:
+\begin{verbatim}
+python file.py --log=INFO
+\end{verbatim}
+In order to see the debug information, run:
+\begin{verbatim}
+python file.py --log=DEBUG
+\end{verbatim}
+In order to reproduce the plots, run:
+\begin{verbatim}
+python plots.py
+\end{verbatim}
 
 \biblio
 \end{document}
