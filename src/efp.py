@@ -137,10 +137,8 @@ def test_dataset(y, name, h=0.15, level=0.15):
 
 if __name__ == "__main__":
     logging_setup()
-    ds = datasets.nhtemp
-    ds[5] = np.nan
-    # print(ds)
-    test_dataset(ds, "nhtemp")
-    # test_dataset(datasets.nile, "nile")
+
+    test_dataset(datasets.nhtemp, "nhtemp")
+    test_dataset(datasets.nile, "nile")
 
 

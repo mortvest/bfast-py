@@ -4,12 +4,11 @@
 \chapter{Implementation}
 \label{chap:implementation}
 Both BFAST0n and BFAST algorithms were implemented in Python 3.8.3 using
-\texttt{numpy}, \texttt{statsmodels}\cite{statsmodels} for all the computation
-and \texttt{matplotlib} for all the plotting. The implementation is based on the
-original R implementation of BFAST and BFAST0n by Verbesselt et al.
-\cite{bfast-github} and the \texttt{strucchange} library by Zeileis
-\cite{strucchange_code}.
-
+\texttt{numpy} \cite{numpy},\texttt{statsmodels} \cite{statsmodels} and
+\texttt{pandas}\cite{pandas} for all the computation and \texttt{matplotlib} for
+all the plotting. The implementation is based on the original R implementation
+of BFAST and BFAST0n by Verbesselt et al. \cite{bfast-github} and the
+\texttt{strucchange} library by Zeileis \cite{strucchange_code}.
 
 \section{Linear Regression}
 \label{sec:linear_regression}
@@ -35,18 +34,42 @@ about the STL parameters, please refer to Chapter \ref{chap:stl}.
 
 \section{OLS-MOSUM Test}
 \label{sec:impl_mosum}
-
+OLS-MOSUM test is implemented in source file \texttt{efp.py}. Instance of a class \texttt{EFP()}
+is created, given matrix $X$, vector $y$ and value of the bandwidth parameter
+$h$ and calculates the empirical fluctuation process of type OLS-MOSUM. Then
+class method \texttt{sctest} can be called in order to calculate the value of the
+statistic and the p value. P value is calculated using linear interpolation from the table of critical
+values in the \texttt{utils.py} by following the algorithms steps, described in
+Chapter \ref{chap:mosum}.
 
 \section{Breakpoint Estimation}
 \label{sec:impl_breakpoints}
+The breakpoint estimation algorithm by Bai and Perron (Chapter
+\ref{chap:breakpoints}) is the most complicated step of the BFAST
+algorithm and its implementation is structured in a following manner:
+\begin{itemize}
+\item Breakpoints are caclulated by creating an instance of a class
+  \texttt{Breakpoints}, given matrix $X$, vector $y$, minimal segment length $h$
+  and maximum number of breaks \texttt{breaks}.
+\item The upper-triangular matrix is computed in the source file
+  \texttt{ssr\_triang}. In order to speed up this step, an option for
+  multi-processing is enabled and can be activated by setting \texttt{use\_mp = True}.
+\item Method \texttt{breakpoints\_for\_m} estimates the number of
+  breakpoints using Bayesian Information Criterion and then their location by
+  calling another method \texttt{summary} that calculates the table of BIC for
+  $m \in 1..m_{max}$, where $m_{max}$ is the maximum number of allowed breaks.
+\end{itemize}
 
-\section{BFAST0n}
-\label{sec:impl_bfast0n}
-The implementation of BFAST0n is very straight-forward and follows the
-guidelines, outlined in Chpater \ref{chap:bfast0n}.
 
-\section{BFAST}
-\label{sec:bfast}
+\section{BFAST0n and BFAST}
+\label{sec:impl_bfast}
+The implementation of BFAST0n and BFAST is very straight-forward and closely follows the
+algorithm steps, outlined in Chapter \ref{chap:bfast} and  \ref{chap:bfast0n}
+respectively. An instance of class \texttt{BFAST} calculates the time series
+decomposition and the breakpoints, given matrix $X$, vector $y$, value of $h$,
+significance level $\alpha$ and maximum number of breaks \texttt{breaks}.
+The resulting decomposition and breaks can be accessed by calling obtaining the
+object field \texttt{output}.
 
 \biblio
 \end{document}
