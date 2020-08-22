@@ -1,0 +1,72 @@
+\documentclass[main.tex]{subfiles}
+
+\begin{document}
+\chapter{Practical Matters}
+\label{a_chap:practical}
+\section*{Dependencies}
+\label{sec:deps}
+The implementation was tested using Python 3.8.3.
+In order to install all the necessary libraries, start the virtual environment and import
+the requirements:
+\begin{verbatim}
+pip install -f requirements.txt
+\end{verbatim}
+
+\section*{How to Run the Tests}
+\label{sec:source_code_overview}
+Tests for each file in the \emph{src} directory are contained withing that
+source file. In order to run the test, run:
+\begin{verbatim}
+python file.py
+\end{verbatim}
+In order to get the more verbose output, run:
+\begin{verbatim}
+python file.py --log=INFO
+\end{verbatim}
+In order to see the debug information, run:
+\begin{verbatim}
+python file.py --log=DEBUG
+\end{verbatim}
+In order to reproduce the plots, run:
+\begin{verbatim}
+python plots.py
+\end{verbatim}
+
+\section*{Source Files}
+\label{sec:source_files}
+The source code for the implementation, described in this report, can be found
+on GitHub \cite{my-github} and is structured in a following manner:
+\begin{itemize}
+\item \texttt{bfast0n.py}\\
+  Implementation of the BFAST0N algorithm, described in Chapter \ref{chap:bfast0n}
+\item \texttt{bfast.py}\\
+  Implementation of the BFAST algorithm, described in Chapter \ref{chap:bfast}
+\item \texttt{breakpoints.py}\\
+  Implementation of the breakpoint estimation algorithm, described in Chapter \ref{chap:breakpoints}
+\item \texttt{converter.py}\\
+  Script that converts the datasets for the R programming language (\texttt{.rda}) into numpy
+  data files (\texttt{.npy}). It requires a working R installation.
+\item \texttt{datasets.py}\\
+  Collection of datasets for testing. They are taken from the R programming language standard library
+  \cite{r-datasets} and
+  the \texttt{strucchange} package for the R-language \cite{strucchange_code}.
+\item \texttt{efp.py}\\
+  Implementation of the empirical fluctuation processes, in particular the OLS-MOSUM test that is
+  described in Chapter \ref{chap:mosum}.
+\item \texttt{plots.py}\\
+  Script that produces all the plots from the validation chapter (Chapter \ref{chap:validation}).
+\item \texttt{recresid.py}\\
+  Implementation of the recursive residuals for the linear regression relationships,
+  as described in Chapter \ref{chap:breakpoints}.
+\item \texttt{ssr\_triang.py}\\
+  Calculation of the upper-triangular matrix of sums of squared residuals for
+  the breakpoint estimation algorithm as described in Chapter \ref{chap:breakpoints}.
+\item \texttt{stl.py} \\
+  A wrapper for the \texttt{statsmodels} \cite{statsmodels} implementation of the STL decomposition as
+  described in Chapter \ref{chap:stl}.
+\item \texttt{utils.py} \\
+  Helper functions and lookup tables. Used by other modules. 
+\end{itemize}
+
+\biblio
+\end{document}

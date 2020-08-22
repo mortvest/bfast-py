@@ -1,5 +1,6 @@
 .PHONY: clean $(file_list) main
 
+images = $(shell ls imgs/*.png)
 latex_command = pdflatex -halt-on-error
 tex_files = $(filter-out main.tex, $(shell ls *tex))
 file_list = $(basename $(tex_files))
@@ -12,10 +13,10 @@ $(file_list): %: %.pdf
 main: main.pdf
 	$(pdf_viewer) main.pdf
 
-%.pdf: %.tex $(bib_file)
+%.pdf: %.tex $(bib_file) $(images)
 	$(latex_command) $* && bibtex $* && pdflatex $* && pdflatex $*
 
-main.pdf: $(tex_files) main.tex $(bib_file)
+main.pdf: $(tex_files) main.tex $(bib_file) $(images)
 	$(latex_command) main && bibtex main && pdflatex main && pdflatex main
 
 clean:

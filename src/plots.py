@@ -47,9 +47,10 @@ def plot(name, y, x, f, season, level=0.05, h=0.15, max_iter=10, nan_clr="crimso
     Tt_bp = vo.trend_breakpoints
     St_bp = vo.season_breakpoints
 
+    figsz = (16, 10) if season != "none" else (16, 6)
 
-    fig = plt.figure(figsize=(16, 10))
-    fig.suptitle(name, fontsize=24)
+    fig = plt.figure(figsize=figsz)
+    # fig.suptitle(name, fontsize=24)
     if season != "none":
         ax = fig.add_subplot(4, 1, 1)
         # plot Y
@@ -87,6 +88,7 @@ def plot(name, y, x, f, season, level=0.05, h=0.15, max_iter=10, nan_clr="crimso
 
     else:
         ax = fig.add_subplot(1, 1, 1)
+        ax.set_title("observations")
         if Tt_bp is not None:
             prev = 0
             vals = np.concatenate((Tt_bp, [y.shape[0] - 1]))

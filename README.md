@@ -23,3 +23,7 @@ In order to get the more verbose output, run:
 In order to see the debug information, run:
 
 `python file.py --log=DEBUG`
+
+In order to reproduce the plots, run:
+
+`python plots.py`
