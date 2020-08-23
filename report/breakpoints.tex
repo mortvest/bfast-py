@@ -15,15 +15,15 @@ We assume a pure structural change model for $m$ breaks ($m+1$ segments):
 \[
 y_{t} = x_{t}^{\top} \beta_{j}+u_{t} \quad t=T_{j-1}+1, \ldots, T_{j}
 \]
-for $j = 1,...,m+1$, and where:
+for $j = 1,\hdots , m+1$, and where:
 \begin{itemize}
 \item $x_t \in \mathbb{R}^q$ is the value of the independent variable at time
-  $t = 1..T$, known
+  $t = 1,\hdots , T$, known
 \item $y_{t} \in \mathbb{R}$ is the observation at time $t$, known
-\item $\beta_j \; (j=1,...,m+1)$ is the vector of coefficients that
+\item $\beta_j: \; (j=1, \hdots ,m+1)$ is the vector of coefficients that
   we wish to estimate using linear regression 
 \item $u_{t} \in \mathbb{R}$ is the disturbance (error) at time $t$, unknown
-\item $(T_1,..,T_m)$ are the indices of the $m$ breakpoints and are unknown.
+\item $(T_1, \hdots ,T_m)$ are the unknown indices of the $m$ breakpoints.
  We additionally set $T_0 = 0$ and $T_{m+1} = T$
 \end{itemize}
 This linear regression system can also be expressed in matrix form:
@@ -101,13 +101,12 @@ one half of the potential segments. There are further reductions
 that can be made that reduce the number of feasible segments to
 $T(T+1)/2 - \left(T(h-1)-m h(h-1)-(h-1)^{2}-h(h-1) / 2\right)$, where $h$ is the minimal
 segment length. Those are covered in-depth
-in the paper by Bai and Perron \cite{bai_perron}.\\
-
+in the paper by Bai and Perron \cite{bai_perron}.\\\\
 An example of an upper triangular matrix of sums of squared residuals with
 $T=9$, $m=2$ and $h=3$ can be seen on Table \ref{table_4_1} and uses following
 notation:
 \begin{itemize}
-\item $f$ denotes a feasible segment, for which we would compute the sum of squared
+\item f denotes a feasible segment, for which we would compute the sum of squared
   residuals
 \item $\operatorname{nf}_1$ means that the segment is not
 feasible since all segments must be at least have 3 observations, 
@@ -115,10 +114,10 @@ feasible since all segments must be at least have 3 observations,
 leave enough place for another segment of length 3
 \item $\operatorname{nf}_3$ means
 that the segment is not feasible, since its establishment would inadvertently
-create an illegal segment (with length less than 3) before it
+create an illegal segment (with length less than 3) right before it
 \end{itemize}
 A key observation is that only a small fraction of possible segments is feasible when
-the value of $h$ or $m$ is set high relative to $T$.
+the value of $h$ or $m$ is set high relative in relation to $T$.
 
 \begin{table}[]
 \begin{tabular}{lllllllllll}
@@ -134,7 +133,7 @@ the value of $h$ or $m$ is set high relative to $T$.
 \multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{8} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} \\ \cline{2-11} 
 \multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{9} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} \\ \cline{2-11} 
 \end{tabular}
-\caption{An example of an upper-triangular matrix of squared residuals for $T =
+\caption{An example of an upper-triangular matrix of sums of squared residuals for $T =
   9$, $h=3$, $m=2$. We must compute sum of squared residuals for all feasible
   segments (f).
 }
@@ -144,37 +143,36 @@ the value of $h$ or $m$ is set high relative to $T$.
 
 \section{Recursive Residuals}
 \label{sec:recursive_residuals}
-In order to calculate the sum of squared residuals for the upper-triangular
-matrix, me must use the recursive residuals of a linear regression model that
-were first described by Brown et al. \cite{brown75}. We calculate the recursive
-residuals for each of $m + 1$ segments individually, hence we can assume a
-simple linear regression model:
+In order to calculate the sum of squared residuals for each feasible segment in
+the upper-triangular matrix, me must use the recursive residuals of a linear
+regression model that were first described by Brown et al. \cite{brown75}.
+We assume a simple linear regression model:
 \[
-y_i = x_i^{\top} \beta + u_i
+y_i = x_i^{\top} \beta + u_i \quad i = (1, \hdots, n_{\text{seg}})
 \]
-or in marix form:
+where $n_{\text{seg}}$ is the length of the segment. It can also be expressed in matrix form as:
 \[
 Y = X\beta + U
 \]
-
 Let $\hat{\beta}^{(i)}$ be the OLS-estimate of the regression coefficient
 vector based on all observations up to $i$, and $X^{(i)}$ be the subset of the
-regressor $X$ with with rows from $q$ to $i$. Then the recursive residuals can
-be calculated using a recursive procedure:
+regressor $X$ with with rows from $k$ to $i$, where $q \leq k \leq n$, where
+$q$ is the dimensionality of $x$.
+Then the recursive residuals can be calculated using a recursive procedure:
 \[
-\bar{u}_{q}(i)=\frac{y_{i}-x_{i}^{\top}
+\bar{u}_{k}(i)=\frac{y_{i}-x_{i}^{\top}
   \hat{\beta}^{(i-1)}}{\sqrt{1+x_{i}^{\top}\left(X^{(i-1)^{\top}}
-    X^{(i-1)}\right)^{-1} x_{i}}} \quad(i=q+1, \ldots, n)
+    X^{(i-1)}\right)^{-1} x_{i}}} \quad(i=k+1, \ldots, n)
 \]
-We initialize the recursion by taking $X^{(q-1)}$, $y_{q}$ and $x_{q}$ in order to
-use OLS-based regression to estimate $\beta^{q}$. The coefficient vector can
+We initialize the recursion by taking $X^{(k-1)}$, $y_{k}$ and $x_{k}$ in order to
+use OLS-based regression to estimate $\beta^{k}$. The coefficient vector can
 then be used to compute the next iteration. This procedure continues until we
-reach iteration $i$. Since we are calculating the $X$ and $\beta$
+reach iteration $i$. It is important to note that since we are calculating the $X$ and $\beta$
 for each step of calculation of $\bar{u}_i$, we can, without adding any
-significant cost, calculate $\bar{u}_j \quad \text{for } j \in (q...i)$. This
+significant cost, calculate $\bar{u}_j \quad \text{for } j \in (k, \hdots, i)$. This
 will become useful for the calculation of the triangular matrix of sums of
-squared residuals. Let $\hat{u_i(j)}$ return the sequence of $\bar{u}$:
-\[\hat{u}_i(j) = (\bar{u}_i, \bar{u}_{i+1}, ..., \bar{u}_j)\]
+squared residuals. Let $\hat{u_i}(j)$ return the sequence of $\bar{u}$:
+\[\hat{u}_i(j) = (\bar{u}_i, \bar{u}_{i+1}, \hdots, \bar{u}_j)\]
 
 
 \section{Calculation of the Triangular Matrix of Sums of Squared Residuals}
@@ -256,21 +254,18 @@ minimal sum of squared residuals, when the last segment is appended to it.\\\\
 Consider this example. Let $T=20$, $h=4$ and $m=3$. The allowed placements
 and the possible endpoints of the 1-partition can bee seen on Figure \ref{plt_4_1} (in
 green) and Figure \ref{plt_4_2} (in orange) respectively. 
-
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{imgs/breakpoints1}
   \caption{Allowed placements of $j_m$}
   \label{plt_4_1}
 \end{figure}
-
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{imgs/breakpoints2}
   \caption{Possible endpoints of 1-partion}
   \label{plt_4_2}
 \end{figure}
-
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{imgs/breakpoints3}
@@ -299,9 +294,9 @@ the Bayesian Information Criterion (BIC) \cite{schwarz1978}.
 Bai and Perron state that BIC works well when breaks are present
 in time series and poorly when it is not the case. However, this would not
 constitute a issue for
-the BFAST algorithm, because the breakpoint by Bai and Perron is only applied if
+the BFAST algorithm, because the breakpoint estimation algorithm is only applied if
 the OLS-MOSUM test signifies that there are structural change present in the
-time series. Therefore, BIC constitutes a viable criterion for selecting the
+time series. Therefore, BIC constitutes a viable option for selecting the
 optimal number of breakpoints $m_{\text{best}}$ in the context of this project.\\\\
 For each possible number of breakpoints, up to some
 limit $m_{\text{max}}$, we find the sum of squared residuals for all breakpoints
@@ -322,8 +317,8 @@ where:
   \hat{L} = -\frac{n}{2} \left(\ln \left(S_T(\hat{T}_1,..,\hat{T}_m)\right)
   + \ln{\frac{2\pi}{n}} + 1\right)
   \]
-  where $S_T(\hat{T}_1,..,\hat{T}_m)$ is the sum of squared residuals for the m-partition of
-  the dataset.
+  where $S_T(\hat{T}_1,..,\hat{T}_m)$ is the sum of squared residuals for the
+  optimal m-partition of the time series (time series with m breakpoints). 
 \end{itemize}
 The optimal number of breakpoints would be the number of breakpoints for which
 the value of BIC is lowest.
@@ -360,8 +355,8 @@ The algorithm takes two parameters:
 \begin{itemize}
 \item  $0\leq h' \leq 1$, which can be used to calculate the minimal allowed size of the segment
   $h = h' n$. The default value is $h' = 0.15$.
-\item \texttt{max\_breaks}, which can be used to calculate the maximum number of allowed segments
-  $m_{\text{user}}$. This parameter is optional, and in that case, $m_{\text{user}}$ would be calculated
+\item \texttt{max\_breaks}, which can be used to calculate the maximum number of allowed breakpoints
+  $m_{\text{user}}$. This parameter is optional, and if it is not provided, $m_{\text{user}}$ would be calculated
   from the value of $h'$.
 \end{itemize}
 

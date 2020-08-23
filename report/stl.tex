@@ -21,7 +21,8 @@ where:
 \end{itemize}
 An example of such decomposition is illustrated on Figure \ref{fig_stl}.
 STL alone, however, can not be used for break detection because it uses smoothing
-that would temper with the breakpoint information.
+that would temper with the breakpoint information. Therefore, it is only used in
+the pre-processing stage to get the initial estimate of the seasonal component.
 \begin{figure}
   \centering
   \includegraphics[width=0.7\textwidth]{imgs/stl1}
@@ -56,7 +57,7 @@ commonly used in statistics and operates as follows:
 \item We then use locally-linear or locally quadratic fitting with weights
   $\rho_i v_i$, where $\rho_i$ are the robustness weights, used by the STL.
   Addition of $\rho_v$ is crucial, since it allows us to ignore the outliers
-  in the dataset and in this way introduce robustness into STL.
+  in the dataset. This way, we introduce robustness into STL.
   The value of locally-fitted polynomial at $x$ is $\hat{g}(x)$, and $d$ is
   the degree of the fitted polynomial.
 \end{itemize}
@@ -165,7 +166,7 @@ STL has following parameters \cite{stl}:
   et al. \cite{stl}, it must be specifically and
   carefully chosen for each application. \texttt{stlplus} allows
   the user to select $n_s = \text{``\emph{periodic}''}$, which is, according to
-  the package documentation \cite{stlplus}, equivalent to replacing
+  the package documentation \cite{stlplus}, almost equivalent to replacing
   the smoothing in the seasonal component with taking the mean. It is the value,
   used by the BFAST R-implementation and consequently for this project.
 \end{enumerate}

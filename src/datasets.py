@@ -90,7 +90,6 @@ uk_driver_deaths = np.array([1687, 1508, 1507, 1385, 1632, 1511, 1559, 1630,
                              1427, 1487, 1483, 1513, 1357, 1165, 1282, 1110,
                              1297, 1185, 1222, 1284, 1444, 1575, 1737, 1763])
 
-# uk_driver_deaths_dates = np.arange("1969-01", "1985-01", dtype="datetime64[M]")
 uk_driver_deaths_dates = np.arange("1969-01", "1985-01", dtype="datetime64[M]")
 
 

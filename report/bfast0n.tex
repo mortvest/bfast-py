@@ -10,20 +10,19 @@ estimation algorithm by Bai and Perron \cite{bai_perron},  which is described in
 
 \section{Dataset Pre-processing}
 \label{sec:harmonic_model}
-Let $Y_t$ be the observed data for $t$ in $(1, \hdots, n)$.
+Let $Y_t$ be the observed data at time $t = (1, \hdots, n)$.
 \subsection{STL}
 \label{subsec:stl}
 Before any other pre-processing takes place, STL time series decomposition algorithm is
-used for trend- and/or season-adjustment. For more information about the STL
-algorithm, please refer to Chapter {\ref{chap:stl}}.
+used for trend- and/or season-adjustment and $\tilde{Y}$ is obtained.
+For more information about the STL algorithm, please refer to Chapter {\ref{chap:stl}}.
 
 \subsection{Harmonic model}
 \label{subsec:harmonic_model}
 The second step of dataset pre-processing is the application of the harmonic
-model, that was described in paper by Verbesselt et. al from 2010.
-\cite{bfast1}.
+model, that was described in the paper by Verbesselt et. al from 2010 \cite{bfast1}.
 \[
-S_{t} =
+\tilde{Y}_t =
 \sum_{k=1}^{K}\left[\gamma_{j, k} \sin \left(\frac{2 \pi k t}{f}\right)+
   \theta_{j, k} \cos \left(\frac{2 \pi k t}{f}\right)\right]\\
 \]

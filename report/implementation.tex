@@ -57,18 +57,18 @@ algorithm and its implementation is structured in a following manner:
 \item Method \texttt{breakpoints\_for\_m} estimates the number of
   breakpoints using Bayesian Information Criterion and then their location by
   calling another method \texttt{summary} that calculates the table of BIC for
-  $m \in 1..m_{max}$, where $m_{max}$ is the maximum number of allowed breaks.
+  $m \in 1 \hdots m_{max}$, where $m_{max}$ is the maximum number of allowed breaks.
 \end{itemize}
 
 
 \section{BFAST0n and BFAST}
 \label{sec:impl_bfast}
-The implementation of BFAST0n and BFAST is very straight-forward and closely follows the
+The implementation of BFAST and BFAST0n is very straight-forward and closely follows the
 algorithm steps, outlined in Chapter \ref{chap:bfast} and  \ref{chap:bfast0n}
 respectively. An instance of class \texttt{BFAST} calculates the time series
 decomposition and the breakpoints, given matrix $X$, vector $y$, value of $h$,
 significance level $\alpha$ and maximum number of breaks \texttt{breaks}.
-The resulting decomposition and breaks can be accessed by calling obtaining the
+The resulting decomposition and breaks can be accessed by returning the
 object field \texttt{output}.
 
 \biblio

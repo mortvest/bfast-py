@@ -3,7 +3,7 @@
 \begin{document}
 \chapter{BFAST}
 \label{chap:bfast}
-In paper from 2010, Verbesselt et. al \cite{bfast} outline a generic change detection approach
+In paper from 2010\cite{bfast}, Verbesselt et. al outline a generic change detection approach
 that combines iterative decomposition into trend, seasonal and remainder components and detection
 and characterizing of breakpoints within a time series. 
 
@@ -61,7 +61,7 @@ with linear regression.
 \end{itemize}
 An important observation is that the sum of $S_t$ across $s-1$ successive elements is zero.
 The model is build this way in order to avoid breakpoints in
-trend being caused by seasonal breaks. \\\\
+trend being caused by seasonal breaks. 
 \subsubsection{Breakpoint Detection and Estimation}
 When detecting breakpoints in the seasonal component, we apply the breakpoint
 detection algorithm to the model (in matrix form):
@@ -164,14 +164,14 @@ BFAST operates in a following way:
       If the returned p-value is lower than the significance level $\alpha$,
       \textbf{estimate the number and position of the trend components} using the
       breakpoint estimation algorithm by Bai and Perron (Chapter
-      \ref{chap:breakpoints}) from $ti$ and $V_t$.
+      \ref{chap:breakpoints}) from ti and $V_t$.
     \item \textbf{Compute the trend coefficients} $\alpha_j$ and $\beta_j$ for
       $j = 1, \hdots, m$ using linear regression. Set the trend estimate
       $\hat{T}_t = \hat{\alpha}_j + \hat{\beta}_j t$ for
       $t = t^*_{j-1} + 1, \hdots, t^*_j$.
     \item \textbf{Calculate the detrended time series}: $W_t = Y_t - \hat{T}_t$
-    \item If the OLS-MOSUM test, applied to $y=W_t$ and
-      the chosen seasonal model signifies that the breakpoints are present in the
+    \item If the OLS-MOSUM test, applied to $y=W_t$ and $x = X_{d}$ or $x =X_{h}$
+      signifies that the breakpoints are present in the
       seasonal data, \textbf{estimate the number and position of the
       breakpoints in the trend component} using the breakpoint estimation
       algorithm, as described in Section \ref{subsec:seasonal_dummy} and
@@ -183,8 +183,8 @@ BFAST operates in a following way:
   \end{enumerate}
   The iteration is stopped when the number and position of the breakpoints do
   not change during the iteration, or when we reach the maximum allowed number of iterations.
-\item \textbf{Return} $\hat{T}_t$, $\hat{S}_t$ the number and position of trend and
-  seasonal breakpoints and the maximum breakpoint magnitude.
+\item \textbf{Return} $\hat{T}_t$, $\hat{S}_t$, $(t_1^*, \hdots, t_m^*)$, $(t_1^{\#}, \hdots, t_p^{\#})$
+  and the maximum breakpoint magnitude.
 \end{enumerate}
 
 \section{Parameters and Their Values}

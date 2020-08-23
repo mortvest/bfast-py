@@ -18,8 +18,9 @@ but the BFAST0n implementation was tested in a similar manner.
 
 \section{\texttt{nile}}
 \label{sec:val_nile}
-Measurements of the annual flow of the river Nile at Aswan (formerly Assuan),
-1871–1970. With apparent changepoint near 1898. From \cite{r-datasets}. There is
+Measurements of the annual flow of the river Nile at Aswan 
+1871–1970. With apparent breakpoint near 1898 when the first Ashwan dam was built
+From \cite{r-datasets}. There is
 no seasonal component, since there is only a single observation each year. This
 tests the breakpoint estimating capacity without STL and seasonal model.
 Following parameter values were used:
@@ -41,7 +42,7 @@ The results can be seen on Figure \ref{plt:nile}.
 \label{sec:val_harvest}
 16-day NDVI Time Series for a Pinus Radiata Plantation, with approximately 23
 observation per year from \cite{bfast}. There are 4 breakpoints in the trend
-component exclusively. The results can be seen on Figure \ref{plt:harvest}
+component exclusively. The results can be seen on Figure \ref{plt:harvest}.
 Following parameter values were used:
 \begin{itemize}
 \item \texttt{season}= ``harmonic''
@@ -93,7 +94,7 @@ The results can be seen on Figure \ref{plt:ndvi}.
   \centering
   \includegraphics[width=\textwidth]{imgs/ndvi.png}
   \caption{Result of applying BFAST to the \texttt{NDVI} dataset. Red crosses
-    denote the missing values}
+    denote the missing values in the original time series}
   \label{plt:ndvi}
 \end{figure}
 

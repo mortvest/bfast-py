@@ -25,8 +25,7 @@ where:
 \item $\beta_i \in \mathbb{R}^{k} $ is the regression coefficient vector, that
   we wish to estimate using linear regression
 \item $u_i \in \mathbb{R}$ is the residual term that is independently and identically
-  distributed with mean $\mu = 0$ and variance $\sigma^2$. This is the
-  difference between the prediction (using $\beta_i$) and the actual observation $y_i$.
+  distributed with mean $\mu = 0$ and variance $\sigma^2$.
 \end{itemize}
 We can then test for structural change by testing the null hypothesis:
 \[
@@ -34,11 +33,11 @@ H_0:\quad \beta_i = \beta_0 \quad(i=1, \ldots, n)
 \]
 which states that there is no structural change present in the time series.
 While the alternative is that the coefficient vector $\beta$ varies over time -
-hence is are one or more breakpoints. \\\\
+hence there must be one or more breakpoints. \\\\
 Let $\hat{\beta}^{(i)}$ be the ordinary least squares (OLS) estimate of the
 regression coefficients based on all the observations up to $i$.
 Therefore, it follows that $\hat{\beta}^{(n)}$ is the common OLS estimate in the regression model. \\\\
-Let the OLS residuals be defined as:
+Let the OLS residuals (estimates of $u_i$) be defined as:
 
 \begin{equation} \label{eq:residuals}
 \hat{u}_i = y_i - x^T\hat{\beta}^{(n)}
@@ -53,8 +52,11 @@ the variance estimate would then be:
 It is possible to detect structural change by analyzing moving sum of residuals
 \cite{strucchange}. The resulting empirical fluctuation process consists of a
 sum of a fixed number of residuals in a data interval, which size is determined
-by the value of the parameter $h \in (0,1)$ (bandwidth). \\\\
-The OLS-based MOSUM process is given by \cite{mosum_tests}:
+by the value of the parameter $h \in (0,1)$ (bandwidth). E.g. for $n=50$ and $h=0.1$,
+the initial moving window would be comprised of $(\hat{u}_1, \hat{u}_2,\hat{u}_3, \hat{u}_4,
+\hat{u}_5)$, followed by $(\hat{u}_2,\hat{u}_3, \hat{u}_4,
+\hat{u}_5, \hat{u}_6)$ and so forth.\\\\
+The OLS-based MOSUM process at time $t$ is given by \cite{mosum_tests}:
 
 \begin{equation}\label{eq:mosum_og}
 M(t)=\frac{1}{\hat{\sigma} \sqrt{n}}
@@ -63,8 +65,7 @@ M(t)=\frac{1}{\hat{\sigma} \sqrt{n}}
 \end{equation}
 where $N_{n}=(n-\floor{n h}) /(1-h)$ and $\floor{n h}$ is the size of the
 window. \\\\
-This expression can be simplified by first re-scaling the
-expression s.t. $0 \leq t \leq 1$:
+We manipulate the expression by re-scaling s.t. $0 \leq t \leq 1$:
 \begin{equation}
   M(t) =
   \frac{1}{\hat{\sigma} \sqrt{n}}
@@ -74,12 +75,13 @@ expression s.t. $0 \leq t \leq 1$:
 Then, we can apply a second re-write, s.t.
 $t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1)$:
 \begin{equation} \label{eq:mosum}
-  M(t) =
+  \bar{M}(t) =
   \frac{1}{\hat{\sigma} \sqrt{n}}
   \left(\sum_{i=t}^{t + \floor{nh}}\right)
   \quad(t \in \mathbb{Z}^+ \wedge t \leq (n - \floor{nh} + 1))
 \end{equation}
-
+This formulation will be useful later, since we are going to find the maximum of
+the process and there are only $(n - \floor{nh} + 1)$ unique values that $M(t)$ can take.
 
 \section{Significance Testing}
 \label{sec:significance_testing}
@@ -197,12 +199,12 @@ We determine whether the structural changes are present in the time series by fo
 \label{sec:mosum_parameters}
 The OLS-MOSUM test uses two parameters:
 \begin{itemize}
-\item The bandwidth parameter $h$. The BFAST R implementation
-  \cite{bfast-github}, uses $0.15$.
-\item Significance level $\alpha$. The BFAST implementation
-  \cite{bfast-github}, uses a ubiquitous value of $0.05$
+\item The bandwidth parameter $h$. The default value in the BFAST R implementation
+  \cite{bfast-github} is $0.15$.
+\item Significance level $\alpha$. Higher values make the algorithm more
+  sensitive to smaller structural changes. The default value in the BFAST implementation is $0.05$. 
 \end{itemize}
-
+Both of these values can and should be adjusted for each specific use case.
 
 \biblio
 \end{document}

@@ -14,7 +14,7 @@ concrete steps of each component of BFAST. This includes the STL decomposition
 algorithm \cite{stl}, OLS-MOSUM test by Achim Zeileis \cite{strucchange}, the
 breakpoint estimation algorithm by Bai and Perron \cite{bai_perron} and BFAST
 itself. The description of the concrete algorithm steps can be helpful to a
-potential programmer that would like to implement one of those algorithms
+potential programmer that would like to implement one of the algorithms
 without diving too deep into the statistical theory. 
 
 However, some parts of the algorithm have been omitted and should be added in
@@ -33,13 +33,11 @@ implementation is rather slow and is comparable to the original R
 implementation. It struggles with any time series with more than 500
 observation (as demonstrated by the \texttt{NDVI} dataset. In addition, the Python
 implementation is about 30\% slower than the original implementation, since
-the original uses C++ for some of its most resource-demanding components.
+the original uses C++ for some of its most resource-demanding procedures.
 
-The result of this project would form a solid foundation for
-the future work, where a parallelized, GPU-based implementation would be developed and
-could potentially serve as an alternative to the parallelized implementation of
-BFAST-Monitor. 
-
+The outcome of this project forms a solid foundation for
+the future work, where a parallelized, GPU-based implementation would be
+developed and compared to the existing massively-parallel implementation of BFAST-Monitor.
 
 \biblio
 \end{document}
