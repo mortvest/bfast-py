@@ -43,7 +43,7 @@ commonly used in statistics and operates as follows:
 \item We wish for all $x$ fit a curve $\hat{g}(x)$ by giving the other points $x_i$ a
   weight $v_i$.
 \item We select a value of $q \in \mathbb{Z}^+$
-\item Let $\lambda_q(x)$ be the distance from $x$ to q'th farthest $x_i$.
+\item Let $\lambda_q(x)$ be the distance from $x$ to q'th closest $x_i$.
   This definition would not, however, work when $q > n$. In that case, we must
   apply scaling by setting:
   \[
@@ -148,7 +148,7 @@ STL has following parameters \cite{stl}:
 \item $d$: degree for the polynomials that is being fitted.
   \texttt{stlplus} uses a value of $d=1$ for all smoothing.
 \item $n_o$ : number of the outer loop iterations. The default value in
-  \texttt{stlplus} is 0. This can be adjusted if outliers are present in the dataset.
+  \texttt{stlplus} is 1. This can be adjusted if outliers are present in the dataset.
 \item $n_l$ : value of the smoothing parameter ($q$) for the LOESS procedure in the
   \textbf{Low-pass filter} stage of the inner loop. Typically (which includes
   \texttt{stlplus}), $n_l$ is the smallest odd integer greater than the period.

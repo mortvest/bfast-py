@@ -54,6 +54,10 @@ class EFP():
         process = process / (sigma * np.sqrt(n))
         logger.debug("process3:\n{}".format(process))
 
+        print(process.shape[0])
+        print(n)
+        print(nh)
+
         self.coefficients = fm
         self.sigma = sigma
         self.process = process
@@ -138,7 +142,7 @@ def test_dataset(y, name, h=0.15, level=0.15):
 if __name__ == "__main__":
     logging_setup()
 
-    test_dataset(datasets.nhtemp, "nhtemp")
+    # test_dataset(datasets.nhtemp, "nhtemp")
     test_dataset(datasets.nile, "nile")
 
 

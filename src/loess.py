@@ -2,9 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def find_weights(x, i, q):
+def find_weights(x, i, q, n):
     dists = np.abs(x - x[i])
-    qth_dist = np.sort(dists)[q]
+    dists_sorted = np.sort(dists)
+    qth_dist = dists_sorted[q-1] if q < n else int(dists_sorted[-1] * (q / n))
+    # qth_dist = dists_sorted[-q] if q < n else int(dists_sorted[1] * (q / n))
     u = dists / qth_dist
     v = (1 - u**3)**3
     v[u >= 1] = 0
@@ -19,7 +21,7 @@ def loess(x, y, q, d, rhos=None):
     n = x.shape[0]
     y_f = np.zeros(n)
     for i in range(n):
-        v = find_weights(x, i, q)
+        v = find_weights(x, i, q, n)
         if rhos is not None:
             v *= rhos
         z = np.polyfit(x, y, d, w=v)
@@ -41,9 +43,10 @@ if __name__ == "__main__":
             plt.title(r"$q={}$".format(q))
             plt.legend()
         plt.subplots_adjust(hspace=0.45)
+        # plt.savefig(img_dir + "loess_t_{}.png".format(d), bbox_inches ="tight")
         plt.savefig(img_dir + "loess{}.png".format(d), bbox_inches ="tight")
-        plt.clf()
         # plt.show()
+        plt.clf()
 
     n_samples = 100
     min_x = 0
@@ -54,6 +57,8 @@ if __name__ == "__main__":
     y_scale = 2
     y = y_scale * np.sin(x) + noise
 
-    qs = [3, 5, 10, 50]
+    # qs = [3, 5, 10, 50]
+    qs = [5, 50, 100, 1000]
+    # for d in [1]:
     for d in [1,2]:
         plot(d)
