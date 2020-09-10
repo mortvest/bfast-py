@@ -127,7 +127,9 @@ class BFAST():
                 Tt[np.isnan(Yt)] = np.nan
             else:
                 part = bp_Vt.breakfactor()
-                X1 = utils.partition(part, ti[~np.isnan(Yt)].flatten())
+                X1 = utils.partition_matrix(part, sm.add_constant(ti[~np.isnan(Yt)]))
+                # for i in range(X1.shape[0]):
+                #     print(X1[i,:5])
                 y1 = Vt[~np.isnan(Yt)]
 
                 fm1 = sm.OLS(y1, X1, missing='drop').fit()
@@ -236,17 +238,17 @@ def run_test(y, x, f, season, level=0.05, h=0.15, max_iter=10):
     Wt_bp = v.output.season_breakpoints
     Wt_dates = x[Wt_bp] if (Wt_bp is not None) else None
 
-    print("n_iters", v.n_iter)
+    # print("n_iters", v.n_iter)
     print("Trend breakpoints", Vt_bp)
-    print("Trend time", Vt_dates)
-    print("Season breakpoints", Wt_bp)
-    print("Season time", Wt_dates)
+    # print("Trend time", Vt_dates)
+    # print("Season breakpoints", Wt_bp)
+    # print("Season time", Wt_dates)
 
 
 if __name__ == "__main__":
     logging_setup()
 
-    run_test(nile, nile_dates, None, "none")
-    run_test(simts_sum, simts_dates, simts_freq, "harmonic", level=0.35, h=0.3, max_iter=2)
-    run_test(ndvi, ndvi_dates, ndvi_freq, "dummy")
+    # run_test(nile, nile_dates, None, "none")
+    # run_test(simts_sum, simts_dates, simts_freq, "harmonic", level=0.35, h=0.3, max_iter=2)
+    # run_test(ndvi, ndvi_dates, ndvi_freq, "dummy")
     run_test(harvest, harvest_dates, harvest_freq, "harmonic")

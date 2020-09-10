@@ -2,19 +2,18 @@
 
 \begin{document}
 
-
-\begin{frame}
-  \frametitle{Structural Changes in Time Series Models}
-  There are three types of changes over time that are of
-    interest to the earth science research:
-    \begin{enumerate}
-    \item \textbf{Seasonal change}: changes that happen within a season (e.g. year)
-    \item \textbf{Gradual change}: changes that are caused by interannual climate
-      variability.
-    \item \textbf{Abrupt change}: rapid changes that are triggered by deforestation,
-      floods, fires and similar.
-    \end{enumerate}
-\end{frame}
+%% \begin{frame}
+%%   \frametitle{Structural Changes in Time Series Models}
+%%   There are three types of changes over time that are of
+%%     interest to the earth science research:
+%%     \begin{enumerate}
+%%     \item \textbf{Seasonal change}: changes that happen within a season (e.g. year)
+%%     \item \textbf{Gradual change}: changes that are caused by interannual climate
+%%       variability.
+%%     \item \textbf{Abrupt change}: rapid changes that are triggered by deforestation,
+%%       floods, fires and similar.
+%%     \end{enumerate}
+%% \end{frame}
 
 \begin{frame}
   \frametitle{BFAST}
@@ -34,7 +33,7 @@
       \item $T_t$ is the trend component at time $t$
       \item $S_t$ is the seasonal component at time $t$
       \item $R_t$ is the remainder component at time $t$
-      \item $n$ is the number of observations in time series
+      \item $n$ is the number of observations in the time series
       \end{itemize}
   \end{itemize}
 \end{frame}
@@ -98,33 +97,36 @@
   \item $j$ is the number of the next breakpoint, i.e. $j = 1,...,m$.
   \item $\alpha_j$ and $\beta_j$ are the corresponding linear coefficients
   \end{itemize}
-  %% \item In matrix form:
-  %%   \[
-  %%   \mathrm{T} = \mathrm{X} \beta
-  %%   \]
-  %%   \[
-  %%   \mathrm{T} = 
-  %%   \begin{bmatrix}
-  %%     T_1 \\
-  %%     T_2 \\
-  %%     \vdots \\
-  %%     T_n 
-  %%   \end{bmatrix}
-  %%   \quad
-  %%   \mathrm{X} = 
-  %%   \begin{bmatrix}
-  %%     1 & T_1 \\
-  %%     1 & T_2 \\
-  %%     \vdots & \vdots \\
-  %%     1 & T_n 
-  %%   \end{bmatrix}
-  %%   \quad
-  %%   \beta =
-  %%   \begin{bmatrix}
-  %%     \alpha \\
-  %%     \beta 
-  %%   \end{bmatrix}
-  %%   \]
+\item One of the steps of the BFAST algorithm is to determine whether
+  breakpoints are occurring within the trend component. The test is based on Ordinary Least
+  Squares (OLS) regression, where we assume that there are no breakpoints
+  in $T$ and apply the OLS to the following model:
+    \[
+    \mathrm{T} = \mathrm{X}_T \beta
+    \]
+    \[
+    \mathrm{T} = 
+    \begin{bmatrix}
+      T_1 \\
+      T_2 \\
+      \vdots \\
+      T_n 
+    \end{bmatrix}
+    \quad
+    \mathrm{X}_T = 
+    \begin{bmatrix}
+      1 & T_1 \\
+      1 & T_2 \\
+      \vdots & \vdots \\
+      1 & T_n 
+    \end{bmatrix}
+    \quad
+    \beta =
+    \begin{bmatrix}
+      \hat{\alpha} \\
+      \hat{\beta}
+    \end{bmatrix}
+    \]
   %% \item 
   %%   One way, in which we can characterize the abrupt changes in the trend component is by
   %%   calculating the magnitude of the change:
@@ -133,6 +135,41 @@
   %%   \]
   %%   where $j = 1,...,m$.
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Trend Component - Continued}
+  \begin{itemize}
+  \item Another step of BFAST algorithm is to estimate the number and position
+    of breakpoints in the trend component. The resulting estimated $\hat{m}$ breakpoints
+    $\hat{t}_1^*,\hdots, \hat{t}_{\hat{m}}^*$ can then be used to reconstruct
+    the estimate of the trend component $\hat{T}$:
+    \[
+    \hat{T} = \bar{\mathrm{X}}_T \bar{\beta}
+    \]
+    \medspace
+    \[
+    \mathrm{\bar{X}}_T = 
+    \begin{bmatrix}
+      1 & T_{\hat{t}_0^*} & 0 & 0 & \hdots & 0 \\
+      1 & T_{\hat{t}_0^*+1} & 0 & 0 & \hdots & 0 \\
+      0 & 0 & 1 & T_{\hat{t}_1^*} & \hdots & 0 \\
+      0 & 0 & 1 & T_{\hat{t}_1^*+1} &\hdots & 0 \\
+      \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+      0 & 0 & 0 & 0 & 1 & T_{n}
+    \end{bmatrix}
+    \quad
+    \bar{\beta} = 
+    \begin{bmatrix}
+      \alpha_1 \\
+      \beta_1 \\
+      \vdots \\
+      \alpha_{\hat{m}} \\
+      \beta_{\hat{m}} 
+    \end{bmatrix}
+    \]
+    where $\bar{\mathrm{X}}_T$ is a ($n \times 2\hat{m}$) partition matrix
+  \end{itemize} 
 \end{frame}
 
 \begin{frame}
@@ -165,30 +202,40 @@ where
   \end{itemize}
 \end{frame}
 
-%% \begin{frame}
-%%   \frametitle{Seasonal Component - Harmonic Model Continued}
-%%   In order to apply the model to the time-series s.t. it could be used by the
-%%   breakpoint estimation algorithm, we need to compute the matrix form of the
-%%   harmonic model (for $K=3$):
-%%   \[
-%%   X_{h} =
-%%   \begin{bmatrix}
-%%     \sin\nicefrac{2 \pi}{f} & \cos\nicefrac{2 \pi}{f} & \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4
-%%       \pi}{f} &  \sin\nicefrac{6 \pi}{f} & \cos\nicefrac{6 \pi}{f} \\
-%%     \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4 \pi}{f} & \sin\nicefrac{8 \pi}{f} & \cos\nicefrac{8
-%%       \pi}{f} &  \sin\nicefrac{12 \pi}{f} & \cos\nicefrac{12 \pi}{f} \\
-%%     \vdots & \vdots  & \vdots & \vdots & \vdots & \vdots \\
-%%     \sin\nicefrac{2 \pi n}{f} & \cos\nicefrac{2 \pi n}{f} & \sin\nicefrac{4 \pi n}{f} &
-%%     \cos\nicefrac{4 \pi n}{f} &  \sin\nicefrac{6 \pi n}{f} & \cos\nicefrac{6 \pi n}{f}
-%%   \end{bmatrix}
-%%   \]
-%%   $X_h$ has $n$ rows and $2K$ columns.
-%% \[
-%% \hat{S} = X_{\text{h}} \omega
-%% \]
-%% where $\omega$ is a $(1 \times 2K)$ vector
-%% $(\gamma_{1, 1}, \; \theta_{1, 1},\;  \gamma_{1, 2},\;  \theta_{1, 2},\; \gamma_{p, 3},\;  \theta_{p, 3})^{\top}$
-%% \end{frame}
+\begin{frame}
+  \frametitle{Seasonal Component - Continued}
+  \begin{itemize}
+  \item
+    Similarly to the Trend component, we apply the OLS to the model:
+    \[
+    \mathrm{S} = \mathrm{X}_S \omega
+    \]
+    \[
+  \mathrm{X}_{S} =
+  \begin{bmatrix}
+    \sin\nicefrac{2 \pi}{f} & \cos\nicefrac{2 \pi}{f} & \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4
+      \pi}{f} &  \sin\nicefrac{6 \pi}{f} & \cos\nicefrac{6 \pi}{f} \\
+    \sin\nicefrac{4 \pi}{f} & \cos\nicefrac{4 \pi}{f} & \sin\nicefrac{8 \pi}{f} & \cos\nicefrac{8
+      \pi}{f} &  \sin\nicefrac{12 \pi}{f} & \cos\nicefrac{12 \pi}{f} \\
+    \vdots & \vdots  & \vdots & \vdots & \vdots & \vdots \\
+    \sin\nicefrac{2 \pi n}{f} & \cos\nicefrac{2 \pi n}{f} & \sin\nicefrac{4 \pi n}{f} &
+    \cos\nicefrac{4 \pi n}{f} &  \sin\nicefrac{6 \pi n}{f} & \cos\nicefrac{6 \pi n}{f}
+  \end{bmatrix}
+  \]
+  \[
+  \omega = (\gamma_1, \; \theta_1,\;  \gamma_2,\;  \theta_2,\; \gamma_3,\;
+  \theta_3)^{\top}
+  \]
+\item At a later step of the algorithm, we reconstruct the estimate of the seasonal
+  component from the $\hat{p}$ estimated breakpoints $t_1^{\#},\hdots, t_{\hat{p}}^{\#}$
+\[
+\hat{S} = \bar{\mathrm{X}}_S \bar{\omega}
+\]
+where $\bar{\mathrm{X}}_S$ is the $(n \times 6\hat{p})$ partition matrix that is
+built in the same way as $\bar{\mathrm{X}}_T$ and $\bar{\omega}$ is the vector of harmonic parameters
+ of length $6\hat{p}$.
+  \end{itemize}
+\end{frame}
 
 \begin{frame}
   \frametitle{BFAST Algorithm Steps}
@@ -199,26 +246,30 @@ where
     is reached:
     \begin{enumerate}
     \item \textbf{Calculate the deasonalized time series: $V_t = Y_t - \hat{S}_t$}
-    \item \textbf{Apply the OLS-MOSUM test} to $V_t$
+    \item \textbf{Apply the OLS-MOSUM test} to $y = V_t$ and $x = \mathrm{X}_T$
       If the returned p-value is lower than the significance level $\alpha$,
-      \textbf{estimate the number and position of the trend components} using the
-      breakpoint estimation algorithm by Bai and Perron.
-    \item \textbf{Compute the trend coefficients} $\alpha_j$ and $\beta_j$ for
-      $j = 1, \hdots, m$ using linear regression. Set the trend estimate
-      $\hat{T}_t = \hat{\alpha}_j + \hat{\beta}_j t$ for
-      $t = t^*_{j-1} + 1, \hdots, t^*_j$.
+      \textbf{estimate the number and position of the trend components}
+      $\hat{t}_1^*,\hdots, \hat{t}_{\hat{m}}^*$
+      using the breakpoint estimation algorithm by Bai and Perron.
+    %% \item \textbf{Compute the trend coefficients} $\alpha_j$ and $\beta_j$ for
+    %%   $j = 1, \hdots, m$ using linear regression. Set the trend estimate
+    %%   $\hat{T}_t = \hat{\alpha}_j + \hat{\beta}_j t$ for
+    %%   $t = t^*_{j-1} + 1, \hdots, t^*_j$.
+    \item \textbf{Compute the trend coefficients} $\alpha_j$ and $\beta_j$
+       for $j = 1, \hdots, m$ as vector $\bar{\beta}$ using OLS regression. Then build
+       a partition matrix $\bar{\mathrm{X}}_T$. Set the trend estimate
+       $\hat{T}_t = \bar{\mathrm{X}}_T \bar{\beta}$
     \item \textbf{Calculate the detrended time series}: $W_t = Y_t - \hat{T}_t$
-    \item \textbf{Apply the OLS-MOSUM test} to $W_t$
-    If the test results show that the breakpoints are present in the
+    \item \textbf{Apply the OLS-MOSUM test} to $x = \mathrm{X}_S$ and $y = W_t$.
+    If the test show that the breakpoints are present in the
       seasonal data, \textbf{estimate the number and position of the
-      breakpoints in the seasonal component} using the breakpoint estimation
-      algorithm
+      breakpoints in the seasonal component} $t_1^{\#},\hdots, t_{\hat{p}}^{\#}$ using
+      the breakpoint estimation algorithm 
     \item \textbf{Compute the coefficients for the seasonal component
-      and reconstruct $\hat{S}_t$} from the chosen seasonal model and seasonal
-      coefficient
+      and reconstruct $\hat{S}_t = \bar{\mathrm{X}}_S \bar{\omega}$}
   \end{enumerate}
-%% \item \textbf{Return} $\hat{T}_t$, $\hat{S}_t$, $(t_1^*, \hdots, t_m^*)$, $(t_1^{\#}, \hdots, t_p^{\#})$
-  %% and the maximum breakpoint magnitude.
+\item \textbf{Return} $\hat{T}_t$, $\hat{S}_t$, $\hat{R}_t = Y_t - \hat{T}_t -\hat{S}_t$,
+  $(\hat{t}_1^*, \hdots, \hat{t}_{\hat{m}}^*)$, $(\hat{t}_1^{\#}, \hdots, \hat{t}_{\hat{p}}^{\#})$
 \end{itemize}
 
 \end{frame}

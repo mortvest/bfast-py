@@ -102,11 +102,11 @@ def plot(name, y, x, f, season, level=0.05, h=0.15, max_iter=10, nan_clr="crimso
 
     plt.subplots_adjust(hspace=0.6)
     plt.savefig(name.lower() + ".png", bbox_inches ="tight")
+    plt.clf()
 
 
 if __name__ == "__main__":
     logging_setup()
-
     plot("harvest", harvest, harvest_dates, harvest_freq, "harmonic")
     plot("nile", nile, nile_dates, None, "none")
     plot("SIMTS", simts_sum, simts_dates, simts_freq, "harmonic", level=0.35, h=0.3, max_iter=2)

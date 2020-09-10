@@ -54,10 +54,6 @@ class EFP():
         process = process / (sigma * np.sqrt(n))
         logger.debug("process3:\n{}".format(process))
 
-        print(process.shape[0])
-        print(n)
-        print(nh)
-
         self.coefficients = fm
         self.sigma = sigma
         self.process = process
