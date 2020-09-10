@@ -1,0 +1,152 @@
+\documentclass[presentation.tex]{subfiles}
+
+\begin{document}
+
+\begin{frame}
+\frametitle{Breakpoint Estimation - Intro}
+\begin{itemize}
+  \item Described in the paper by Bai and Perron from 2003
+  \item Estimate the number and position of breakpoints in a time series using
+    a dynamic programming algorithm and Bayesian Information Criterion (BIC)
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Breakpoint Estimation - The Model}
+\begin{itemize}
+  \item 
+We assume a pure structural change model for $m$ breaks ($m+1$ segments):
+\[
+y_{t} = x_{t}^{\top} \beta_{j}+u_{t} \quad t=T_{j-1}+1, \ldots, T_{j}
+\]
+for $j = 1,\hdots , m+1$, and where:
+\vspace{2.5mm}
+\begin{itemize}
+\item $x_t \in \mathbb{R}^q$ is the value of the independent variable at time
+  $t = 1,\hdots , T$
+\item $y_{t} \in \mathbb{R}$ is the observation at time $t$
+\item $\beta_j: \; (j=1, \hdots ,m+1)$ is the vector of coefficients for the segment $j$
+\item $u_{t} \in \mathbb{R}$ is the disturbance (error) at time $t$
+\item $(T_1, \hdots ,T_m)$ are the unknown indices of the $m$ breakpoints.
+ We additionally set $T_0 = 0$ and $T_{m+1} = T$
+\end{itemize}
+\item 
+In other words, we split the time series into $m+1$ segments (of potentially
+different sizes) and perform linear
+regression independently for each segment, where for segment $i$, we estimate
+a coefficient vector $\beta_i$.
+Hence, we find the estimate of the coefficient vector ($\hat{\beta}$) for each
+m-partition $(T_1, ..., T_m)$ by minimizing the sum of squared residuals:
+\[
+\sum_{i=1}^{m+1}\sum_{i=T_{i-1} + 1}^{T_i} \left[ y_t - x_t^{\top}\beta_i \right]^2
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{}
+\begin{itemize}
+\item
+Let $\{T_j\}$ denote an m-partition $(T_1, ..., T_m)$ and $S_T(T_1, ..., T_m)$
+denote the resulting sum of squared residuals. Since we can estimate the
+coefficient vector for each partition, we can minimize the sum of
+squared residuals by finding the optimal position for the breakpoints
+\[
+(\hat{T}_1, ..., \hat{T}_m) = \operatorname{argmin}_{T_{1}, \ldots, T_{m}}
+S_{T}\left(T_{1}, \ldots, T_{m}\right)
+\]
+\item
+There is a finite number of possible breakpoints, and only a subset of
+possible partitions is feasible. There are $T(T+1)/2$ (sum of integers from 1 to T)
+possible segments that can be chosen. This can be demonstrated by building a
+matrix of possible segments, with starting date on the y-axis and terminal date
+on the y-axis. A length of a segment is positive, hence we can eliminate
+one half of the potential segments. There are further reductions
+that can be made that reduce the number of feasible segments to
+$T(T+1)/2 - \left(T(h-1)-m h(h-1)-(h-1)^{2}-h(h-1) / 2\right)$, where $h$ is the minimal
+segment length.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Upper-diagonal Matrix of Sums of Squared Residuals}
+\begin{table}[]
+\begin{tabular}{lllllllllll}
+                                   & \multicolumn{10}{c}{stop}                                                                                                                                                                                                                                                 \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{}  & \multicolumn{1}{l|}{1}    & \multicolumn{1}{l|}{2}    & \multicolumn{1}{l|}{3}    & \multicolumn{1}{l|}{4}    & \multicolumn{1}{l|}{5}    & \multicolumn{1}{l|}{6}    & \multicolumn{1}{l|}{7}    & \multicolumn{1}{l|}{8}    & \multicolumn{1}{l|}{9}    \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{1} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{f}   & \multicolumn{1}{l|}{f}   & \multicolumn{1}{l|}{f}   & \multicolumn{1}{l|}{$\operatorname{nf}_2$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{2} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_3$} & \multicolumn{1}{l|}{$\operatorname{nf}_3$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{3} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_3$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} & \multicolumn{1}{l|}{$\operatorname{nf}_2$} \\ \cline{2-11} 
+\multicolumn{1}{l|}{start} & \multicolumn{1}{l|}{4} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{f}   & \multicolumn{1}{l|}{f}   & \multicolumn{1}{l|}{f}   \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{5} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{f}   & \multicolumn{1}{l|}{f}   \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{6} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{f}   \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{7} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{8} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} & \multicolumn{1}{l|}{$\operatorname{nf}_1$} \\ \cline{2-11} 
+\multicolumn{1}{l|}{}              & \multicolumn{1}{l|}{9} & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{}     & \multicolumn{1}{l|}{$\operatorname{nf}_1$} \\ \cline{2-11} 
+\end{tabular}
+\caption{An example of an upper-triangular matrix of sums of squared residuals for $T =
+  9$, $h=3$, $m=2$. We must compute sum of squared residuals for all feasible
+  segments (f).
+}
+\end{table}
+\end{frame}
+
+
+
+%% \begin{frame}
+%%   \frametitle{Breakpoint Estimation - The Model Continued}
+%%   \begin{itemize}
+%%     \item 
+%% This linear regression system can also be expressed in matrix form:
+%% \[
+%% Y = \overline{X}\beta + U
+%% \]
+%% where:
+%% \[
+%% Y =
+%% \begin{bmatrix}
+%% y_1 \\
+%% y_2 \\
+%% \vdots \\
+%% y_T
+%% \end{bmatrix}
+%% \quad
+%% \beta =
+%% \begin{bmatrix}
+%% \vert & \vert &  & \vert \\
+%% \beta_{1} & \beta_{2}  & \hdots & \beta_{m+1}\\
+%% \vert & \vert &  & \vert\\
+%% \end{bmatrix}
+%% \quad
+%% U =
+%% \begin{bmatrix}
+%% u_1 \\
+%% u_2 \\
+%% \vdots \\
+%% u_T
+%% \end{bmatrix}
+%% \]
+%% and $\overline{X}$ is a block matrix that
+%% diagonally partitions $X$ at breaking points $(T_1,..., T_m)$:
+%% \[
+%% \overline{X} =
+%% \begin{bmatrix}
+%% X_1 & 0 & \hdots & 0\\
+%%  0 & X_2 & \hdots & 0 \\
+%% \vdots & \vdots & \ddots & \vdots \\
+%%  0 & 0 & \hdots & X_{m+1} 
+%% \end{bmatrix}
+%% \quad
+%% X_i = 
+%% \begin{bmatrix}
+%%   \text{---} \hspace{-0.2cm} & x_{T_{i-1} + 1}^{\top} & \hspace{-0.2cm}\text{---} \\
+%%   \text{---} \hspace{-0.2cm} & x_{T_{i-1} + 2}^{\top} & \hspace{-0.2cm}\text{---} \\
+%%   & \vdots & \\ 
+%%  \text{---} \hspace{-0.2cm} & x_{T_i}^{\top} & \hspace{-0.2cm}\text{---}  \\
+%% \end{bmatrix}
+%% \]
+%% \end{itemize}  
+%% \end{frame}
+
+\end{document}

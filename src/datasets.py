@@ -119,8 +119,25 @@ harvest = np.load(data_folder + "harvest.npy")
 harvest_dates = r_style_interval((2000, 4), (2008, 18), harvest_freq).reshape(harvest.shape[0], 1)
 
 
+# """
+# Test with breakpoints in both seasonal and trend
+# """
+# _both_dates = r_style_interval((1990, 1), (1999, 24), ndvi_freq)
+# _both_n = _both_dates.shape[0]
+# both_freq = 24
+# _both_x = np.arange(_both_n)
+# _both_harm = (np.sin(_both_x * 0.5))
+# _both_harm[150:] *= 3
+# _both_trend = 0.02 * _both_x
+# # _both_trend[100:] += 5
+
+# both_dates = _both_dates.reshape(_both_n, 1)
+# # both = _both_trend + _both_harm
+# both = _both_harm
+
 if __name__ == "__main__":
-    # print(ndvi)
+    print(ndvi)
     print(simts_sum.shape)
     print(simts_dates.shape)
-
+    # plt.plot(both_dates, both)
+    # plt.show()

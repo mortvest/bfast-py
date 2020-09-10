@@ -110,7 +110,7 @@ The inner loop consists of following steps:
 \item \textbf{Detrending of the Smoothed Cycle-Subseries}:
   $S^{k+1} = C^{k+1} - L^{k+1}$
 \item \textbf{Deseasoning}:
-  $Y_v - S_v^k$. If a value of $Y_v$ is missing, the detrending value must also be missing.
+  $Y_v - S_v^{k+1}$. If a value of $Y_v$ is missing, the detrending value must also be missing.
 \item \textbf{Trend Smoothing}:
   Apply LOESS to $Y_v - S_v^k$ with $q = n_t$, resulting in $T^{k+1}$
 \end{enumerate}

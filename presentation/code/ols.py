@@ -16,27 +16,25 @@ fm = sm.OLS(y, model, missing='drop').fit()
 predicted = fm.predict()
 
 fig = plt.figure(figsize=(15, 8))
+plt.rc('font', size=16)
+plt.rc('axes', labelsize=16)    # fontsize of the x and y labels
+
 ax = fig.add_subplot()
 
 # ax.plot(x, y, label=r"$f(x) = 25 + 2 \cdot x^{1.2} + 3\cdot \sin(x) + \mathcal{N}(0, 0.5)$")
-ax.plot(x, y, label=r"$f(x)$ with added Gaussian noise")
-ax.plot(x, predicted, label="OLS prediction")
+ax.plot(x, y, label=r"$f(x)$ with added Gaussian noise", linewidth=2)
+ax.plot(x, predicted, label="OLS prediction", linewidth=2)
 ax.legend()
 plt.xlabel("x")
 plt.ylabel("y")
 # plt.show()
 
 
-SMALL_SIZE = 8
-MEDIUM_SIZE = 10
-BIGGER_SIZE = 14
-
-plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=BIGGER_SIZE)    # legend fontsize
+# plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
+# plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
+# plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+# plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+# plt.rc('legend', fontsize=BIGGER_SIZE)    # legend fontsize
 # plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 plt.savefig("../imgs/ols1.png", bbox_inches ="tight")

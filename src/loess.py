@@ -34,6 +34,8 @@ if __name__ == "__main__":
     img_dir = "../report/imgs/"
     def plot(d):
         fig = plt.figure(figsize=(15,13))
+        plt.rc('font', size=16)
+
         for i, q in enumerate(qs):
             ax = fig.add_subplot(len(qs), 1, i+1)
             y_f = loess(x, y, q, d)
@@ -43,6 +45,7 @@ if __name__ == "__main__":
             plt.title(r"$q={}$".format(q))
             plt.legend()
         plt.subplots_adjust(hspace=0.45)
+
         # plt.savefig(img_dir + "loess_t_{}.png".format(d), bbox_inches ="tight")
         plt.savefig(img_dir + "loess{}.png".format(d), bbox_inches ="tight")
         # plt.show()

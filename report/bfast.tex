@@ -3,7 +3,7 @@
 \begin{document}
 \chapter{BFAST}
 \label{chap:bfast}
-In paper from 2010\cite{bfast}, Verbesselt et. al outline a generic change detection approach
+In the paper from 2010\cite{bfast}, Verbesselt et. al outline a generic change detection approach
 that combines iterative decomposition into trend, seasonal and remainder components and detection
 and characterizing of breakpoints within a time series. 
 
@@ -173,7 +173,7 @@ BFAST operates in a following way:
     \item If the OLS-MOSUM test, applied to $y=W_t$ and $x = X_{d}$ or $x =X_{h}$
       signifies that the breakpoints are present in the
       seasonal data, \textbf{estimate the number and position of the
-      breakpoints in the trend component} using the breakpoint estimation
+      breakpoints in the seasonal component} using the breakpoint estimation
       algorithm, as described in Section \ref{subsec:seasonal_dummy} and
       \ref{subsec:seasonal_harmonic}.
     \item \textbf{Compute the coefficients for the seasonal component
