@@ -6,8 +6,10 @@
 \frametitle{Breakpoint Estimation - Intro}
 \begin{itemize}
   \item Described in the paper by Bai and Perron from 2003
-  \item Estimate the number and position of breakpoints in a time series using
-    a dynamic programming algorithm and Bayesian Information Criterion (BIC)
+  \item Estimate the optimal position of breakpoints in a time series using
+    a dynamic programming algorithm and estimate the optimal number of breakpoints
+    Bayesian Information Criterion (BIC)
+  \item The most memory and computationally intensive component of BFAST
 \end{itemize}
 \end{frame}
 
@@ -46,6 +48,8 @@ m-partition $(T_1, ..., T_m)$ by minimizing the sum of squared residuals:
 
 \begin{frame}
   \frametitle{}
+
+\frametitle{Breakpoint Estimation - The Model}
 \begin{itemize}
 \item
 Let $\{T_j\}$ denote an m-partition $(T_1, ..., T_m)$ and $S_T(T_1, ..., T_m)$
@@ -106,7 +110,7 @@ y_i = x_i^{\top} \beta + u_i \quad i = (1, \hdots, n)
 \[
 Y = \mathrm{X}\beta + U
 \]
-where $Y, U$ are $n \times 1$ vectors, $\mathrm{X}$ is a $(n \times k)$ matrix
+where $Y, U$ are $T \times 1$ vectors, $\mathrm{X}$ is a $(T \times k)$ matrix
 and $\beta$ is $k \times 1$ vector.
 
 \item 
@@ -117,9 +121,8 @@ Then the recursive residuals can be calculated:
 \[
 v(i)=\frac{y_{i}-x_{i}^{\top}
   \hat{\beta}^{(i-1)}}{\sqrt{1+x_{i}^{\top}\left(X^{(i-1)^{\top}}
-    X^{(i-1)}\right)^{-1} x_{i}}} \quad(i=k, \ldots, n)
+    X^{(i-1)}\right)^{-1} x_{i}}} \quad(i=k, \ldots, T)
 \]
-
   \end{itemize}
 \end{frame}
 
@@ -135,12 +138,18 @@ It can be calculated using a recursive procedure:
 \[
 \text{SSR}(i,j) = \text{SSR}(i, j - 1) + v(i)^2
 \]
-We can calculate all row in the table in parallel, and each row can be calculated
+We can calculate table rows in parallel, and each row can be calculated
 in a following manner:
-\begin{verbatim}
-betas = map (\i -> OLS(X[k:i], y[k:i])) [k:n]
-SSR_ROW(i) = scan (+) 0 (map2 (\j b -> v(j, b) ** 2) [k:i] betas)
-\end{verbatim}
+%% \begin{verbatim}
+%% betas = map (\i -> OLS(X[k:i], y[k:i])) [k..n]
+%% SSR_ROW(i) = scan (+) 0 (map2 (\j b -> v(j, b) ** 2) [k..i] betas)
+%% \end{verbatim}
+\begin{enumerate}
+\item For $j = k, \hdots, T$, find (in parallel) $\hat{\beta}^{(j)}$ using OLS regression
+  using $X^{(j)}$ and $Y^{(j)}$, which is the first $j$ rows of vector $Y$ - \texttt{map}
+\item Calculate the row $i$ in the SSR table by calculating $v(j)^2$ for $j = i, \hdots, T$
+  and finding the cumulative sum -  \texttt{scan}
+\end{enumerate}
 \end{frame}
 
 \begin{frame}
@@ -177,52 +186,55 @@ and get a following expression:
   \end{itemize}
 \end{frame}
 
+%% \begin{frame}
+%%   \frametitle{Dynamic Programming Algorithm - Continued}
+  %% \begin{itemize}
+%%   \item 
+%% We start the procedure by solving the minimization problem from the
+%% last line of the expression. We evaluate the optimal one-break partition for all
+%% sub-samples that allow a possible break ranging from observations $h$ to
+%% $T - mh$ (since we still have to fit $m$ segments of minimal size $h$ after
+%% the first breakpoint). We then store $T - (m + 1)h + 1$ optimal breakpoints
+%% along with the corresponding sums of squared residuals. These one-break
+%% partitions would have an endpoint between $2h$ and $T - (m-1)h$. 
+%% \item 
+%% Then, we continue to 2-partitions that can have and endpoint between $3h$ and
+%% $T - (m-2)h$. For each of $T - (m + 1)h + 1$ endpoints, we select an
+%% 1-partition that we have calculated earlier that would minimize the sum of
+%% squared residuals. We then store the 2-partitions and corresponding sums of
+%% squared residuals.
+%% \item 
+%% We iterate until we have computed the $T - (m + 1)h + 1$
+%% $(m-1)$-partitions with endpoints between $(m-1)h$ and $T-2h$.
+%% We finish by finding the optimal $(m-1)$ partition that gives the overall
+%% minimal sum of squared residuals, when the last segment is appended to it.
+%%   \end{itemize}
+%% \end{frame}
+
 \begin{frame}
   \frametitle{Dynamic Programming Algorithm - Continued}
   \begin{itemize}
-  \item 
-We start the procedure by solving the minimization problem from the
-last line of the expression. We evaluate the optimal one-break partition for all
-sub-samples that allow a possible break ranging from observations $h$ to
-$T - mh$ (since we still have to fit $m$ segments of minimal size $h$ after
-the first breakpoint). We then store $T - (m + 1)h + 1$ optimal breakpoints
-along with the corresponding sums of squared residuals. These one-break
-partitions would have an endpoint between $2h$ and $T - (m-1)h$. 
 \item 
-Then, we continue to 2-partitions that can have and endpoint between $3h$ and
-$T - (m-2)h$. For each of $T - (m + 1)h + 1$ endpoints, we select an
-1-partition that we have calculated earlier that would minimize the sum of
-squared residuals. We then store the 2-partitions and corresponding sums of
-squared residuals.
+  Sequential sequence of updates of a small table of sums of squared residuals
+  of size $T - (m+1)h$ (each in parallel)
 \item 
-We iterate until we have computed the $T - (m + 1)h + 1$
-$(m-1)$-partitions with endpoints between $(m-1)h$ and $T-2h$.
-We finish by finding the optimal $(m-1)$ partition that gives the overall
-minimal sum of squared residuals, when the last segment is appended to it.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Example}
-  Consider this example. Let $T=20$, $h=4$ and $m=3$.
+  Consider this example.
+  Let $T=20$, $h=4$ and $m=3$.
+  \medskip
+%% \begin{figure}[H]
+%%   \centering
+%%   \includegraphics[width=0.8\textwidth]{imgs/breakpoints2}
+%%   \caption{Possible endpoints of 1-partion}
+%%   \label{plt_4_2}
+%% \end{figure}
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{imgs/breakpoints1}
-  \caption{Allowed placements of $j_m$}
-  \label{plt_4_1}
-\end{figure}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{imgs/breakpoints2}
-  \caption{Possible endpoints of 1-partion}
-  \label{plt_4_2}
-\end{figure}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{imgs/breakpoints3}
-  \caption{Possible start points of the last segment}
+  \includegraphics[width=0.8\textwidth]{imgs/breakpoints_clean}
+  \caption{Example}
   \label{plt_4_3}
 \end{figure}
+\item Scales well with $m$
+  \end{itemize}
 \end{frame}
 
 
@@ -234,18 +246,17 @@ minimal sum of squared residuals, when the last segment is appended to it.
    limit $m_{\text{max}}$, we find the sum of squared residuals for all breakpoints
    and then calculate the Bayesian Information Criterion:
    \[
-   \text{BIC} = n_{\text{df}} \ln{n} - 2 {\hat{L}}
+   \text{BIC} = n_{\text{df}} \ln{T} - 2 {\hat{L}}
    \]
    where:
    \begin{itemize}
    \item $n_{\text{df}}$: the number of degrees of freedom for our model, in our case
      $n_{\text{df}} = (k + 1) (m + 1)$, where $k$ is the dimensionality of the vector $x_i$ and
      $m$ is the number of breakpoints.
-   \item $n$ is the number of observations
    \item $\hat{L}$ is the maximized value of the log-likelihood of the model:
      \[
-     \hat{L} = -\frac{n}{2} \left(\ln \left(S_T(\hat{T}_1,..,\hat{T}_m)\right)
-     + \ln{\frac{2\pi}{n}} + 1\right)
+     \hat{L} = -\frac{T}{2} \left(\ln \left(S_T(\hat{T}_1,..,\hat{T}_m)\right)
+     + \ln{\frac{2\pi}{T}} + 1\right)
      \]
      where $S_T(\hat{T}_1,..,\hat{T}_m)$ is the sum of squared residuals for the
      optimal m-partition of the time series (time series with m breakpoints). 
@@ -279,60 +290,5 @@ minimal sum of squared residuals, when the last segment is appended to it.
 \item \textbf{Use the dynamic programming algorithm to find the $m_{best}$ breakpoints}
 \end{enumerate}
 \end{frame}
-
-%% \begin{frame}
-%%   \frametitle{Breakpoint Estimation - The Model Continued}
-%%   \begin{itemize}
-%%     \item 
-%% This linear regression system can also be expressed in matrix form:
-%% \[
-%% Y = \overline{X}\beta + U
-%% \]
-%% where:
-%% \[
-%% Y =
-%% \begin{bmatrix}
-%% y_1 \\
-%% y_2 \\
-%% \vdots \\
-%% y_T
-%% \end{bmatrix}
-%% \quad
-%% \beta =
-%% \begin{bmatrix}
-%% \vert & \vert &  & \vert \\
-%% \beta_{1} & \beta_{2}  & \hdots & \beta_{m+1}\\
-%% \vert & \vert &  & \vert\\
-%% \end{bmatrix}
-%% \quad
-%% U =
-%% \begin{bmatrix}
-%% u_1 \\
-%% u_2 \\
-%% \vdots \\
-%% u_T
-%% \end{bmatrix}
-%% \]
-%% and $\overline{X}$ is a block matrix that
-%% diagonally partitions $X$ at breaking points $(T_1,..., T_m)$:
-%% \[
-%% \overline{X} =
-%% \begin{bmatrix}
-%% X_1 & 0 & \hdots & 0\\
-%%  0 & X_2 & \hdots & 0 \\
-%% \vdots & \vdots & \ddots & \vdots \\
-%%  0 & 0 & \hdots & X_{m+1} 
-%% \end{bmatrix}
-%% \quad
-%% X_i = 
-%% \begin{bmatrix}
-%%   \text{---} \hspace{-0.2cm} & x_{T_{i-1} + 1}^{\top} & \hspace{-0.2cm}\text{---} \\
-%%   \text{---} \hspace{-0.2cm} & x_{T_{i-1} + 2}^{\top} & \hspace{-0.2cm}\text{---} \\
-%%   & \vdots & \\ 
-%%  \text{---} \hspace{-0.2cm} & x_{T_i}^{\top} & \hspace{-0.2cm}\text{---}  \\
-%% \end{bmatrix}
-%% \]
-%% \end{itemize}  
-%% \end{frame}
 
 \end{document}

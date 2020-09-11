@@ -21,28 +21,29 @@
 \end{frame}
 
 
-\begin{frame}
-\frametitle{Locally Estimated Scatterplot Smoothing (LOESS)}
-\begin{itemize}
-  \item For all $x$ in the time series fit a curve $\hat{g}(x)$ by giving the
-    other points $x_i$ a weight $v_i$.
-\item Select the value of the smoothing factor $q \in \mathbb{Z}^+$ and let
-  $\lambda_q(x)$ be the distance from $x$ to q'th closest $x_i$. For $q > n$:
-  \[
-  \lambda_q(x) = \frac{q \cdot \lambda_n(x)}{n}
-  \]
-\item We calculate the weights using the tricube weight function:
-  \[
-  v_i = \left( 1 - \left( \frac{| x_i - x |}{\lambda_q(x)}  \right)^3\right)^3
-  \]
-  for $| x_i - x | \geq \lambda_q(x)$, set $v_i = 0$
-\item Use local weighted least squares regression with weights
-  $v_i$ to calculate $\hat{g}(x)$.
-\end{itemize}
-\end{frame}
+%% \begin{frame}
+%% \frametitle{Locally Estimated Scatterplot Smoothing (LOESS)}
+%% \begin{itemize}
+%%   \item For all $x$ in the time series fit a curve $\hat{g}(x)$ by giving the
+%%     other points $x_i$ a weight $v_i$.
+%% \item Select the value of the smoothing factor $q \in \mathbb{Z}^+$ and let
+%%   $\lambda_q(x)$ be the distance from $x$ to q'th closest $x_i$. For $q > n$:
+%%   \[
+%%   \lambda_q(x) = \frac{q \cdot \lambda_n(x)}{n}
+%%   \]
+%% \item We calculate the weights using the tricube weight function:
+%%   \[
+%%   v_i = \left( 1 - \left( \frac{| x_i - x |}{\lambda_q(x)}  \right)^3\right)^3
+%%   \]
+%%   for $| x_i - x | \geq \lambda_q(x)$, set $v_i = 0$
+%% \item Use local weighted least squares regression with weights
+%%   $v_i$ to calculate $\hat{g}(x)$.
+%% \end{itemize}
+%% \end{frame}
 
 \begin{frame}
-  \frametitle{LOESS Examples}
+  %% \frametitle{LOESS Examples}
+\frametitle{Locally Estimated Scatterplot Smoothing (LOESS)}
   \begin{figure}
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
