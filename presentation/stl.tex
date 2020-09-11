@@ -1,22 +1,19 @@
 \documentclass[presentation.tex]{subfiles}
 \begin{document}
 \begin{frame}
-\frametitle{STL Intro}
+\frametitle{Seasonal and Trend decomposition using LOESS (STL) - Intro}
 \begin{itemize}
-\item Seasonal and Trend decomposition using Loess (STL), as first described by Cleveland et al.
-\item Decomposition of a time series ($Y_v$) into a trend ($T_v$), seasonal ($S_v$) and remainder
+\item STL, as first described by Cleveland et al. is a decomposition of a time
+  series ($Y_v$) into a trend ($T_v$), seasonal ($S_v$) and remainder
   ($R_v$) s.t:
   \[
   Y_v = T_v + S_v + R_v \text{ for } v \in 1 \hdots N
   \]
+\item STL is used to find the initial estimate of the seasonal component ($\hat{S}$) in BFAST
 \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{STL Example}
   \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{imgs/stl1.png}
+    \includegraphics[width=0.6\textwidth]{imgs/stl1.png}
     \caption{$f(x) = x^{0.75} + 2\sin(x)$ with added noise
       $\sim \mathcal{N}(0, 0.25)$}
   \end{figure}
@@ -27,8 +24,8 @@
 \begin{frame}
 \frametitle{Locally Estimated Scatterplot Smoothing (LOESS)}
 \begin{itemize}
-  \item For all $x$ fit a curve $\hat{g}(x)$ by giving the other points $x_i$ a
-  weight $v_i$.
+  \item For all $x$ in the time series fit a curve $\hat{g}(x)$ by giving the
+    other points $x_i$ a weight $v_i$.
 \item Select the value of the smoothing factor $q \in \mathbb{Z}^+$ and let
   $\lambda_q(x)$ be the distance from $x$ to q'th closest $x_i$. For $q > n$:
   \[
@@ -39,10 +36,8 @@
   v_i = \left( 1 - \left( \frac{| x_i - x |}{\lambda_q(x)}  \right)^3\right)^3
   \]
   for $| x_i - x | \geq \lambda_q(x)$, set $v_i = 0$
-\item Use locally-linear or locally quadratic fitting with weights
-  $\rho_i v_i$, where $\rho_i$ are the robustness weights that make it possible to 
-  ignore the outliers in the dataset.
-\item The value of $x$ after the application of LOESS is $\hat{g}(x)$,
+\item Use local weighted least squares regression with weights
+  $v_i$ to calculate $\hat{g}(x)$.
 \end{itemize}
 \end{frame}
 
@@ -67,9 +62,8 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{STL - Simplified Algorithm Steps}
+  \frametitle{STL - Algorithm Steps}
   \begin{itemize}
-  %% \item STL is performed through two nested loops and we begin by setting:
   \item We begin by setting:
     \[ T_v^{0} = 0, \quad R_v^{0} = 0,  \quad \rho_v = 1 \]
   \item Then for $k$ in $(0, \hdots, n_{\text{iter}}-1)$:
@@ -81,7 +75,8 @@
   resulting in $C^{k+1}$.
 \item \textbf{Low-pass Filter of Smoothed Cycle-Subseries}:
   Apply the low-pass filter to $C_{k+1}$. This is accomplished by application of two
-  moving averages of lag equal to 3 followed by LOESS smoothing with $q=n_l$
+  moving averages (convolutions) of length $n_p$, followed by another moving average of length 3,
+  followed by LOESS smoothing with $q=n_l$
   and $d=1$. The result is saved as $L^{k+1}$
 \item \textbf{Detrending of the Smoothed Cycle-Subseries}:
   $S^{k+1} = C^{k+1} - L^{k+1}$

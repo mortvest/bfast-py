@@ -6,7 +6,7 @@
 \frametitle{OLS-MOSUM Test - The Model}
 \begin{itemize}
   \item One step of the BFAST algorithm is to detect structural change in the
-    trend and seasonal components before we commit to the heavy-weight
+    trend and seasonal components before we commit to the resource-demanding
     estimation of the number and location of the breakpoints.
   \item For each observation $i \in (1, \ldots, n)$ we consider a following linear model:
     \[
@@ -115,6 +115,7 @@
     the maximum norm, given by Chu et al. (1995).
   \item  We then compare the resulting
     probability with a chosen confidence interval, which is a value $0 < \alpha < 1$
+    (typically the value of $\alpha$ is around $0.05$)
     \item If the resulting probability is below the
       value of $\alpha$, we reject the null hypothesis, hence a 
       structural change is detected in the time series. 
@@ -167,8 +168,5 @@
   If $p \leq \alpha$, we reject the null-hypothesis. Structural change is detected
   \end{enumerate} 
 \end{frame}
-
-
-
 
 \end{document}

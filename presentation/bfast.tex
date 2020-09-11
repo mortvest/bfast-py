@@ -246,15 +246,11 @@ built in the same way as $\bar{\mathrm{X}}_T$ and $\bar{\omega}$ is the vector o
     is reached:
     \begin{enumerate}
     \item \textbf{Calculate the deasonalized time series: $V_t = Y_t - \hat{S}_t$}
-    \item \textbf{Apply the OLS-MOSUM test} to $y = V_t$ and $x = \mathrm{X}_T$
+    \item \textbf{Apply the OLS-MOSUM test} to $x = \mathrm{X}_T$ and $y = V_t$
       If the returned p-value is lower than the significance level $\alpha$,
       \textbf{estimate the number and position of the trend components}
       $\hat{t}_1^*,\hdots, \hat{t}_{\hat{m}}^*$
       using the breakpoint estimation algorithm by Bai and Perron.
-    %% \item \textbf{Compute the trend coefficients} $\alpha_j$ and $\beta_j$ for
-    %%   $j = 1, \hdots, m$ using linear regression. Set the trend estimate
-    %%   $\hat{T}_t = \hat{\alpha}_j + \hat{\beta}_j t$ for
-    %%   $t = t^*_{j-1} + 1, \hdots, t^*_j$.
     \item \textbf{Compute the trend coefficients} $\alpha_j$ and $\beta_j$
        for $j = 1, \hdots, m$ as vector $\bar{\beta}$ using OLS regression. Then build
        a partition matrix $\bar{\mathrm{X}}_T$. Set the trend estimate
@@ -271,7 +267,6 @@ built in the same way as $\bar{\mathrm{X}}_T$ and $\bar{\omega}$ is the vector o
 \item \textbf{Return} $\hat{T}_t$, $\hat{S}_t$, $\hat{R}_t = Y_t - \hat{T}_t -\hat{S}_t$,
   $(\hat{t}_1^*, \hdots, \hat{t}_{\hat{m}}^*)$, $(\hat{t}_1^{\#}, \hdots, \hat{t}_{\hat{p}}^{\#})$
 \end{itemize}
-
 \end{frame}
 
 \end{document}
