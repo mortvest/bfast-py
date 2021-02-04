@@ -21,6 +21,12 @@ def _Xinv0(x, coeffs):
     rval[:qr_rank, :qr_rank] = np.linalg.inv(r.T @ r)
     return rval
 
+# def _Xinv0(x, coeffs):
+#     """
+#     Approximate (X'X)^-1 using QR decomposition
+#     """
+#     return np.linalg.inv(x.T @ x)
+
 
 def recresid(x, y, start=None, end=None, tol=None):
     """

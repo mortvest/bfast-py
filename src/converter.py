@@ -19,7 +19,8 @@ def rda_to_npy(file_name, save=False):
 if __name__ == "__main__":
     # rda_to_npy("ndvi", save=True)
     # rda_to_npy("simts", save=True)
-    rda_to_npy("harvest", save=True)
+    # rda_to_npy("harvest", save=True)
+    rda_to_npy("som", save=True)
 
-    mat_loaded = np.load("harvest.npy")
+    mat_loaded = np.load("som.npy")
     print(mat_loaded)
