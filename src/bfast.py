@@ -32,6 +32,13 @@ class BFASTResult():
 
 
 class BFAST(utils.LoggingBase):
+    """
+    Iterative break detection in seasonal and trend component of a time
+    series. Seasonal breaks is a function that combines the iterative
+    decomposition of time series into trend, seasonal and remainder
+    components with significant break detection in the decomposed
+    components of the time series.
+    """
     def __init__(self,
                  Yt,
                  ti,
@@ -43,13 +50,6 @@ class BFAST(utils.LoggingBase):
                  level=0.05,
                  use_mp=True,
                  verbosity=0):
-        """
-        Iterative break detection in seasonal and trend component of a time
-        series. Seasonal breaks is a function that combines the iterative
-        decomposition of time series into trend, seasonal and remainder
-        components with significant break detection in the decomposed
-        components of the time series.
-        """
         super().__init__(verbosity)
         nrow = Yt.shape[0]
         Tt = None
