@@ -1,19 +1,13 @@
-import logging
-
 import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
 import datasets
 import utils
-from setup import logging_setup
 
 
-logger = logging.getLogger(__name__)
-
-
-class EFP():
-    def __init__(self, X, y, h, p_type="OLS-MOSUM"):
+class EFP(utils.LoggingBase):
+    def __init__(self, X, y, h, p_type="OLS-MOSUM", verbosity=0):
         """
         Empirical fluctuation process. For now, only the Ordinary Least Squares MOving
         SUM (OLS-MOSUM) is supported
@@ -26,40 +20,42 @@ class EFP():
         :returns: instance of Empirical Fluctuation Process
         :raises ValueError: wrong type of process
         """
+        super().__init__(verbosity)
+
         if p_type != "OLS-MOSUM":
             raise ValueError("Process type {} is not supported".format(p_type))
 
         X, y = utils.omit_nans(X, y)
         n, k = X.shape
 
-        logger.info("Performing linear regression")
+        self.logger.info("Performing linear regression")
         # fit linear model
         fm = sm.OLS(y, X, missing='drop').fit()
 
         e = y - fm.predict(exog=X)
-        logger.debug("Residuals:\n{}".format(e))
+        self.logger.debug("Residuals:\n{}".format(e))
 
         sigma = np.sqrt(np.sum(e**2) / (n - k))
-        logger.debug("sigma: {}".format(sigma))
+        self.logger.debug("sigma: {}".format(sigma))
 
         nh = np.floor(n * h)
-        logger.debug("nh: {}".format(nh))
+        self.logger.debug("nh: {}".format(nh))
 
         e_zero = np.insert(e, 0, 0)
 
         process = np.cumsum(e_zero)
-        logger.debug("process1:\n{}".format(process))
+        self.logger.debug("process1:\n{}".format(process))
         process = process[int(nh):] - process[:(n - int(nh) + 1)]
-        logger.debug("process2:\n{}".format(process))
+        self.logger.debug("process2:\n{}".format(process))
         process = process / (sigma * np.sqrt(n))
-        logger.debug("process3:\n{}".format(process))
+        self.logger.debug("process3:\n{}".format(process))
 
         self.coefficients = fm
         self.sigma = sigma
         self.process = process
         self.par = h
 
-    def p_value(x, h, k, max_k=6, table_dim=10):
+    def p_value(self, x, h, k, max_k=6, table_dim=10):
         """
         Returns the p value for the process.
 
@@ -68,7 +64,7 @@ class EFP():
         :param k: number of rows of matrix X
         :returns: p value for the process
         """
-        logger.info("Calculating p-value")
+        self.logger.info("Calculating p-value")
 
         k = min(k, max_k)
 
@@ -81,7 +77,7 @@ class EFP():
         for i in range(tablen):
             tableipl[i] = np.interp(h, tableh, crit_table[:, i])
 
-        logger.debug("Interpolated row of p-values:\n{}".format(tableipl))
+        self.logger.debug("Interpolated row of p-values:\n{}".format(tableipl))
         tableipl = np.insert(tableipl, 0, 0)
         tablep = np.insert(tablep, 0, 1)
 
@@ -97,7 +93,7 @@ class EFP():
         :raises ValueError: wrong type of functional
         :returns: a tuple of applied functional and p value
         """
-        logger.info("Performing statistical test")
+        self.logger.info("Performing statistical test")
         if functional != "max":
             raise ValueError("Functional {} is not supported".format(functional))
 
@@ -108,12 +104,12 @@ class EFP():
         else:
             k = np.shape[0]
 
-        logger.info("Calculating statistic")
+        self.logger.info("Calculating statistic")
         stat = np.max(np.abs(x))
-        logger.debug("stat: {}".format(stat))
+        self.logger.debug("stat: {}".format(stat))
 
-        p_value = EFP.p_value(stat, h, k)
-        logger.debug("p_value: {}".format(stat))
+        p_value = self.p_value(stat, h, k)
+        self.logger.debug("p_value: {}".format(stat))
 
         return(stat, p_value)
 
@@ -136,8 +132,6 @@ def test_dataset(y, name, h=0.15, level=0.15):
 
 
 if __name__ == "__main__":
-    logging_setup()
-
     # test_dataset(datasets.nhtemp, "nhtemp")
     test_dataset(datasets.nile, "nile")
 

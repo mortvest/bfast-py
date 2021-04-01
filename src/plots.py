@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,17 +6,11 @@ from matplotlib.ticker import MaxNLocator
 from bfast import BFAST
 from datasets import *
 
-from setup import logging_setup
-
-
-logger = logging.getLogger(__name__)
-
 
 def interp_nans(x):
     x_nn = np.array(pd.DataFrame(x).interpolate().values.ravel().tolist())
     nans = x_nn[np.isnan(x)]
     return x_nn, nans
-
 
 def plot(name, y, x, f, season, level=0.05, h=0.15, max_iter=10, nan_clr="crimson"):
     def segmented_plot(arr, bp):
@@ -106,7 +98,6 @@ def plot(name, y, x, f, season, level=0.05, h=0.15, max_iter=10, nan_clr="crimso
 
 
 if __name__ == "__main__":
-    logging_setup()
     plot("harvest", harvest, harvest_dates, harvest_freq, "harmonic")
     plot("nile", nile, nile_dates, None, "none")
     plot("SIMTS", simts_sum, simts_dates, simts_freq, "harmonic", level=0.35, h=0.3, max_iter=2)

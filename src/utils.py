@@ -1,5 +1,23 @@
+import logging
+from abc import ABC
+from abc import abstractmethod
+
 import numpy as np
 
+
+class LoggingBase(ABC):
+    def __init__(self, verbosity):
+        self.verbosity = verbosity
+        if self.verbosity == 2:
+            log_level = "DEBUG"
+        elif self.verbosity == 1:
+            log_level = "INFO"
+        elif self.verbosity == 0:
+            log_level = "WARNING"
+        else:
+            raise ValueError("Invalid verbosity level: {}. Must be between 0 and 2")
+        logging.basicConfig(level=log_level)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
 def nan_map(x):
     iota = np.arange(x.shape[0])
